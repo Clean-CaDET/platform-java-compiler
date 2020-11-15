@@ -5,16 +5,24 @@ import model.CadetField
 import model.CadetMember
 import signature.SignableCadetMember
 import signature.MemberSignature
+import java.lang.IllegalArgumentException
 
 class CadetClassMap {
     private val classes = mutableListOf<CadetClass>()
 
-    /**
-     * Adds the given [CadetClass] to this class map.
-     */
     fun addCadetClass(cadetClass: CadetClass) {
         classes.add(cadetClass)
     }
+
+    fun getAt(index: Int): CadetClass {
+        if (index >= classes.size) throw IllegalArgumentException("Classmap index out of bounds. $index >= ${classes.size}")
+        return classes[index]
+    }
+
+    fun getAllClasses() = classes
+
+    /** Get all classes contained within this class map */
+    fun getCadetClasses() = classes
 
     /**
      * @return [CadetMember] reference with the matching [signature], from the [CadetClass] specified by [className].

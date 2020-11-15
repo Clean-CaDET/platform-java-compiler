@@ -9,8 +9,8 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import context.Context
 import context.MemberContext
 import model.CadetClass
-import parser.FieldDeclarationParser
-import parser.MethodCallExpressionParser
+import parser.node.FieldDeclarationParser
+import parser.node.MethodCallExpressionParser
 import signature.SignableMemberDeclaration
 import signature.MemberSignature
 
@@ -45,12 +45,14 @@ internal class InnerVisitor(
                 val caller = MethodCallExpressionParser.getCaller(node!!)
                 val paramNodes = MethodCallExpressionParser.getArgumentNodes(node)
 
+                /*
                 println("${node.nameAsString}: ")
                 println("\tCaller: $caller")
                 println("\tParams:")
                 for (paramNode in paramNodes) {
                     println("\t\t${paramNode.metaModel.typeName}")
                 }
+                */
 
                 if (caller == null) {
                     //println("Caller is implicit for '${node.nameAsString}'")
@@ -72,7 +74,7 @@ internal class InnerVisitor(
     override fun visit(node: VariableDeclarator?, arg: Context?) {
         arg?.let { context ->
             if (context is MemberContext) {
-                context.addLocalVariable(FieldDeclarationParser.instantiateLocalField(node!!))
+                context.addLocalVariable(FieldDeclarationParser.instantiateLocalVariable(node!!))
             }
         }
     }

@@ -2,8 +2,9 @@ package signature
 
 import model.CadetMember
 
-class SignableCadetMember(private val cadetMember: CadetMember) : SignableMember {
+class SignableCadetMember(cadetMember: CadetMember) : SignableMember {
 
+    private val name: String = cadetMember.name
     private val parameterTypes = mutableListOf<String>()
 
     init {
@@ -12,7 +13,7 @@ class SignableCadetMember(private val cadetMember: CadetMember) : SignableMember
         }
     }
 
-    override fun getName(): String = cadetMember.name
+    override fun getName(): String = name
     override fun getParameterTypes(): List<String> = parameterTypes
     override fun getNumberOfParameters(): Int = parameterTypes.size
 

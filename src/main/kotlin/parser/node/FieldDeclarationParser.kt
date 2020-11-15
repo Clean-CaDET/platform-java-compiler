@@ -1,4 +1,4 @@
-package parser
+package parser.node
 
 import com.github.javaparser.ast.Modifier
 import com.github.javaparser.ast.body.FieldDeclaration
@@ -21,7 +21,8 @@ internal object FieldDeclarationParser : AbstractNodeParser() {
         }
     }
 
-    fun instantiateLocalField(node: VariableDeclarator): CadetLocalVariable {
+    // TODO Move this out into a separate parser class?
+    fun instantiateLocalVariable(node: VariableDeclarator): CadetLocalVariable {
         return CadetLocalVariable(
             node.nameAsString,
             node.typeAsString

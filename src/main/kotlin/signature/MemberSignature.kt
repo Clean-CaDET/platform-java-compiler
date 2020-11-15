@@ -1,7 +1,5 @@
 package signature
 
-import model.CadetMember
-
 /**
  * Object representing a unique signature for a [SignableMember].
  * Uniqueness is guaranteed within the defining class scope.

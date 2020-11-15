@@ -7,9 +7,9 @@ import com.github.javaparser.ast.body.FieldDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import model.CadetClass
-import parser.ClassDeclarationParser
-import parser.FieldDeclarationParser
-import parser.MemberDeclarationParser
+import parser.node.ClassDeclarationParser
+import parser.node.FieldDeclarationParser
+import parser.node.MemberDeclarationParser
 
 /**
  *  AST traversal class. Use [parseTree] to create a [CadetClass] skeleton.

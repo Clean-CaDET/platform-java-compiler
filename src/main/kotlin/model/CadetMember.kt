@@ -6,7 +6,6 @@ class CadetMember() {
     lateinit var source: String
     lateinit var parent: CadetClass
     lateinit var returnType: String
-    // TODO Possibly add return type for symbol solving?
 
     val invokedMethods = mutableSetOf<CadetMember>()
     val accessedAccessors = mutableSetOf<CadetMember>()

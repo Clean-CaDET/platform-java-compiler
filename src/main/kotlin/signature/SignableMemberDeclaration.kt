@@ -4,11 +4,11 @@ import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.Parameter
-import parser.AbstractNodeParser
+import parser.node.AbstractNodeParser
 
 internal class SignableMemberDeclaration
     : AbstractNodeParser,
-      SignableMember
+    SignableMember
 {
     private val name: String
     private val parameterTypes = mutableListOf<String>()

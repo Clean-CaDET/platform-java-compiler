@@ -1,4 +1,4 @@
-package parser
+package parser.node
 
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration

@@ -36,16 +36,16 @@ internal class MemberContext(
     }
 
     /** Returns the type associated with the given [name] for this context.
-     *  @return Parameter, local variable, or class field type, with the given [name].
+     *  @return Local variable, parameter or class field type, with the given [name].
      *  If neither of 3 is found, null is returned
      */
     fun getContextScopedVariableType(name: String): String? {
-        cadetMember.params.find { param ->
-            param.name == name
-        }?.let { return it.type }
-
         cadetMember.localVariables.find { field ->
             field.name == name
+        }?.let { return it.type }
+
+        cadetMember.params.find { param ->
+            param.name == name
         }?.let { return it.type }
 
         cadetClass.fields.find { field ->
