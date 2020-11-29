@@ -5,6 +5,10 @@ public class Test2 {
     public int counter;
     private boolean flag;
 
+    Test2(Test2 test) {
+
+    }
+
     Test2() {
         counter = 0;
         flag = false;
@@ -12,7 +16,13 @@ public class Test2 {
         hello();
         getCounter(new Object());
         incrementCounter();
+        setFlag(true);
+        printStatusReport();
+        Test2.hello();
+        itself(selfArg(new Test2(this)));
+        Test1.stat();
     }
+
 
     public static void hello() {}
     public int getCounter(Object parameter) {
@@ -26,4 +36,6 @@ public class Test2 {
         this.flag = flag;
     }
     public void printStatusReport() {}
+    public void itself(Test2 test2) {}
+    public Test2 selfArg(Test2 test2) {return this;}
 }

@@ -1,9 +1,6 @@
 package parser.node
 
-import com.github.javaparser.ast.DataKey
 import com.github.javaparser.ast.Node
-import com.github.javaparser.ast.comments.Comment
-import com.github.javaparser.ast.comments.LineComment
 import com.github.javaparser.ast.expr.*
 import java.lang.IllegalArgumentException
 
@@ -33,23 +30,22 @@ object MethodCallExpressionParser : AbstractNodeParser() {
      * @return Object or class name, on which the given method is called.
      * Null if the method has no explicit caller (called from its class, or a system method)
      */
-    fun getCaller(node: MethodCallExpr): Pair<Node, String?>? {
+    fun getCaller(node: MethodCallExpr): Node? {
         // Child nodes for MethodCallExpr are these, and in this specific order:
         // 1. Caller (can be MethodCallExpr, NameExpr, ObjectCreationExpr, FieldAccessExpr, ThisExpr, or nothing if function is local)
         // 2. SimpleName (this is the name of the function)
         // 3. Parameter[] list, where each parameter is 1 child node, with arbitrary depth, depending on which
         //    type of parameter it is (literals will have no children, MethodCallExpr will have children, etc)
-
-        getCallerNode(node)?.let {
-            return when (it) {
-                // This covers direct field access and static calls (field.method() and Class.staticMethod())
-                is NameExpr -> Pair(it, it.nameAsString)
-                is ThisExpr -> Pair(it, null)
-                is MethodCallExpr -> Pair(it, it.nameAsString)
-                else -> null
-            }
+        if (node.childNodes.isEmpty()) return null
+        return when(val callerNode = node.childNodes[0]) {
+            is SimpleName -> null
+            is ThisExpr -> callerNode
+            is NameExpr -> callerNode
+            is FieldAccessExpr -> throw NotImplementedError("Field access not implemented. Break at '${node.nameAsString}'.")
+            is MethodCallExpr -> callerNode
+            is ObjectCreationExpr -> callerNode
+            else -> throw IllegalArgumentException("Caller node of type ${node.metaModel.typeName} not recognized as valid.")
         }
-        return null
 
         // Caller could be determined by the following algorithm, revolving around 'SimpleName' position in the child node list
         // a) 'SimpleName' is at position[0]
@@ -67,29 +63,5 @@ object MethodCallExpressionParser : AbstractNodeParser() {
         //          -> Function is called on the return value of another function (method chaining)
         //      b5) ObjectCreationExpr is at position[0]
         //      b6) ??
-    }
-
-    /**
-     * @return List of [Node] objects which represent parameters for the given [MethodCallExpr].
-     */
-    private fun getArgumentNodes(node: MethodCallExpr): List<Node> {
-        val paramNodes = mutableListOf<Node>()
-        getChildIndex<SimpleName>(node)?.let {
-            for (index in it+1 until node.childNodes.size) {
-                paramNodes.add(node.childNodes[index])
-            }
-        }
-        return paramNodes
-    }
-
-    private fun getCallerNode(node: MethodCallExpr): Node? {
-        when(val callerNode = node.childNodes[0]) {
-            is SimpleName -> return null
-            is ThisExpr -> return callerNode
-            is NameExpr -> return callerNode
-            is FieldAccessExpr -> throw NotImplementedError("Field access not implemented. Break at '${node.nameAsString}'.")
-            is MethodCallExpr -> throw NotImplementedError("Method chaining is not implemented. Break at '${node.nameAsString}'")
-        }
-        throw IllegalArgumentException("Caller node of type ${node.metaModel.typeName} not recognized as valid.")
     }
 }

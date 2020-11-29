@@ -1,10 +1,10 @@
 package visitor
 
+import com.github.javaparser.ast.expr.NameExpr
 import context.Context
 import context.MemberContext
 import javassist.NotFoundException
 import model.CadetClass
-import model.CadetField
 import model.CadetMember
 import resolver.SymbolMap
 import signature.SignableCadetMember
@@ -19,26 +19,22 @@ class CadetClassMap : SymbolMap {
     fun createMemberContext(signature: MemberSignature) { memberContext = MemberContext(classContext, signature) }
     fun getMemberContext() = memberContext
 
-    private fun currentClass() = classContext.cadetClass
-
     // SymbolMap overriden methods
-    override fun getCurrentClassName(): String = currentClass().name
-    override fun getCadetMember(className: String?, signature: MemberSignature): CadetMember? {
-        getCallerClass(className)
+    override fun getContextClassName(): String = currentClass().name
+    override fun findCadetMemberInContext(className: String?, signature: MemberSignature): CadetMember? {
+        getContextScopedCadetClass(className)
         .apply {
             return this.members.find { member ->
                 signature.compareTo(SignableCadetMember(member))
             }
         }
     }
+    override fun getContextScopedType(name: String): String {
+        return getContextScopedCadetClass(name).name
+    }
 
-    private fun getCallerClass(caller: String?): CadetClass {
+    private fun getContextScopedCadetClass(caller: String?): CadetClass {
         caller ?: return currentClass()
-
-        classContext.getContextScopedCadetField(caller)
-            ?.let {field ->
-                findCadetClass(field.type) ?.let { return it }
-            }
 
         memberContext.getContextScopedLocalVariable(caller)
             ?.let {variable ->
@@ -50,15 +46,17 @@ class CadetClassMap : SymbolMap {
                 findCadetClass(param.type) ?.let { return it }
             }
 
-        classes.find { c -> c.name == caller }
-            ?.let { return it}
+        classContext.getContextScopedCadetField(caller)
+            ?.let {field ->
+                findCadetClass(field.type) ?.let { return it }
+            }
 
+        classes.find { c -> c.name == caller }
+            ?.let { return it; }
 
         throw NotFoundException("Caller: '${caller}' is unidentified.")
     }
 
-
-    private fun findCadetClass(className: String): CadetClass? {
-        return classes.find { c -> c.name == className }
-    }
+    private fun findCadetClass(className: String) = classes.find { c -> c.name == className }
+    private fun currentClass() = classContext.cadetClass
 }

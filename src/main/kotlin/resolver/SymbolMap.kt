@@ -5,6 +5,7 @@ import signature.MemberSignature
 
 interface SymbolMap {
 
-    fun getCadetMember(className: String?, signature: MemberSignature): CadetMember?
-    fun getCurrentClassName(): String
+    fun findCadetMemberInContext(className: String?, signature: MemberSignature): CadetMember?
+    fun getContextClassName(): String
+    fun getContextScopedType(name: String): String
 }

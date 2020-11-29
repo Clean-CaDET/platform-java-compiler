@@ -1,6 +1,5 @@
 package resolver.nodes
 
-import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.MethodCallExpr
 import parser.node.MethodCallExpressionParser
 import resolver.SymbolMap

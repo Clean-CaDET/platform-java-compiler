@@ -7,33 +7,53 @@ import resolver.SymbolResolver
 import signature.MemberSignature
 import signature.SignableMember
 
-abstract class CallSolverNode(node: Node, private val symbolMap: SymbolMap)
-    : ResolvableNode(node),
+abstract class CallSolverNode(node: Node, symbolMap: SymbolMap)
+    : ReferenceSolverNode(node, symbolMap),
     SignableMember
 {
     private val children = mutableListOf<BaseSolverNode>()
-    protected var caller: Pair<Node, String?>? = null
+
+    protected var caller: Node? = null
+    protected var callerResolverNode: BaseSolverNode? = null
 
     private var resolvedReference: CadetMember? = null
-    fun getResolvedReference() = resolvedReference
+
+    /**
+     * @return Resolved [CadetMember] reference.
+     * @throws IllegalAccessError If [resolve] hasn't been called, or if resolving failed to find
+     * the appropriate CadetMember in the SymbolMap
+     */
+    fun getResolvedReference(): CadetMember {
+        resolvedReference ?: throw IllegalAccessError()
+        return resolvedReference!!
+    }
 
     override fun resolve() {
         initArgumentNodes()
-        children.filterIsInstance<ResolvableNode>()
-            .apply {
-                this.forEach { child -> child.resolve() }
-            }
-        resolvedReference = symbolMap.getCadetMember(caller?.second, MemberSignature(this))
+        children.forEach { child ->
+            child.resolve()
+        }
+        resolvedReference = symbolMap.findCadetMemberInContext(callerResolverNode?.returnType, MemberSignature(this))
         resolvedReference?.let { this.returnType = resolvedReference!!.returnType }
     }
 
     private fun initArgumentNodes() {
         node.childNodes.forEach { child ->
-            if (child === caller?.first) return@forEach
-            SymbolResolver.createSolverNode(child, symbolMap)
+            if (child === caller)
+                resolveCaller(child)
+            else
+                SymbolResolver.createSolverNode(child, symbolMap)
                 ?.let {
                     this.children.add(it)
                 }
+        }
+    }
+
+    private fun resolveCaller(caller: Node) {
+        SymbolResolver.createSolverNode(caller, symbolMap)
+        .apply {
+            this!!.resolve()
+            callerResolverNode = this
         }
     }
 

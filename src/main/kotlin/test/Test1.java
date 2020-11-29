@@ -42,12 +42,15 @@ class Test1 {
         Test1.stat();
 
         // Method chaining test (not impl.)
-        // test1.self().self().selfArg(this).itself(self());
+        //self().self().selfArg(this).itself(self());
+        multipleArgs(1, 2d, this, false).itself(test1);
+
+        Test2.hello();
     }
 
-    private static void stat(){}
+    public static void stat(){}
     private void emptyFunction() {}
-    private void itself(Test1 test1) { test1.test(); }
+    private void itself(Test1 test1) { }
     private Test1 self() {return this;}
     private Test1 selfArg(Test1 arg) {return this;}
     // Automatic number conversion when calling functions could be an issue (passing '3' when double is required will be

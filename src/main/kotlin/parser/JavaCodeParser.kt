@@ -35,7 +35,6 @@ class JavaCodeParser {
         }
 
         innerVisitAll()
-        //testPrint()
         return classMap
     }
 

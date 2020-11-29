@@ -37,11 +37,8 @@ class InnerVisitor(
 
     override fun visit(node: MethodCallExpr?, arg: Context?) {
         arg?.let { context ->
-            if (context is MemberContext) {
-
-                val caller = MethodCallExpressionParser.getCaller(node!!)
-                resolver.resolve(node, caller)
-            }
+            if (context is MemberContext)
+                resolver.resolve(node!!)
         }
     }
 
