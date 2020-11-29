@@ -22,13 +22,13 @@ class Test1 {
         Test1 test1 = new Test1();
 
         // Direct field access + function call test
-        test1.emptyFunction();
+        testField.emptyFunction();
 
         // Caller-ommited (or 'this') function call test
         self();
-        test1.toString();
-        this.itself(selfArg(this));
-        multipleArgs(1, 2d, this, false);
+        //test1.toString();
+        this.itself(this);
+        //multipleArgs(1, 2d, this, false);
 
         // Arbitrary depth field access + function call test (not impl.)
         // test1.self().test2.hello();

@@ -9,9 +9,9 @@ fun main(args: Array<String>) {
     val path1 = path("Test1.java")
     val path2 = path("Test2.java")
 
-    parser.parseFiles(listOf(path1, path2))
+    parser.parseFiles(listOf(path1))
 }
 
-fun path(path: String): String {
-    return directoryPath + path
+fun path(fileName: String): String {
+    return directoryPath + fileName
 }

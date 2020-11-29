@@ -1,40 +1,42 @@
 package visitor
 
 import com.github.javaparser.ast.CompilationUnit
+import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.MethodCallExpr
+import com.github.javaparser.ast.expr.ThisExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import context.Context
 import context.MemberContext
 import model.CadetClass
 import parser.node.FieldDeclarationParser
 import parser.node.MethodCallExpressionParser
+import resolver.SymbolResolver
 import signature.SignableMemberDeclaration
 import signature.MemberSignature
 
 internal class InnerVisitor(
-    private val classMap: CadetClassMap
+    private val classMap: CadetClassMap,
+    private val resolver: SymbolResolver
 ) : VoidVisitorAdapter<Context>() {
 
-    private lateinit var cadetClass: CadetClass
-
     fun parseTree(compilationUnit: CompilationUnit, cadetClass: CadetClass) {
-        this.cadetClass = cadetClass
+        classMap.currentClass = cadetClass
         visit(compilationUnit, null)
     }
 
     override fun visit(node: MethodDeclaration?, arg: Context?) {
         super.visit(node, MemberContext(
-            cadetClass,
+            classMap.currentClass,
             MemberSignature(SignableMemberDeclaration(node!!))
         ))
     }
 
     override fun visit(node: ConstructorDeclaration?, arg: Context?) {
         super.visit(node, MemberContext(
-            cadetClass,
+            classMap.currentClass,
             MemberSignature(SignableMemberDeclaration(node!!))
         ))
     }
@@ -42,31 +44,9 @@ internal class InnerVisitor(
     override fun visit(node: MethodCallExpr?, arg: Context?) {
         arg?.let { context ->
             if (context is MemberContext) {
+
                 val caller = MethodCallExpressionParser.getCaller(node!!)
-                val paramNodes = MethodCallExpressionParser.getArgumentNodes(node)
-
-                /*
-                println("${node.nameAsString}: ")
-                println("\tCaller: $caller")
-                println("\tParams:")
-                for (paramNode in paramNodes) {
-                    println("\t\t${paramNode.metaModel.typeName}")
-                }
-                */
-
-                if (caller == null) {
-                    //println("Caller is implicit for '${node.nameAsString}'")
-                }
-                else {
-                    val callerType = context.getContextScopedVariableType(caller)
-
-                    if (callerType != null) {
-                        //println("Caller type for '${node.nameAsString}' is '$callerType'")
-                    }
-                    else {
-                        //println("'$caller' is not defined within the context scope. (At function '${node.nameAsString}')")
-                    }
-                }
+                resolver.resolve(node, caller)
             }
         }
     }

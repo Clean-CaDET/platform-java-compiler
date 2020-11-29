@@ -1,54 +1,59 @@
 package visitor
 
+import javassist.NotFoundException
 import model.CadetClass
 import model.CadetField
 import model.CadetMember
+import resolver.SymbolMap
 import signature.SignableCadetMember
 import signature.MemberSignature
-import java.lang.IllegalArgumentException
 
-class CadetClassMap {
-    private val classes = mutableListOf<CadetClass>()
+class CadetClassMap : SymbolMap {
+    val classes = mutableListOf<CadetClass>()
+    lateinit var currentClass: CadetClass
 
-    fun addCadetClass(cadetClass: CadetClass) {
-        classes.add(cadetClass)
-    }
+    override fun getCurrentClassName(): String = currentClass.name
 
-    fun getAt(index: Int): CadetClass {
-        if (index >= classes.size) throw IllegalArgumentException("Classmap index out of bounds. $index >= ${classes.size}")
-        return classes[index]
-    }
-
-    fun getAllClasses() = classes
-
-    /** Get all classes contained within this class map */
-    fun getCadetClasses() = classes
-
-    /**
-     * @return [CadetMember] reference with the matching [signature], from the [CadetClass] specified by [className].
-     * Returns null if class or member are not found.
-     */
-    fun getCadetMember(className: String, signature: MemberSignature): CadetMember? {
-        val cadetClass = classes.find { it.name == className }
-        cadetClass?.let {
-            return it.members.find { member ->
-                signature.compareTo(SignableCadetMember(member))
-            }
-        }
+    override fun getCadetMemberReturnType(className: String?, signature: MemberSignature): String? {
+        getCadetMember(className, signature)
+            ?.let { return it.returnType }
         return null
     }
 
-    /**
-     * @return [CadetField] reference which belongs to the given [CadetClass].
-     * Returns null if class or field are not found.
-     */
-    fun getCadetField(className: String, fieldName: String): CadetField? {
-        val cadetClass = classes.find { it.name == className }
-        cadetClass?.let {
+    override fun getCadetMember(memberCaller: String?, signature: MemberSignature): CadetMember? {
+        getCallerClass(memberCaller)
+        .apply {
+            return this.members.find { member ->
+                signature.compareTo(SignableCadetMember(member))
+            }
+        }
+    }
+
+    private fun getCallerClass(caller: String?): CadetClass {
+        caller ?: return currentClass
+        classes.find { c -> c.name == caller }
+            ?.let { return it}
+        getCadetField(currentClass.name, caller)
+            ?.let {field ->
+                findCadetClass(field.type) ?.let { foundClass -> return foundClass }
+            }
+        throw NotFoundException("Caller: '${caller}' is unidentified.")
+    }
+
+    fun getCadetField(className: String?, fieldName: String): CadetField? {
+        classes.find {
+            if (className != null) it.name == className
+            else it.name == currentClass.name
+        }
+        ?.let {
             return it.fields.find { field ->
                 field.name == fieldName
             }
         }
         return null
+    }
+
+    private fun findCadetClass(className: String): CadetClass? {
+        return classes.find { c -> c.name == className }
     }
 }

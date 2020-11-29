@@ -3,6 +3,7 @@ package parser
 import com.github.javaparser.ParseProblemException
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.CompilationUnit
+import resolver.SymbolResolver
 import visitor.CadetClassMap
 import visitor.InnerVisitor
 import visitor.OuterVisitor
@@ -13,7 +14,7 @@ import java.nio.file.Path
 class JavaCodeParser {
     private val outerVisitor = OuterVisitor()
     private val classMap = CadetClassMap()
-    private val innerVisitor = InnerVisitor(classMap)
+    private val innerVisitor = InnerVisitor(classMap, SymbolResolver(classMap))
     private val rootNodes = mutableListOf<CompilationUnit>()
 
     fun parseFiles(paths: List<String>): CadetClassMap? {
@@ -34,12 +35,12 @@ class JavaCodeParser {
         }
 
         innerVisitAll()
-        testPrint()
+        //testPrint()
         return classMap
     }
 
     private fun testPrint() {
-        for (cadetClass in classMap.getCadetClasses()) {
+        for (cadetClass in classMap.classes) {
             Console.printCadetClass(cadetClass)
             println("_________________________________________")
         }
@@ -48,13 +49,13 @@ class JavaCodeParser {
     private fun outerVisit(cUnit: CompilationUnit) {
         outerVisitor.parseTree(cUnit)
             .also { cadetClass ->
-                classMap.addCadetClass(cadetClass)
+                classMap.classes.add(cadetClass)
             }
     }
 
     private fun innerVisitAll() {
         for (index in 0 until rootNodes.size) {
-            innerVisitor.parseTree(rootNodes[index], classMap.getAt(index))
+            innerVisitor.parseTree(rootNodes[index], classMap.classes[index])
         }
     }
 

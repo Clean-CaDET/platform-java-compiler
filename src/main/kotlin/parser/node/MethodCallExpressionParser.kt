@@ -1,6 +1,9 @@
 package parser.node
 
+import com.github.javaparser.ast.DataKey
 import com.github.javaparser.ast.Node
+import com.github.javaparser.ast.comments.Comment
+import com.github.javaparser.ast.comments.LineComment
 import com.github.javaparser.ast.expr.*
 import java.lang.IllegalArgumentException
 
@@ -30,7 +33,7 @@ internal object MethodCallExpressionParser : AbstractNodeParser() {
      * @return Object or class name, on which the given method is called.
      * Null if the method has no explicit caller (called from its class, or a system method)
      */
-    fun getCaller(node: MethodCallExpr): String? {
+    fun getCaller(node: MethodCallExpr): Pair<Node, String?>? {
         // Child nodes for MethodCallExpr are these, and in this specific order:
         // 1. Caller (can be MethodCallExpr, NameExpr, ObjectCreationExpr, FieldAccessExpr, ThisExpr, or nothing if function is local)
         // 2. SimpleName (this is the name of the function)
@@ -38,10 +41,11 @@ internal object MethodCallExpressionParser : AbstractNodeParser() {
         //    type of parameter it is (literals will have no children, MethodCallExpr will have children, etc)
 
         getCallerNode(node)?.let {
-            when (it) {
+            return when (it) {
                 // This covers direct field access and static calls (field.method() and Class.staticMethod())
-                is NameExpr -> return it.nameAsString
-                else -> {}
+                is NameExpr -> Pair(it, it.nameAsString)
+                is ThisExpr -> Pair(it, null)
+                else -> null
             }
         }
         return null
@@ -60,14 +64,14 @@ internal object MethodCallExpressionParser : AbstractNodeParser() {
         //          * Note that this can also be static field access, singleton access etc
         //      b4) MethodCallExpr is at position[0]
         //          -> Function is called on the return value of another function (method chaining)
-        //      b5) ?
-        //
+        //      b5) ObjectCreationExpr is at position[0]
+        //      b6) ??
     }
 
     /**
      * @return List of [Node] objects which represent parameters for the given [MethodCallExpr].
      */
-    fun getArgumentNodes(node: MethodCallExpr): List<Node> {
+    private fun getArgumentNodes(node: MethodCallExpr): List<Node> {
         val paramNodes = mutableListOf<Node>()
         getChildIndex<SimpleName>(node)?.let {
             for (index in it+1 until node.childNodes.size) {
@@ -80,7 +84,7 @@ internal object MethodCallExpressionParser : AbstractNodeParser() {
     private fun getCallerNode(node: MethodCallExpr): Node? {
         when(val callerNode = node.childNodes[0]) {
             is SimpleName -> return null
-            is ThisExpr -> return null
+            is ThisExpr -> return callerNode
             is NameExpr -> return callerNode
             is FieldAccessExpr -> throw NotImplementedError("Field access not implemented. Break at '${node.nameAsString}'.")
             is MethodCallExpr -> throw NotImplementedError("Method chaining not implemented. Break at '${node.nameAsString}'.")
