@@ -11,6 +11,7 @@ class LiteralSolverNode(node: LiteralExpr) : BaseSolverNode(node) {
             is IntegerLiteralExpr -> "int"
             is DoubleLiteralExpr -> "double"
             is CharLiteralExpr -> "char"
+            is StringLiteralExpr -> "String"
             is BooleanLiteralExpr -> "boolean"
             is LongLiteralExpr -> "long"
             is NullLiteralExpr -> throw IllegalArgumentException("Null as argument not supported.")

@@ -25,6 +25,8 @@ class Test1 {
         double b;
         Test1 test1 = new Test1();
 
+        selfArg(selfArg(this));
+
         // Direct field access + function call test
         testField.emptyFunction();
 
@@ -41,9 +43,11 @@ class Test1 {
         // Static functions through classname test
         Test1.stat();
 
-        // Method chaining test (not impl.)
-        //self().self().selfArg(this).itself(self());
+        // Method chaining test (no field access allowed)
+        Test2.getTest1().self().selfArg(this).itself(self());
         multipleArgs(1, 2d, this, false).itself(test1);
+
+        selfArg(new Test1()).self().multipleArgs(1, 3d, test1, true).self().chainTestEnd();
 
         Test2.hello();
     }
@@ -56,4 +60,6 @@ class Test1 {
     // Automatic number conversion when calling functions could be an issue (passing '3' when double is required will be
     // "Ok-d" by the compiler, but JavaParser will read it as an integer)
     private Test1 multipleArgs(int a, double b, Test1 test, boolean bool) {return this;}
+    private void chainTestEnd(){}
+    private void stringArg(String arg) {}
 }

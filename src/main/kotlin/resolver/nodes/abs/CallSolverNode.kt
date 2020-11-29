@@ -13,17 +13,16 @@ abstract class CallSolverNode(node: Node, symbolMap: SymbolMap)
 {
     private val children = mutableListOf<BaseSolverNode>()
 
-    protected var caller: Node? = null
+    protected abstract var caller: Node?
     protected var callerResolverNode: BaseSolverNode? = null
 
-    private var resolvedReference: CadetMember? = null
-
+    protected var resolvedReference: CadetMember? = null
     /**
      * @return Resolved [CadetMember] reference.
      * @throws IllegalAccessError If [resolve] hasn't been called, or if resolving failed to find
      * the appropriate CadetMember in the SymbolMap
      */
-    fun getResolvedReference(): CadetMember {
+    fun getResult(): CadetMember {
         resolvedReference ?: throw IllegalAccessError()
         return resolvedReference!!
     }
@@ -33,8 +32,8 @@ abstract class CallSolverNode(node: Node, symbolMap: SymbolMap)
         children.forEach { child ->
             child.resolve()
         }
-        resolvedReference = symbolMap.findCadetMemberInContext(callerResolverNode?.returnType, MemberSignature(this))
-        resolvedReference?.let { this.returnType = resolvedReference!!.returnType }
+        resolvedReference =
+            symbolMap.findCadetMemberInContext(callerResolverNode?.returnType, MemberSignature(this))
     }
 
     private fun initArgumentNodes() {
@@ -51,9 +50,9 @@ abstract class CallSolverNode(node: Node, symbolMap: SymbolMap)
 
     private fun resolveCaller(caller: Node) {
         SymbolResolver.createSolverNode(caller, symbolMap)
-        .apply {
-            this!!.resolve()
-            callerResolverNode = this
+        .also {
+            it!!.resolve()
+            callerResolverNode = it
         }
     }
 

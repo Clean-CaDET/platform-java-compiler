@@ -23,7 +23,7 @@ public class Test2 {
         Test1.stat();
     }
 
-
+    public static Test1 getTest1() { return new Test1(); }
     public static void hello() {}
     public int getCounter(Object parameter) {
         return counter;

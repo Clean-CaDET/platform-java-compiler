@@ -1,8 +1,10 @@
 package resolver.nodes
 
+import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.MethodCallExpr
 import parser.node.MethodCallExpressionParser
 import resolver.SymbolMap
+import resolver.SymbolResolver
 import resolver.nodes.abs.CallSolverNode
 
 class MethodSolverNode(
@@ -10,8 +12,32 @@ class MethodSolverNode(
     symbolMap: SymbolMap
 ) : CallSolverNode(node, symbolMap) {
 
-    init {
-        this.caller = MethodCallExpressionParser.getCaller(node)
+    override var caller: Node?
+        get() = MethodCallExpressionParser.getCaller(node as MethodCallExpr)
+        set(value) {}
+
+    override fun resolve() {
+        super.resolve()
+
+        if (resolvedReference != null)
+            this.returnType = resolvedReference!!.returnType
+        else
+            resolveIfObjectMethod()
     }
+
+    private fun resolveIfObjectMethod() {
+        returnType = when (getName()) {
+            "toString" -> "String"
+            "clone" -> {
+                if (callerResolverNode == null) symbolMap.getContextClassName()
+                else callerResolverNode!!.returnType
+            }
+            "hashCode" -> "int"
+            "equals" -> "boolean"
+            "getClass" -> callerResolverNode!!.returnType
+            else -> SymbolResolver.WildcardParameter
+        }
+    }
+
     override fun getName(): String = (node as MethodCallExpr).nameAsString
 }
