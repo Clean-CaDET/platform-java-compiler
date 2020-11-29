@@ -45,6 +45,7 @@ object MethodCallExpressionParser : AbstractNodeParser() {
                 // This covers direct field access and static calls (field.method() and Class.staticMethod())
                 is NameExpr -> Pair(it, it.nameAsString)
                 is ThisExpr -> Pair(it, null)
+                is MethodCallExpr -> Pair(it, it.nameAsString)
                 else -> null
             }
         }
@@ -87,7 +88,7 @@ object MethodCallExpressionParser : AbstractNodeParser() {
             is ThisExpr -> return callerNode
             is NameExpr -> return callerNode
             is FieldAccessExpr -> throw NotImplementedError("Field access not implemented. Break at '${node.nameAsString}'.")
-            is MethodCallExpr -> throw NotImplementedError("Method chaining not implemented. Break at '${node.nameAsString}'.")
+            is MethodCallExpr -> throw NotImplementedError("Method chaining is not implemented. Break at '${node.nameAsString}'")
         }
         throw IllegalArgumentException("Caller node of type ${node.metaModel.typeName} not recognized as valid.")
     }

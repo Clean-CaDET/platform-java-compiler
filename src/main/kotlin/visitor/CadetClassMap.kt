@@ -23,11 +23,6 @@ class CadetClassMap : SymbolMap {
 
     // SymbolMap overriden methods
     override fun getCurrentClassName(): String = currentClass().name
-    override fun getCadetMemberReturnType(className: String?, signature: MemberSignature): String? {
-        getCadetMember(className, signature)
-            ?.let { return it.returnType }
-        return null
-    }
     override fun getCadetMember(className: String?, signature: MemberSignature): CadetMember? {
         getCallerClass(className)
         .apply {

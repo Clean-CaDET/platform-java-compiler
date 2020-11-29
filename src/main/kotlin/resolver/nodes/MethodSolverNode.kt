@@ -2,17 +2,17 @@ package resolver.nodes
 
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.MethodCallExpr
+import parser.node.MethodCallExpressionParser
 import resolver.SymbolMap
 import resolver.nodes.abs.CallSolverNode
 
 class MethodSolverNode(
     node: MethodCallExpr,
-    caller: Pair<Node, String?>?,
     symbolMap: SymbolMap
 ) : CallSolverNode(node, symbolMap) {
 
     init {
-        this.caller = caller
+        this.caller = MethodCallExpressionParser.getCaller(node)
     }
     override fun getName(): String = (node as MethodCallExpr).nameAsString
 }

@@ -15,6 +15,10 @@ class Test1 {
 
     Test1() { }
 
+    private void sth() {
+        new Test1();
+    }
+
     private void test() {
         // Local variables test
         int a;
@@ -26,8 +30,9 @@ class Test1 {
 
         // Caller-ommited (or 'this') function call test
         self();
-        //test1.toString();
-        this.itself(this);
+        test1.toString();
+        this.itself(new Test1());
+        this.itself(self());
         multipleArgs(1, 2d, this, false);
 
         // Arbitrary depth field access + function call test (not impl.)

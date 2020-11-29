@@ -1,28 +1,30 @@
 package resolver.nodes.abs
 
 import com.github.javaparser.ast.Node
+import model.CadetMember
 import resolver.SymbolMap
 import resolver.SymbolResolver
 import signature.MemberSignature
 import signature.SignableMember
 
 abstract class CallSolverNode(node: Node, private val symbolMap: SymbolMap)
-    : ReferenceSolverNode(node),
+    : ResolvableNode(node),
     SignableMember
 {
     private val children = mutableListOf<BaseSolverNode>()
     protected var caller: Pair<Node, String?>? = null
 
+    private var resolvedReference: CadetMember? = null
+    fun getResolvedReference() = resolvedReference
+
     override fun resolve() {
         initArgumentNodes()
-        children.filterIsInstance<ReferenceSolverNode>()
+        children.filterIsInstance<ResolvableNode>()
             .apply {
                 this.forEach { child -> child.resolve() }
             }
-        symbolMap.getCadetMemberReturnType(caller?.second, MemberSignature(this))
-            ?.let {
-                this.returnType = it
-            }
+        resolvedReference = symbolMap.getCadetMember(caller?.second, MemberSignature(this))
+        resolvedReference?.let { this.returnType = resolvedReference!!.returnType }
     }
 
     private fun initArgumentNodes() {
@@ -35,6 +37,7 @@ abstract class CallSolverNode(node: Node, private val symbolMap: SymbolMap)
         }
     }
 
+    // Member signature overriden methods
     override fun getParameterTypes(): List<String> {
         return mutableListOf<String>()
         .apply {

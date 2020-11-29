@@ -15,23 +15,23 @@ import java.lang.IllegalArgumentException
 
 class SymbolResolver(private val symbolMap: SymbolMap) {
 
-    fun resolve(node: MethodCallExpr, caller: Pair<Node, String?>?): CadetMember {
-        MethodSolverNode(node, caller, symbolMap)
+    fun resolve(node: MethodCallExpr, caller: Pair<Node, String?>?): CadetMember? {
+        MethodSolverNode(node, symbolMap)
             .also { sNode ->
                 sNode.resolve()
-                symbolMap.getCadetMember(caller?.second, MemberSignature(sNode))
-                    ?.let { it ->
-                        println("Resolved ${it.returnType} ${it.name}")
-                        return it
-                    }
-                throw NoSuchElementException("Failed to resolve '${node.nameAsString}'.")
+                sNode.getResolvedReference()?.let {
+                    println("Resolved ${it.returnType} ${it.name}()")
+                    return it
+                }
+                println("Failed to resolve '${node.nameAsString}()'")
+                return null
             }
     }
 
     companion object {
         fun createSolverNode(node: Node, symbolMap: SymbolMap): BaseSolverNode? {
             return when (node) {
-                is MethodCallExpr -> MethodSolverNode(node, MethodCallExpressionParser.getCaller(node), symbolMap)
+                is MethodCallExpr -> MethodSolverNode(node, symbolMap)
                 is ObjectCreationExpr -> ConstructorSolverNode(node, symbolMap)
                 is LiteralExpr -> LiteralSolverNode(node)
                 is ThisExpr -> ThisSolverNode(symbolMap)
