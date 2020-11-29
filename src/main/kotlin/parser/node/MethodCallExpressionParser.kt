@@ -7,7 +7,7 @@ import com.github.javaparser.ast.comments.LineComment
 import com.github.javaparser.ast.expr.*
 import java.lang.IllegalArgumentException
 
-internal object MethodCallExpressionParser : AbstractNodeParser() {
+object MethodCallExpressionParser : AbstractNodeParser() {
 
     // AST notes:
     // Parameters:

@@ -1,12 +1,10 @@
 package visitor
 
 import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.MethodCallExpr
-import com.github.javaparser.ast.expr.ThisExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import context.Context
 import context.MemberContext
@@ -17,28 +15,24 @@ import resolver.SymbolResolver
 import signature.SignableMemberDeclaration
 import signature.MemberSignature
 
-internal class InnerVisitor(
+class InnerVisitor(
     private val classMap: CadetClassMap,
     private val resolver: SymbolResolver
 ) : VoidVisitorAdapter<Context>() {
 
     fun parseTree(compilationUnit: CompilationUnit, cadetClass: CadetClass) {
-        classMap.currentClass = cadetClass
+        classMap.createClassContext(cadetClass)
         visit(compilationUnit, null)
     }
 
     override fun visit(node: MethodDeclaration?, arg: Context?) {
-        super.visit(node, MemberContext(
-            classMap.currentClass,
-            MemberSignature(SignableMemberDeclaration(node!!))
-        ))
+        classMap.createMemberContext(MemberSignature(SignableMemberDeclaration(node!!)))
+        super.visit(node, classMap.getMemberContext())
     }
 
     override fun visit(node: ConstructorDeclaration?, arg: Context?) {
-        super.visit(node, MemberContext(
-            classMap.currentClass,
-            MemberSignature(SignableMemberDeclaration(node!!))
-        ))
+        classMap.createMemberContext(MemberSignature(SignableMemberDeclaration(node!!)))
+        super.visit(node, classMap.getMemberContext())
     }
 
     override fun visit(node: MethodCallExpr?, arg: Context?) {
@@ -57,26 +51,5 @@ internal class InnerVisitor(
                 context.addLocalVariable(FieldDeclarationParser.instantiateLocalVariable(node!!))
             }
         }
-    }
-
-    private fun addLocalMemberInvocation(
-        signature: MemberSignature,
-        context: MemberContext
-    ) {
-        val method = context.getLocalMethod(signature)
-        method?.let { localMember ->
-            context.addInvokedMember(localMember)
-        }
-    }
-
-    private fun addForeignMemberInvocation(
-        callerType: String,
-        signature: MemberSignature,
-        context: MemberContext
-    ) {
-        classMap.getCadetMember(callerType, signature)
-            ?.let { foreignMember ->
-                context.addInvokedMember(foreignMember)
-            }
     }
 }

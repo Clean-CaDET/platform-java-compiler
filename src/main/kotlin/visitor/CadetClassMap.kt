@@ -1,5 +1,7 @@
 package visitor
 
+import context.Context
+import context.MemberContext
 import javassist.NotFoundException
 import model.CadetClass
 import model.CadetField
@@ -10,18 +12,24 @@ import signature.MemberSignature
 
 class CadetClassMap : SymbolMap {
     val classes = mutableListOf<CadetClass>()
-    lateinit var currentClass: CadetClass
+    private lateinit var classContext: Context
+    private lateinit var memberContext: MemberContext
 
-    override fun getCurrentClassName(): String = currentClass.name
+    fun createClassContext(cadetClass: CadetClass) { classContext = Context(cadetClass) }
+    fun createMemberContext(signature: MemberSignature) { memberContext = MemberContext(classContext, signature) }
+    fun getMemberContext() = memberContext
 
+    private fun currentClass() = classContext.cadetClass
+
+    // SymbolMap overriden methods
+    override fun getCurrentClassName(): String = currentClass().name
     override fun getCadetMemberReturnType(className: String?, signature: MemberSignature): String? {
         getCadetMember(className, signature)
             ?.let { return it.returnType }
         return null
     }
-
-    override fun getCadetMember(memberCaller: String?, signature: MemberSignature): CadetMember? {
-        getCallerClass(memberCaller)
+    override fun getCadetMember(className: String?, signature: MemberSignature): CadetMember? {
+        getCallerClass(className)
         .apply {
             return this.members.find { member ->
                 signature.compareTo(SignableCadetMember(member))
@@ -30,28 +38,30 @@ class CadetClassMap : SymbolMap {
     }
 
     private fun getCallerClass(caller: String?): CadetClass {
-        caller ?: return currentClass
+        caller ?: return currentClass()
+
+        classContext.getContextScopedCadetField(caller)
+            ?.let {field ->
+                findCadetClass(field.type) ?.let { return it }
+            }
+
+        memberContext.getContextScopedLocalVariable(caller)
+            ?.let {variable ->
+                findCadetClass(variable.type) ?.let { return it }
+            }
+
+        memberContext.getContextScopedParameter(caller)
+            ?.let {param ->
+                findCadetClass(param.type) ?.let { return it }
+            }
+
         classes.find { c -> c.name == caller }
             ?.let { return it}
-        getCadetField(currentClass.name, caller)
-            ?.let {field ->
-                findCadetClass(field.type) ?.let { foundClass -> return foundClass }
-            }
+
+
         throw NotFoundException("Caller: '${caller}' is unidentified.")
     }
 
-    fun getCadetField(className: String?, fieldName: String): CadetField? {
-        classes.find {
-            if (className != null) it.name == className
-            else it.name == currentClass.name
-        }
-        ?.let {
-            return it.fields.find { field ->
-                field.name == fieldName
-            }
-        }
-        return null
-    }
 
     private fun findCadetClass(className: String): CadetClass? {
         return classes.find { c -> c.name == className }

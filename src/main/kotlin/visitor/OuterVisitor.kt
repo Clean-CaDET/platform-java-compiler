@@ -14,7 +14,7 @@ import parser.node.MemberDeclarationParser
 /**
  *  AST traversal class. Use [parseTree] to create a [CadetClass] skeleton.
  */
-internal class OuterVisitor : VoidVisitorAdapter<CadetClass>() {
+class OuterVisitor : VoidVisitorAdapter<CadetClass>() {
 
     private lateinit var parent: CadetClass
 

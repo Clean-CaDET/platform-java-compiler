@@ -9,7 +9,7 @@ import model.CadetMember
 import model.CadetMemberType
 import model.CadetParameter
 
-internal object MemberDeclarationParser : AbstractNodeParser() {
+object MemberDeclarationParser : AbstractNodeParser() {
 
     /**
      *  Instantiates a [CadetMember] object with type [CadetMemberType.Method], and all the data

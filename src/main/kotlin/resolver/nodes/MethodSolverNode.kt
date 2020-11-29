@@ -5,7 +5,7 @@ import com.github.javaparser.ast.expr.MethodCallExpr
 import resolver.SymbolMap
 import resolver.nodes.abs.CallSolverNode
 
-internal class MethodSolverNode(
+class MethodSolverNode(
     node: MethodCallExpr,
     caller: Pair<Node, String?>?,
     symbolMap: SymbolMap

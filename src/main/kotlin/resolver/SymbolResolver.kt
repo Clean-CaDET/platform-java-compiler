@@ -13,7 +13,7 @@ import resolver.nodes.abs.CallSolverNode
 import signature.MemberSignature
 import java.lang.IllegalArgumentException
 
-internal class SymbolResolver(private val symbolMap: SymbolMap) {
+class SymbolResolver(private val symbolMap: SymbolMap) {
 
     fun resolve(node: MethodCallExpr, caller: Pair<Node, String?>?): CadetMember {
         MethodSolverNode(node, caller, symbolMap)

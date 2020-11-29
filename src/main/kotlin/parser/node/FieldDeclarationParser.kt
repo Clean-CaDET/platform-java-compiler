@@ -8,7 +8,7 @@ import model.CadetField
 import model.CadetLocalVariable
 import model.CadetModifier
 
-internal object FieldDeclarationParser : AbstractNodeParser() {
+object FieldDeclarationParser : AbstractNodeParser() {
 
     fun instantiateClassField(node: FieldDeclaration, parent: CadetClass): CadetField {
         return CadetField().apply {

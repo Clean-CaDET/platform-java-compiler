@@ -6,7 +6,7 @@ import resolver.SymbolResolver
 import signature.MemberSignature
 import signature.SignableMember
 
-internal abstract class CallSolverNode(node: Node, private val symbolMap: SymbolMap)
+abstract class CallSolverNode(node: Node, private val symbolMap: SymbolMap)
     : ReferenceSolverNode(node),
     SignableMember
 {

@@ -1,16 +1,13 @@
 package context
 
-import model.CadetClass
-import model.CadetField
-import model.CadetLocalVariable
-import model.CadetMember
+import model.*
 import signature.SignableCadetMember
 import signature.MemberSignature
 
-internal class MemberContext(
-    cadetClass: CadetClass,
+class MemberContext(
+    classContext: Context,
     signature: MemberSignature
-) : Context(cadetClass) {
+) : Context(classContext.cadetClass) {
 
     private val cadetMember: CadetMember
 
@@ -35,23 +32,15 @@ internal class MemberContext(
         cadetMember.accessedFields.add(field)
     }
 
-    /** Returns the type associated with the given [name] for this context.
-     *  @return Local variable, parameter or class field type, with the given [name].
-     *  If neither of 3 is found, null is returned
-     */
-    fun getContextScopedVariableType(name: String): String? {
-        cadetMember.localVariables.find { field ->
-            field.name == name
-        }?.let { return it.type }
-
-        cadetMember.params.find { param ->
+    fun getContextScopedParameter(name: String): CadetParameter? {
+        return cadetMember.params.find { param ->
             param.name == name
-        }?.let { return it.type }
+        }
+    }
 
-        cadetClass.fields.find { field ->
+    fun getContextScopedLocalVariable(name: String): CadetLocalVariable? {
+        return cadetMember.localVariables.find { field ->
             field.name == name
-        }?.let { return it.type }
-
-        return null
+        }
     }
 }

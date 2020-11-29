@@ -28,7 +28,7 @@ class Test1 {
         self();
         //test1.toString();
         this.itself(this);
-        //multipleArgs(1, 2d, this, false);
+        multipleArgs(1, 2d, this, false);
 
         // Arbitrary depth field access + function call test (not impl.)
         // test1.self().test2.hello();
@@ -42,7 +42,7 @@ class Test1 {
 
     private static void stat(){}
     private void emptyFunction() {}
-    private void itself(Test1 test1) {}
+    private void itself(Test1 test1) { test1.test(); }
     private Test1 self() {return this;}
     private Test1 selfArg(Test1 arg) {return this;}
     // Automatic number conversion when calling functions could be an issue (passing '3' when double is required will be

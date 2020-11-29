@@ -2,7 +2,7 @@ package parser.node
 
 import com.github.javaparser.ast.Node
 
-internal abstract class AbstractNodeParser {
+abstract class AbstractNodeParser {
 
     /**
      * @return First [T] type child within [Node.childNodes], or null if none are found.

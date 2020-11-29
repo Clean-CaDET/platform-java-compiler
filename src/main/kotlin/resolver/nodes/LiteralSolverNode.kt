@@ -4,7 +4,7 @@ import com.github.javaparser.ast.expr.*
 import resolver.nodes.abs.BaseSolverNode
 import java.lang.IllegalArgumentException
 
-internal class LiteralSolverNode(node: LiteralExpr) : BaseSolverNode() {
+class LiteralSolverNode(node: LiteralExpr) : BaseSolverNode() {
 
     init {
         this.returnType = when(node) {
