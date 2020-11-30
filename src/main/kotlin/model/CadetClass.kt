@@ -10,7 +10,11 @@ class CadetClass {
     val members = mutableListOf<CadetMember>()
     val fields = mutableListOf<CadetField>()
 
-    fun findMemberViaSignature(signature: MemberSignature): CadetMember? {
+    fun getMemberViaSignature(signature: MemberSignature): CadetMember? {
         return members.find { member -> signature.compareTo(CadetMemberSignature(member)) }
+    }
+
+    fun getField(fieldName: String): CadetField? {
+        return fields.find { field -> field.name == fieldName}
     }
 }

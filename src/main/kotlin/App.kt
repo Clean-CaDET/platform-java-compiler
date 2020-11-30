@@ -11,7 +11,7 @@ fun main(args: Array<String>) {
     val extTest = path("ExtendTest.java")
     val staticTest = path("StaticTest.java")
 
-    parser.parseFiles(listOf(baseTest, extTest, staticTest, test))
+    parser.parseFiles(listOf(test, baseTest, extTest, staticTest))
 }
 
 fun path(fileName: String): String {

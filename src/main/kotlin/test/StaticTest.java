@@ -3,6 +3,8 @@ package test;
 // Errors in this file are intentional, in order to test some functionalities.
 public class StaticTest {
 
+    public static StaticTest staticField;
+
     public StaticTest() {}
     public StaticTest(StaticTest t) {}
 

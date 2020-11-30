@@ -1,14 +1,14 @@
-package resolver.nodes
+package resolver.nodes.common
 
 import com.github.javaparser.ast.expr.SuperExpr
-import resolver.SymbolMap
+import resolver.SymbolContextMap
 import resolver.SymbolResolver
 import resolver.nodes.abs.ReferenceSolverNode
 
-class SuperSolverNode(node: SuperExpr, symbolMap: SymbolMap) : ReferenceSolverNode(node, symbolMap) {
+class SuperSolverNode(node: SuperExpr, symbolMap: SymbolContextMap) : ReferenceSolverNode(node, symbolMap) {
 
     override fun resolve() {
-        symbolMap.getContextSuperType()
+        symbolMap.getContextClassSuperType()
             ?.let {
                 returnType = it
                 return

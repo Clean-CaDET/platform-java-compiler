@@ -1,4 +1,4 @@
-package resolver.nodes
+package resolver.nodes.common
 
 import com.github.javaparser.ast.expr.*
 import resolver.nodes.abs.BaseSolverNode

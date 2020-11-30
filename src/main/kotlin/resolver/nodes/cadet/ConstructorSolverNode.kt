@@ -1,12 +1,12 @@
-package resolver.nodes
+package resolver.nodes.cadet
 
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.ObjectCreationExpr
-import resolver.SymbolMap
-import resolver.nodes.abs.CallSolverNode
+import resolver.SymbolContextMap
+import resolver.nodes.abs.MemberCallSolverNode
 
-class ConstructorSolverNode(node: ObjectCreationExpr, symbolMap: SymbolMap)
-    : CallSolverNode(node, symbolMap)
+class ConstructorSolverNode(node: ObjectCreationExpr, symbolMap: SymbolContextMap)
+    : MemberCallSolverNode(node, symbolMap)
 {
     override var caller: Node?
         get() = null

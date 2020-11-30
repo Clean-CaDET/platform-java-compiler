@@ -13,7 +13,8 @@ public class ExtendTest extends BaseTest {
         baseEnd();
         super.baseItself(new BaseTest());
         baseItself(new BaseTest());
-        this.baseItself(new BaseTest());
+        //this.baseItself(new BaseTest());
+        //super.toString();
 
         // Static methods
         StaticTest.self();
@@ -61,13 +62,28 @@ public class ExtendTest extends BaseTest {
         extField.extEnd();
 
         // This should fail to resolve!
-        this.extItself(new ExtendTest()).foreignArg(test).baseSelf().extEnd();
+        this.extItself(new ExtendTest()).foreignArg(new Test()).baseSelf();
+        fail();
+        base.fail();
+        test.fail();
+        super.fail();
+
+        BaseTest bb = new BaseTest();
+
+        // Deeper field access
+        /*extSelf().baseField = new BaseTest();
+        super.baseField = new BaseTest();
+        this.baseField = new BaseTest();
+        baseField = new BaseTest();
+        extItself(extSelf()).baseField = new BaseTest();
+        StaticTest.staticField.staticField = new StaticTest();*/
     }
 
     // TODO These tests will fail
     // multipleArgs(1, 2, false, this);    Automatic conversion '2'->'2d' allows this, but resolver won't recognize it
     // multipleArgs(1, 2d, false, null);   Nullable arguments
 
+    public void extFail() {}
     public void extEnd() {}
     public ExtendTest extSelf() {return this;}
     public ExtendTest extItself(ExtendTest t) {return this;}

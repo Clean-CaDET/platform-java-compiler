@@ -6,7 +6,7 @@ import model.CadetMember
 class InheritanceGraph {
 
     private val classGraph = mutableMapOf<String, ClassGraphNode>()
-    private val baseKey = "base"
+    private val baseKey = "Object"
 
     constructor(baseClass: CadetClass) {
         classGraph[baseKey] = ClassGraphNode(baseClass)
@@ -35,18 +35,27 @@ class InheritanceGraph {
             ?.let {
                 recursiveParentAdd(it, classList)
             }
-        return classList.reversed()
+        return classList
     }
 
     fun getClassParent(className: String): CadetClass? = classGraph[className]?.parent?.cadetClass
 
     private fun recursiveParentAdd(node: ClassGraphNode, list: MutableCollection<CadetClass>) {
+        list.add(node.cadetClass)
         if (node.parent != null)
             recursiveParentAdd(node.parent!!, list)
-        list.add(node.cadetClass)
     }
 
-    private fun instantiateObjectBase(): CadetClass {
+    fun belongsToClassHierarchy(name: String, className: String): Boolean {
+        if (name == className) return true
+        getClassParent(className).also {
+            if (it != null)
+                return belongsToClassHierarchy(name, it.name)
+        }
+        return false
+    }
+
+        private fun instantiateObjectBase(): CadetClass {
         val obj = CadetClass()
         obj.name = "Object"
 
@@ -65,11 +74,14 @@ class InheritanceGraph {
             returnType = "Object"
             parent = obj
         }
-        // TODO Equals with a wildcard or something similar
-        obj.members.apply {
-            add(toString); add(hashCode); add(clone);
+        val equals = CadetMember().apply {
+            name = "equals"
+            returnType = "boolean"
+            parent = obj
         }
-
+        obj.members.apply {
+            add(toString); add(hashCode); add(clone); add(equals)
+        }
         return obj
     }
 }

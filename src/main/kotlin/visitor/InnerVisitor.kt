@@ -5,7 +5,9 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.VariableDeclarator
+import com.github.javaparser.ast.expr.FieldAccessExpr
 import com.github.javaparser.ast.expr.MethodCallExpr
+import com.github.javaparser.ast.expr.NameExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import context.ClassContext
 import context.MemberContext
@@ -26,17 +28,17 @@ class InnerVisitor(
         visit(compilationUnit, null)
     }
 
-    override fun visit(node: MethodDeclaration?, arg: ClassContext?) {
-        classMap.createMemberContext(MemberSignature(MemberDeclarationSignature(node!!)))
-        super.visit(node, classMap.getMemberContext())
-    }
-
     override fun visit(node: ClassOrInterfaceDeclaration?, arg: ClassContext?) {
         ClassDeclarationParser.getExtendingClassesAndInterfaces(node!!)
             .forEach { superClass ->   // TODO This could be an interface!
                 classMap.modifyCurrentClassParent(superClass.nameAsString)
             }
         super.visit(node, arg)
+    }
+
+    override fun visit(node: MethodDeclaration?, arg: ClassContext?) {
+        classMap.createMemberContext(MemberSignature(MemberDeclarationSignature(node!!)))
+        super.visit(node, classMap.getMemberContext())
     }
 
     override fun visit(node: ConstructorDeclaration?, arg: ClassContext?) {

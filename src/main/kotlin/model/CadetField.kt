@@ -1,6 +1,8 @@
 package model
 
-class CadetField {
+import model.interfaces.CadetVariable
+
+class CadetField : CadetVariable {
     lateinit var name: String
     lateinit var parent: CadetClass
     lateinit var type: String
@@ -10,4 +12,6 @@ class CadetField {
         modifiers.find { it.type == "static" } ?: return false
         return true
     }
+
+    override fun type(): String = type
 }

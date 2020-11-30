@@ -11,7 +11,7 @@ class MemberContext(
     private val cadetMember: CadetMember
 
     init {
-        cadetClass.findMemberViaSignature(signature)
+        cadetClass.getMemberViaSignature(signature)
         .also {
             it ?: throw IllegalArgumentException("Cannot create method context.")
             this.cadetMember = it

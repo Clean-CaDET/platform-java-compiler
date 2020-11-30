@@ -2,18 +2,20 @@ package resolver
 
 import model.CadetClass
 import model.CadetMember
+import model.interfaces.CadetVariable
 import signature.MemberSignature
 
-interface SymbolMap {
+interface SymbolContextMap {
 
     fun getClassAt(index: Int): CadetClass
     fun getClasses(): List<CadetClass>
     fun addClass(cadetClass: CadetClass)
 
-    fun findCadetMemberInContext(name: String?, signature: MemberSignature): CadetMember?
+    fun getCadetVariableInContext(name: String): CadetVariable?
+    fun getCadetMemberInContext(callerName: String?, signature: MemberSignature): CadetMember?
     fun getContextClassName(): String
-    fun getContextScopedType(name: String): String
-    fun getContextSuperType(): String?
+    fun getContextClassSuperType(): String?
 
     fun modifyCurrentClassParent(superClassName: String)
+    fun <T> notifyUsage(resolvedReference: T)
 }

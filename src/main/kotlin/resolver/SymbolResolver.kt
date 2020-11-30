@@ -3,11 +3,13 @@ package resolver
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.*
 import model.CadetMember
-import resolver.nodes.*
 import resolver.nodes.abs.BaseSolverNode
+import resolver.nodes.cadet.ConstructorSolverNode
+import resolver.nodes.cadet.MethodSolverNode
+import resolver.nodes.common.*
 import java.lang.IllegalArgumentException
 
-class SymbolResolver(private val symbolMap: SymbolMap) {
+class SymbolResolver(private val symbolMap: SymbolContextMap) {
 
     fun resolve(node: MethodCallExpr): CadetMember? {
         val sNode = MethodSolverNode(node, symbolMap)
@@ -27,7 +29,7 @@ class SymbolResolver(private val symbolMap: SymbolMap) {
     companion object {
         const val WildcardType: String = "#"
 
-        fun createSolverNode(node: Node, symbolMap: SymbolMap): BaseSolverNode? {
+        fun createSolverNode(node: Node, symbolMap: SymbolContextMap): BaseSolverNode? {
             return when (node) {
                 is MethodCallExpr -> MethodSolverNode(node, symbolMap)
                 is ObjectCreationExpr -> ConstructorSolverNode(node, symbolMap)

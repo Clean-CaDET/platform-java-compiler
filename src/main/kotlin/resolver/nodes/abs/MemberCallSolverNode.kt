@@ -1,22 +1,19 @@
 package resolver.nodes.abs
 
 import com.github.javaparser.ast.Node
+import com.github.javaparser.ast.expr.MethodCallExpr
 import model.CadetMember
-import resolver.SymbolMap
+import resolver.SymbolContextMap
 import resolver.SymbolResolver
 import signature.MemberSignature
 import signature.SignableMember
 
-abstract class CallSolverNode(node: Node, symbolMap: SymbolMap)
-    : ReferenceSolverNode(node, symbolMap),
+abstract class MemberCallSolverNode(node: Node, symbolMap: SymbolContextMap)
+    : CadetSolverNode<CadetMember>(node, symbolMap),
     SignableMember
 {
     private val children = mutableListOf<BaseSolverNode>()
 
-    protected abstract var caller: Node?
-    protected var callerResolverNode: BaseSolverNode? = null
-
-    protected var resolvedReference: CadetMember? = null
     /**
      * @return Resolved [CadetMember] reference.
      * @throws IllegalAccessError If [resolve] hasn't been called, or if resolving failed to find
@@ -24,16 +21,14 @@ abstract class CallSolverNode(node: Node, symbolMap: SymbolMap)
      */
     fun getResult(): CadetMember {
         resolvedReference ?: throw IllegalAccessError()
-        return resolvedReference!!
+        return resolvedReference as CadetMember
     }
 
     override fun resolve() {
         initArgumentNodes()
-        children.forEach { child ->
-            child.resolve()
-        }
+        children.forEach { it.resolve() }
         resolvedReference =
-            symbolMap.findCadetMemberInContext(callerResolverNode?.returnType, MemberSignature(this))
+            symbolMap.getCadetMemberInContext(callerResolverNode?.returnType, MemberSignature(this))
     }
 
     private fun initArgumentNodes() {
