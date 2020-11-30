@@ -1,21 +1,24 @@
 package test;
 
+// Errors in this file are intentional, in order to test some functionalities.
 public class Test {
     private Test test;
     private int a;
     private String s;
 
     Test(){}
-    Test(Test t) throws CloneNotSupportedException {
+    Test(Test t) {
         self().selfArg(this).selfArg(new Test()).multArg(1, 2d, false, this).stringArg("S").end();
         stringArg(this.toString());
         selfArg((Test)clone());
-        stringArg((String) 1);
-        //multArg(hashCode(), (double)"string", this.equals(null), new Test());  Null argument does not work.
+        stringArg((String)1);
+        // multArg(hashCode(), (double)"string", this.equals(null), new Test());    // Null argument NOT supported
         self();
         selfArg(this);
         end();
         stringArg("Hello");
+        toString();
+        hashCode();
     }
 
     // Test methods

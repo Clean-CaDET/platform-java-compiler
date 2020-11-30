@@ -28,14 +28,11 @@ class MethodSolverNode(
     private fun resolveIfObjectMethod() {
         returnType = when (getName()) {
             "toString" -> "String"
-            "clone" -> {
-                if (callerResolverNode == null) symbolMap.getContextClassName()
-                else callerResolverNode!!.returnType
-            }
+            "clone" -> "Object"
             "hashCode" -> "int"
             "equals" -> "boolean"
             "getClass" -> callerResolverNode!!.returnType
-            else -> SymbolResolver.WildcardParameter
+            else -> SymbolResolver.WildcardType
         }
     }
 

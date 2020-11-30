@@ -6,7 +6,7 @@ import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.Parameter
 import parser.node.AbstractNodeParser
 
-class SignableMemberDeclaration
+class MemberDeclarationSignature
     : AbstractNodeParser,
     SignableMember
 {

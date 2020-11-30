@@ -39,7 +39,7 @@ class JavaCodeParser {
     }
 
     private fun testPrint() {
-        for (cadetClass in classMap.classes) {
+        for (cadetClass in classMap.getClasses()) {
             Console.printCadetClass(cadetClass)
             println("_________________________________________")
         }
@@ -48,13 +48,15 @@ class JavaCodeParser {
     private fun outerVisit(cUnit: CompilationUnit) {
         outerVisitor.parseTree(cUnit)
             .also { cadetClass ->
-                classMap.classes.add(cadetClass)
+                classMap.addClass(cadetClass)
             }
     }
 
     private fun innerVisitAll() {
         for (index in 0 until rootNodes.size) {
-            innerVisitor.parseTree(rootNodes[index], classMap.classes[index])
+            println(classMap.getClassAt(index).name);
+            innerVisitor.parseTree(rootNodes[index], classMap.getClassAt(index))
+            println()
         }
     }
 

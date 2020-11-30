@@ -15,18 +15,17 @@ class SymbolResolver(private val symbolMap: SymbolMap) {
         return try {
             sNode.getResult()
             .apply {
-                println("Resolved: '${this.returnType} ${this.name}()' from '${this.parent.name}'")
+                println("\tResolved: '${this.name}()' from '${this.parent.name}'")
             }
         }
         catch (e: IllegalAccessError) {
             println("Failed to resolve '${node.nameAsString}()' from ${symbolMap.getContextClassName()}")
-            //Console.printTree(node)
             null
         }
     }
 
     companion object {
-        const val WildcardParameter: String = "#"
+        const val WildcardType: String = "#"
 
         fun createSolverNode(node: Node, symbolMap: SymbolMap): BaseSolverNode? {
             return when (node) {
@@ -36,6 +35,8 @@ class SymbolResolver(private val symbolMap: SymbolMap) {
                 is LiteralExpr -> LiteralSolverNode(node)
                 is ThisExpr -> ThisSolverNode(node, symbolMap)
                 is CastExpr -> CastSolverNode(node)
+
+                is SuperExpr -> SuperSolverNode(node, symbolMap)
 
                 is NameExpr -> NameExpressionSolverNode(node, symbolMap)
                 is FieldAccessExpr -> throw IllegalArgumentException("Field access not supported by resolver.")

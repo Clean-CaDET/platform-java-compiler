@@ -2,7 +2,7 @@ package signature
 
 import model.CadetMember
 
-class SignableCadetMember(cadetMember: CadetMember) : SignableMember {
+class CadetMemberSignature(cadetMember: CadetMember) : SignableMember {
 
     private val name: String = cadetMember.name
     private val parameterTypes = mutableListOf<String>()

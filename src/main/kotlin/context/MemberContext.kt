@@ -1,20 +1,18 @@
 package context
 
 import model.*
-import signature.SignableCadetMember
 import signature.MemberSignature
 
 class MemberContext(
-    classContext: Context,
+    classContext: ClassContext,
     signature: MemberSignature
-) : Context(classContext.cadetClass) {
+) : ClassContext(classContext.cadetClass) {
 
     private val cadetMember: CadetMember
 
     init {
-        cadetClass.members.find {
-            signature.compareTo(SignableCadetMember(it))
-        }.also {
+        cadetClass.findMemberViaSignature(signature)
+        .also {
             it ?: throw IllegalArgumentException("Cannot create method context.")
             this.cadetMember = it
         }

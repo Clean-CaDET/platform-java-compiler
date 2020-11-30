@@ -44,7 +44,8 @@ object MethodCallExpressionParser : AbstractNodeParser() {
             is FieldAccessExpr -> throw NotImplementedError("Field access not implemented. Break at '${node.nameAsString}'.")
             is MethodCallExpr -> callerNode
             is ObjectCreationExpr -> callerNode
-            else -> throw IllegalArgumentException("Caller node of type ${node.metaModel.typeName} not recognized as valid.")
+            is SuperExpr -> callerNode
+            else -> throw IllegalArgumentException("Caller node of type ${callerNode.metaModel.typeName} not recognized as valid.")
         }
 
         // Caller could be determined by the following algorithm, revolving around 'SimpleName' position in the child node list

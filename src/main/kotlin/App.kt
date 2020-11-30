@@ -6,11 +6,12 @@ fun main(args: Array<String>) {
 
     val parser = JavaCodeParser()
 
-    val path1 = path("Test1.java")
-    val path2 = path("Test2.java")
-    val pathTest = path("Test.java")
+    val test = path("Test.java")
+    val baseTest = path("BaseTest.java")
+    val extTest = path("ExtendTest.java")
+    val staticTest = path("StaticTest.java")
 
-    parser.parseFiles(listOf(pathTest, path1, path2))
+    parser.parseFiles(listOf(baseTest, extTest, staticTest, test))
 }
 
 fun path(fileName: String): String {
