@@ -1,6 +1,11 @@
 package test;
 
+// Errors in this file are intentional, in order to test some functionalities.
 public class ExtendTest extends BaseTest {
+
+    public BaseTest baseField;
+    public ExtendTest extField;
+    public Test testField;
 
     ExtendTest() {
         // Inherited methods
@@ -33,6 +38,27 @@ public class ExtendTest extends BaseTest {
         // Method chaining
         this.extItself(new ExtendTest()).foreignArg(test).extSelf().multipleArgs(1, 2d, false, this).extEnd();
         super.baseItself(base).baseSelf().baseEnd();
+        test.selfArg(test).stringArg((String)22).self().end();
+        ext.extItself(ext).extEnd();
+
+        // Casting variables
+        this.extItself((ExtendTest)new Object());
+        this.multipleArgs((int)"s", (double)2, false, this);
+
+        // Variable single access
+        new Test().hashCode();
+        new Test().end();
+        test.hashCode();
+        test.end();
+        testField.end();
+        testField.hashCode();
+
+        new ExtendTest().extEnd();
+        new BaseTest().baseEnd();
+        base.baseEnd();
+        ext.extEnd();
+        baseField.baseEnd();
+        extField.extEnd();
 
         // This should fail to resolve!
         this.extItself(new ExtendTest()).foreignArg(test).baseSelf().extEnd();

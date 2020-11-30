@@ -17,7 +17,7 @@ import signature.MemberDeclarationSignature
 import signature.MemberSignature
 
 class InnerVisitor(
-    private val classMap: CadetClassMap,
+    private val classMap: VisitorClassMap,
     private val resolver: SymbolResolver
 ) : VoidVisitorAdapter<ClassContext>() {
 
@@ -34,7 +34,7 @@ class InnerVisitor(
     override fun visit(node: ClassOrInterfaceDeclaration?, arg: ClassContext?) {
         ClassDeclarationParser.getExtendingClassesAndInterfaces(node!!)
             .forEach { superClass ->   // TODO This could be an interface!
-                classMap.modifyClassHierarchy(superClass.nameAsString)
+                classMap.modifyCurrentClassParent(superClass.nameAsString)
             }
         super.visit(node, arg)
     }

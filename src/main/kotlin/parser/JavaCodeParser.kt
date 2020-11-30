@@ -4,7 +4,7 @@ import com.github.javaparser.ParseProblemException
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.CompilationUnit
 import resolver.SymbolResolver
-import visitor.CadetClassMap
+import visitor.VisitorClassMap
 import visitor.InnerVisitor
 import visitor.OuterVisitor
 import java.lang.IllegalArgumentException
@@ -13,11 +13,11 @@ import java.nio.file.Path
 
 class JavaCodeParser {
     private val outerVisitor = OuterVisitor()
-    private val classMap = CadetClassMap()
+    private val classMap = VisitorClassMap()
     private val innerVisitor = InnerVisitor(classMap, SymbolResolver(classMap))
     private val rootNodes = mutableListOf<CompilationUnit>()
 
-    fun parseFiles(paths: List<String>): CadetClassMap? {
+    fun parseFiles(paths: List<String>): VisitorClassMap? {
         if (paths.isEmpty()) throw IllegalArgumentException("File list empty.")
 
         for (path in paths) {
