@@ -1,11 +1,13 @@
 package model
 
-import model.interfaces.CadetVariable
+import model.abs.CadetVariable
 
-class CadetParameter(
+class CadetParameter (
     val name: String,
-    val type: String
-) : CadetVariable {
+    type: String
+) : CadetVariable() {
 
-    override fun type(): String = type
+    init {
+        this.type = type
+    }
 }

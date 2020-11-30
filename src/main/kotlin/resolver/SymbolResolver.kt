@@ -6,6 +6,7 @@ import model.CadetMember
 import resolver.nodes.abs.BaseSolverNode
 import resolver.nodes.cadet.ConstructorSolverNode
 import resolver.nodes.cadet.MethodSolverNode
+import resolver.nodes.cadet.NameExpressionSolverNode
 import resolver.nodes.common.*
 import java.lang.IllegalArgumentException
 
@@ -16,9 +17,6 @@ class SymbolResolver(private val symbolMap: SymbolContextMap) {
         sNode.resolve()
         return try {
             sNode.getResult()
-            .apply {
-                println("\tResolved: '${this.name}()' from '${this.parent.name}'")
-            }
         }
         catch (e: IllegalAccessError) {
             println("Failed to resolve '${node.nameAsString}()' from ${symbolMap.getContextClassName()}")

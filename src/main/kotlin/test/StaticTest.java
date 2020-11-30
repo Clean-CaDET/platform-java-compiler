@@ -5,8 +5,15 @@ public class StaticTest {
 
     public static StaticTest staticField;
 
-    public StaticTest() {}
-    public StaticTest(StaticTest t) {}
+    public StaticTest(StaticTest t) {
+        t.toString();
+
+        Test test = new Test();
+        test.end();
+
+        new ExtendTest().extSelf().baseEnd();
+        staticField.toString();
+    }
 
     public static StaticTest self() {return new StaticTest();}
     public static StaticTest itself(StaticTest t) {return t;}

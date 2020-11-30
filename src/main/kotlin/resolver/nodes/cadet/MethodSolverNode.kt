@@ -17,8 +17,8 @@ class MethodSolverNode(
         get() = MethodCallExpressionParser.getCaller(node as MethodCallExpr)
         set(value) {}
 
-    override fun resolve() {
-        super.resolve()
+    override fun doResolve() {
+        super.doResolve()
 
         if (resolvedReference != null)
             this.returnType = (resolvedReference as CadetMember).returnType

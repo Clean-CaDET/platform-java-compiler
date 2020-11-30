@@ -24,7 +24,7 @@ abstract class MemberCallSolverNode(node: Node, symbolMap: SymbolContextMap)
         return resolvedReference as CadetMember
     }
 
-    override fun resolve() {
+    override fun doResolve() {
         initArgumentNodes()
         children.forEach { it.resolve() }
         resolvedReference =

@@ -2,7 +2,7 @@ package resolver
 
 import model.CadetClass
 import model.CadetMember
-import model.interfaces.CadetVariable
+import model.abs.CadetVariable
 import signature.MemberSignature
 
 interface SymbolContextMap {
@@ -13,9 +13,10 @@ interface SymbolContextMap {
 
     fun getCadetVariableInContext(name: String): CadetVariable?
     fun getCadetMemberInContext(callerName: String?, signature: MemberSignature): CadetMember?
+
     fun getContextClassName(): String
     fun getContextClassSuperType(): String?
-
     fun modifyCurrentClassParent(superClassName: String)
+
     fun <T> notifyUsage(resolvedReference: T)
 }

@@ -12,9 +12,9 @@ class ConstructorSolverNode(node: ObjectCreationExpr, symbolMap: SymbolContextMa
         get() = null
         set(value) {}
 
-    override fun resolve() {
+    override fun doResolve() {
         this.returnType = (node as ObjectCreationExpr).typeAsString
-        super.resolve()
+        super.doResolve()
     }
 
     override fun getName(): String = (node as ObjectCreationExpr).typeAsString

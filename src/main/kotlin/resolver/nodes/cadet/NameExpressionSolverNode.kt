@@ -1,8 +1,8 @@
-package resolver.nodes.common
+package resolver.nodes.cadet
 
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.NameExpr
-import model.interfaces.CadetVariable
+import model.abs.CadetVariable
 import resolver.SymbolContextMap
 import resolver.nodes.abs.CadetSolverNode
 
@@ -15,11 +15,11 @@ class NameExpressionSolverNode(
         get() = null
         set(value) {}
 
-    override fun resolve() {
+    override fun doResolve() {
         symbolMap.getCadetVariableInContext((node as NameExpr).nameAsString)
             ?.let {
                 this.resolvedReference = it
-                this.returnType = it.type()
+                this.returnType = it.type
                 return
             }
         returnType = node.nameAsString  // Class names in static access are treated as NameExpr

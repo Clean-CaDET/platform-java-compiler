@@ -1,12 +1,9 @@
-package visitor
+package resolver
 
 import context.ContextHolder
 import hierarchy.InheritanceGraph
-import model.CadetClass
-import model.CadetField
-import model.CadetMember
-import model.interfaces.CadetVariable
-import resolver.SymbolContextMap
+import model.*
+import model.abs.CadetVariable
 import signature.MemberSignature
 import java.lang.IllegalArgumentException
 
@@ -32,14 +29,14 @@ class VisitorClassMap : SymbolContextMap {
 
     override fun getCadetMemberInContext(callerName: String?, signature: MemberSignature): CadetMember? {
         if (callerName == null || belongsToClassHierarchy(callerName, currentClass().name)) {
-            return getCadetMember(signature, getClassHierarchy(currentClass().name))
+            return getMemberFromHierarchy(signature, currentClass().name)
         }
         contextHolder.getContextScopedType(callerName)
             ?.let { callerType ->
-                return getCadetMember(signature, getClassHierarchy(callerType))
+                return getMemberFromHierarchy(signature, callerType)
             }
         getClass(callerName)?.let {
-            return getCadetMember(signature, getClassHierarchy(it.name))
+            return getMemberFromHierarchy(signature, it.name)
         }
         return null
     }
@@ -55,8 +52,20 @@ class VisitorClassMap : SymbolContextMap {
 
     override fun <T> notifyUsage(resolvedReference: T) {
         when (resolvedReference) {
-            is CadetMember -> contextHolder.addMemberInvocation(resolvedReference)
-            is CadetField -> contextHolder.addFieldAccess(resolvedReference)
+            is CadetMember -> {
+                contextHolder.addMemberInvocation(resolvedReference)
+                println("\tResolved method: ${resolvedReference.returnType} ${resolvedReference.name}()")
+            }
+            is CadetField -> {
+                contextHolder.addFieldAccess(resolvedReference)
+                println("\tResolved field: ${resolvedReference.type} ${resolvedReference.name}")
+            }
+            is CadetParameter -> {
+                println("\tResolved parameter: ${resolvedReference.type} ${resolvedReference.name}")
+            }
+            is CadetLocalVariable -> {
+                println("\tResolved local variable ${resolvedReference.type} ${resolvedReference.name}")
+            }
             else -> throw IllegalArgumentException("Unsupported reference usage: ${resolvedReference.toString()}")
         }
     }
@@ -69,8 +78,8 @@ class VisitorClassMap : SymbolContextMap {
     private fun belongsToClassHierarchy(name: String, className: String): Boolean
             = hierarchyGraph.belongsToClassHierarchy(name, className)
 
-    private fun getCadetMember(signature: MemberSignature, classList: List<CadetClass>): CadetMember? {
-        classList.forEach { classObj ->
+    private fun getMemberFromHierarchy(signature: MemberSignature, className: String): CadetMember? {
+        getClassHierarchy(className).forEach { classObj ->
             classObj.getMemberViaSignature(signature)?.let { return it }
         }
         return null

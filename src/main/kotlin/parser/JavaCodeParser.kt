@@ -4,7 +4,7 @@ import com.github.javaparser.ParseProblemException
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.CompilationUnit
 import resolver.SymbolResolver
-import visitor.VisitorClassMap
+import resolver.VisitorClassMap
 import visitor.InnerVisitor
 import visitor.OuterVisitor
 import java.lang.IllegalArgumentException
@@ -36,13 +36,6 @@ class JavaCodeParser {
 
         innerVisitAll()
         return classMap
-    }
-
-    private fun testPrint() {
-        for (cadetClass in classMap.getClasses()) {
-            Console.printCadetClass(cadetClass)
-            println("_________________________________________")
-        }
     }
 
     private fun outerVisit(cUnit: CompilationUnit) {

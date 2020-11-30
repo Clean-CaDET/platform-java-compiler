@@ -10,9 +10,15 @@ abstract class CadetSolverNode<T>(node: Node, symbolMap: SymbolContextMap) : Ref
 
     protected var resolvedReference: T? = null
 
-    fun notifyContextOfUsage() {
-        resolvedReference ?: return
+    private fun notifyContextOfUsage() {
+        if (resolvedReference == null) return
         symbolMap.notifyUsage(resolvedReference)
-        resolvedReference = null
+    }
+
+    protected abstract fun doResolve()
+
+    final override fun resolve() {
+        doResolve()
+        notifyContextOfUsage()
     }
 }

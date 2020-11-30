@@ -13,8 +13,8 @@ public class ExtendTest extends BaseTest {
         baseEnd();
         super.baseItself(new BaseTest());
         baseItself(new BaseTest());
-        //this.baseItself(new BaseTest());
-        //super.toString();
+        this.baseItself(new BaseTest());
+        super.toString();
 
         // Static methods
         StaticTest.self();

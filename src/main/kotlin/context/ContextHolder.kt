@@ -3,7 +3,7 @@ package context
 import model.CadetClass
 import model.CadetField
 import model.CadetMember
-import model.interfaces.CadetVariable
+import model.abs.CadetVariable
 import signature.MemberSignature
 
 class ContextHolder {

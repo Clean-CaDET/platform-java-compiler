@@ -10,7 +10,7 @@ class FieldAccessSolverNode(node: FieldAccessExpr, symbolMap: SymbolContextMap):
 
     override var caller: Node? = null
 
-    override fun resolve() {
+    override fun doResolve() {
 
     }
 }
