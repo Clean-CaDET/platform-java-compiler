@@ -29,22 +29,22 @@ class ContextHolder {
         return null
     }
 
+    fun getMemberContextScopedVariable(name: String): CadetVariable? {
+        memberContext.getContextScopedParameter(name)?.let { return it }
+        memberContext.getContextScopedLocalVariable(name)?.let { return it }
+        return null
+    }
+
     /** @return Type name if the given caller name is a member parameter or local variable */
-    fun getMemberContextScopedType(callerName: String): String? {
+    private fun getMemberContextScopedType(callerName: String): String? {
         memberContext.getContextScopedLocalVariable(callerName)?.let { return it.type }
         memberContext.getContextScopedParameter(callerName)?.let { return it.type }
         return null
     }
 
     /** @return Type name if the given caller name is a class field */
-    fun getClassContextScopedType(callerName: String): String? {
+    private fun getClassContextScopedType(callerName: String): String? {
         classContext.getContextScopedField(callerName)?.let { return it.type }
-        return null
-    }
-
-    fun getMemberContextScopedVariable(name: String): CadetVariable? {
-        memberContext.getContextScopedParameter(name)?.let { return it }
-        memberContext.getContextScopedLocalVariable(name)?.let { return it }
         return null
     }
 }

@@ -18,7 +18,7 @@ public class ExtendTest extends BaseTest {
 
         // Static methods
         StaticTest.self();
-        StaticTest.itself(new StaticTest());
+        StaticTest.itself(new StaticTest());    // TODO Constructors from foreign hierarchies are not recognized
         StaticTest.self().itself(new StaticTest(new StaticTest()));
 
         // Local variables
@@ -61,14 +61,13 @@ public class ExtendTest extends BaseTest {
         baseField.baseEnd();
         extField.extEnd();
 
-        // This should fail to resolve!
         this.extItself(new ExtendTest()).foreignArg(new Test()).baseSelf();
+
+        // This should fail to resolve, but not crash
         fail();
         base.fail();
         test.fail();
         super.fail();
-
-        BaseTest bb = new BaseTest();
 
         // Deeper field access
         /*extSelf().baseField = new BaseTest();

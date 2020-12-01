@@ -5,9 +5,6 @@ import resolver.SymbolContextMap
 
 abstract class CadetSolverNode<T>(node: Node, symbolMap: SymbolContextMap) : ReferenceSolverNode(node, symbolMap) {
 
-    protected abstract var caller: Node?
-    protected var callerResolverNode: BaseSolverNode? = null
-
     protected var resolvedReference: T? = null
 
     private fun notifyContextOfUsage() {
@@ -17,7 +14,7 @@ abstract class CadetSolverNode<T>(node: Node, symbolMap: SymbolContextMap) : Ref
 
     protected abstract fun doResolve()
 
-    final override fun resolve() {
+    override fun resolve() {
         doResolve()
         notifyContextOfUsage()
     }

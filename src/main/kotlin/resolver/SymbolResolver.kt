@@ -5,23 +5,18 @@ import com.github.javaparser.ast.expr.*
 import model.CadetMember
 import resolver.nodes.abs.BaseSolverNode
 import resolver.nodes.cadet.ConstructorSolverNode
+import resolver.nodes.cadet.FieldAccessSolverNode
 import resolver.nodes.cadet.MethodSolverNode
-import resolver.nodes.cadet.NameExpressionSolverNode
+import resolver.nodes.cadet.NameSolverNode
 import resolver.nodes.common.*
 import java.lang.IllegalArgumentException
 
 class SymbolResolver(private val symbolMap: SymbolContextMap) {
 
-    fun resolve(node: MethodCallExpr): CadetMember? {
-        val sNode = MethodSolverNode(node, symbolMap)
+    fun resolve(node: Node) {
+        val sNode = createSolverNode(node, symbolMap)
+        sNode ?: throw IllegalArgumentException("Unresolvable node type: ${node.metaModel.typeName}.")
         sNode.resolve()
-        return try {
-            sNode.getResult()
-        }
-        catch (e: IllegalAccessError) {
-            println("Failed to resolve '${node.nameAsString}()' from ${symbolMap.getContextClassName()}")
-            null
-        }
     }
 
     companion object {
@@ -38,8 +33,8 @@ class SymbolResolver(private val symbolMap: SymbolContextMap) {
 
                 is SuperExpr -> SuperSolverNode(node, symbolMap)
 
-                is NameExpr -> NameExpressionSolverNode(node, symbolMap)
-                is FieldAccessExpr -> throw IllegalArgumentException("Field access not supported by resolver.")
+                is NameExpr -> NameSolverNode(node, symbolMap)
+                is FieldAccessExpr -> FieldAccessSolverNode(node, symbolMap)
 
                 else -> return null
             }

@@ -5,6 +5,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.VariableDeclarator
+import com.github.javaparser.ast.expr.FieldAccessExpr
 import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import context.ClassContext
@@ -52,11 +53,21 @@ class InnerVisitor(
         }
     }
 
+    override fun visit(node: FieldAccessExpr?, arg: ClassContext?) {
+        arg?.let { context ->
+            if (context is MemberContext)
+                resolver.resolve(node!!)
+        }
+    }
+
     override fun visit(node: VariableDeclarator?, arg: ClassContext?) {
         arg?.let { context ->
             if (context is MemberContext) {
                 context.addLocalVariable(FieldDeclarationParser.instantiateLocalVariable(node!!))
+                super.visit(node, arg)
             }
         }
     }
+
+
 }

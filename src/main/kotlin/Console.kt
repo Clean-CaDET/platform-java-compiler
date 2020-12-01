@@ -1,5 +1,6 @@
 import com.github.javaparser.ast.Node
 import model.CadetClass
+import model.CadetMember
 import model.CadetMemberType
 import model.CadetParameter
 
@@ -33,14 +34,8 @@ object Console {
         cadetClass.members
             .filter { it.cadetMemberType == CadetMemberType.Method }
             .forEach {
-                builder.append("\t ${it.returnType} ${it.name}")
-                printParams(it.params, builder)
-                /*it.invokedMethods.forEach { invokedMethod ->
-                    builder.append("\t\t${invokedMethod.name}\n")
-                }
-                it.localVariables.forEach { localVariable ->
-                    builder.append("\t\t${localVariable.type} ${localVariable.name}\n")
-                }*/
+                if (it.cadetMemberType == CadetMemberType.Method)
+                    printMember(it, builder)
             }
 
         // Constructors
@@ -48,8 +43,8 @@ object Console {
         cadetClass.members
             .filter { it.cadetMemberType == CadetMemberType.Constructor }
             .forEach {
-                builder.append("\t ${it.returnType} ${it.name}")
-                printParams(it.params, builder)
+                if (it.cadetMemberType == CadetMemberType.Constructor)
+                    printMember(it, builder)
             }
 
         // Fields
@@ -66,6 +61,23 @@ object Console {
             }
 
         println(builder.toString())
+    }
+
+    private fun printMember(it: CadetMember, builder: java.lang.StringBuilder) {
+        builder.append("\t ${it.returnType} ${it.name}")
+        printParams(it.params, builder)
+        builder.append("\t\tInvoked members:\n")
+        it.invokedMethods.forEach { invokedMethod ->
+            builder.append("\t\t\t${invokedMethod.name}\n")
+        }
+        builder.append("\t\tAccessed fields:\n")
+        it.accessedFields.forEach { field ->
+            builder.append("\t\t\t${field.type} ${field.name}\n")
+        }
+        builder.append("\t\tLocal variables:\n")
+        it.localVariables.forEach { localVariable ->
+            builder.append("\t\t\t${localVariable.type} ${localVariable.name}\n")
+        }
     }
 
     private fun printParams(paramList: List<CadetParameter>, builder: java.lang.StringBuilder) {

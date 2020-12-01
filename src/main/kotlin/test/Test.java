@@ -19,6 +19,8 @@ public class Test {
         stringArg("Hello");
         toString();
         hashCode();
+
+        test.end();
     }
 
     // Test methods

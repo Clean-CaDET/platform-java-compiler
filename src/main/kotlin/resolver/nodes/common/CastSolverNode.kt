@@ -5,6 +5,6 @@ import resolver.nodes.abs.BaseSolverNode
 
 class CastSolverNode(node: CastExpr) : BaseSolverNode(node) {
     override fun resolve() {
-        this.returnType = (node as CastExpr).typeAsString
+        this.returnType = (node as CastExpr).typeAsString   // TODO Iterate children
     }
 }

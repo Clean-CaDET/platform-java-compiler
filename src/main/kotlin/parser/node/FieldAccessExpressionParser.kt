@@ -3,6 +3,7 @@ package parser.node
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.FieldAccessExpr
 import com.github.javaparser.ast.expr.SimpleName
+import java.lang.IllegalArgumentException
 
 object FieldAccessExpressionParser : AbstractNodeParser() {
 
@@ -10,11 +11,17 @@ object FieldAccessExpressionParser : AbstractNodeParser() {
         return getChildByType<SimpleName>(node)!!.asString()
     }
 
-    fun getCallerNode(node: Node): Node {
-        node.childNodes[0]
-            .also {
-                if (it is SimpleName) throw IllegalCallerException("Accessing simple name instead of caller")
-                return it
-            }
+    fun getCallerNode(node: FieldAccessExpr): Node {
+        node.childNodes.forEach { child ->
+            if (child !is SimpleName) return child
+        }
+        throw IllegalArgumentException("Field access has no caller.")
+    }
+
+    fun getVariableName(node: FieldAccessExpr): String {
+        node.childNodes.forEach { child ->
+            if (child is SimpleName) return child.asString()
+        }
+        throw IllegalArgumentException("Field access variable has no name.")
     }
 }

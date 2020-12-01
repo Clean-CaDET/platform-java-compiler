@@ -24,6 +24,7 @@ class JavaCodeParser {
             try {
                 parse(Path.of(path))
                 .also { cUnit ->
+                    //Console.printTree(cUnit)
                     rootNodes.add(cUnit)
                     outerVisit(cUnit)
                 }
@@ -35,7 +36,15 @@ class JavaCodeParser {
         }
 
         innerVisitAll()
+        testPrint()
+
         return classMap
+    }
+
+    private fun testPrint() {
+        classMap.getClasses().forEach { Class ->
+            Console.printCadetClass(Class)
+        }
     }
 
     private fun outerVisit(cUnit: CompilationUnit) {
@@ -47,9 +56,7 @@ class JavaCodeParser {
 
     private fun innerVisitAll() {
         for (index in 0 until rootNodes.size) {
-            println(classMap.getClassAt(index).name);
             innerVisitor.parseTree(rootNodes[index], classMap.getClassAt(index))
-            println()
         }
     }
 

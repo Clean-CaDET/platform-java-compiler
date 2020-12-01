@@ -27,7 +27,7 @@ class VisitorClassMap : SymbolContextMap {
         hierarchyGraph.modifyClassParent(currentClass().name, superClassName)
     }
 
-    override fun getCadetMemberInContext(callerName: String?, signature: MemberSignature): CadetMember? {
+    override fun getMember(callerName: String?, signature: MemberSignature): CadetMember? {
         if (callerName == null || belongsToClassHierarchy(callerName, currentClass().name)) {
             return getMemberFromHierarchy(signature, currentClass().name)
         }
@@ -41,7 +41,15 @@ class VisitorClassMap : SymbolContextMap {
         return null
     }
 
-    override fun getCadetVariableInContext(name: String): CadetVariable? {
+    override fun getField(callerType: String, variableName: String): CadetVariable? {
+        getClassHierarchy(callerType)
+            .forEach { Class ->
+                Class.getField(variableName)?.let { return it }
+            }
+        return null
+    }
+
+    override fun getVariableInContext(name: String): CadetVariable? {
         contextHolder.getMemberContextScopedVariable(name)?.let { return it }
         getClassHierarchy(currentClass().name)
             .forEach { Class ->
@@ -54,17 +62,17 @@ class VisitorClassMap : SymbolContextMap {
         when (resolvedReference) {
             is CadetMember -> {
                 contextHolder.addMemberInvocation(resolvedReference)
-                println("\tResolved method: ${resolvedReference.returnType} ${resolvedReference.name}()")
+                //println("\tResolved method: ${resolvedReference.returnType} ${resolvedReference.name}()")
             }
             is CadetField -> {
                 contextHolder.addFieldAccess(resolvedReference)
-                println("\tResolved field: ${resolvedReference.type} ${resolvedReference.name}")
+                //println("\tResolved field: ${resolvedReference.type} ${resolvedReference.name}")
             }
             is CadetParameter -> {
-                println("\tResolved parameter: ${resolvedReference.type} ${resolvedReference.name}")
+                //println("\tResolved parameter: ${resolvedReference.type} ${resolvedReference.name}")
             }
             is CadetLocalVariable -> {
-                println("\tResolved local variable ${resolvedReference.type} ${resolvedReference.name}")
+                //println("\tResolved local variable ${resolvedReference.type} ${resolvedReference.name}")
             }
             else -> throw IllegalArgumentException("Unsupported reference usage: ${resolvedReference.toString()}")
         }

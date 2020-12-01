@@ -41,7 +41,7 @@ object MethodCallExpressionParser : AbstractNodeParser() {
             is SimpleName -> null
             is ThisExpr -> callerNode
             is NameExpr -> callerNode
-            is FieldAccessExpr -> throw NotImplementedError("Field access not implemented. Break at '${node.nameAsString}'.")
+            is FieldAccessExpr -> callerNode
             is MethodCallExpr -> callerNode
             is ObjectCreationExpr -> callerNode
             is SuperExpr -> callerNode

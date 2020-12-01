@@ -11,8 +11,9 @@ interface SymbolContextMap {
     fun getClasses(): List<CadetClass>
     fun addClass(cadetClass: CadetClass)
 
-    fun getCadetVariableInContext(name: String): CadetVariable?
-    fun getCadetMemberInContext(callerName: String?, signature: MemberSignature): CadetMember?
+    fun getVariableInContext(name: String): CadetVariable?
+    fun getMember(callerName: String?, signature: MemberSignature): CadetMember?
+    fun getField(callerType: String, variableName: String): CadetVariable?
 
     fun getContextClassName(): String
     fun getContextClassSuperType(): String?
