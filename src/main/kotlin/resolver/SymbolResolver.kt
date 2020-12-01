@@ -29,7 +29,7 @@ class SymbolResolver(private val symbolMap: SymbolContextMap) {
 
                 is LiteralExpr -> LiteralSolverNode(node)
                 is ThisExpr -> ThisSolverNode(node, symbolMap)
-                is CastExpr -> CastSolverNode(node)
+                is CastExpr -> CastSolverNode(node, symbolMap)
 
                 is SuperExpr -> SuperSolverNode(node, symbolMap)
 

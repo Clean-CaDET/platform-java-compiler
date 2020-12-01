@@ -19,9 +19,10 @@ object FieldAccessExpressionParser : AbstractNodeParser() {
     }
 
     fun getVariableName(node: FieldAccessExpr): String {
-        node.childNodes.forEach { child ->
-            if (child is SimpleName) return child.asString()
-        }
-        throw IllegalArgumentException("Field access variable has no name.")
+        node.childNodes.filterIsInstance<SimpleName>()
+            .apply {
+                if (this.isEmpty()) throw IllegalArgumentException("Field access variable has no name.")
+                return this[0].asString()
+            }
     }
 }

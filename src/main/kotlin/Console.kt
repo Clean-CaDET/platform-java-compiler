@@ -1,8 +1,5 @@
 import com.github.javaparser.ast.Node
-import model.CadetClass
-import model.CadetMember
-import model.CadetMemberType
-import model.CadetParameter
+import model.*
 
 // Test class only
 object Console {
@@ -27,38 +24,24 @@ object Console {
 
     fun printCadetClass(cadetClass: CadetClass) {
         val builder = StringBuilder()
-        builder.append("Class ${cadetClass.name} \nFull name: ${cadetClass.fullName}").append("\n")
+        builder.append("\nClass ${cadetClass.name} \nFull name: ${cadetClass.fullName}\n")
 
         // Methods
         builder.append("Methods: ").append("\n")
         cadetClass.members
             .filter { it.cadetMemberType == CadetMemberType.Method }
-            .forEach {
-                if (it.cadetMemberType == CadetMemberType.Method)
-                    printMember(it, builder)
-            }
+            .forEach { method -> printMember(method, builder) }
 
         // Constructors
         builder.append("Constructors:").append("\n")
         cadetClass.members
             .filter { it.cadetMemberType == CadetMemberType.Constructor }
-            .forEach {
-                if (it.cadetMemberType == CadetMemberType.Constructor)
-                    printMember(it, builder)
-            }
+            .forEach { constructor -> printMember(constructor, builder) }
 
         // Fields
         builder.append("Fields:").append("\n")
         cadetClass.fields
-            .forEach { field ->
-                builder.append("\t")
-                field.modifiers.forEach { modifier ->
-                    builder.append(modifier.type).append(" ")
-                }
-                builder.append("${field.type} ")
-                builder.append(field.name).append("\t")
-                builder.append("\n")
-            }
+            .forEach { field -> printField(field, builder) }
 
         println(builder.toString())
     }
@@ -66,18 +49,34 @@ object Console {
     private fun printMember(it: CadetMember, builder: java.lang.StringBuilder) {
         builder.append("\t ${it.returnType} ${it.name}")
         printParams(it.params, builder)
-        builder.append("\t\tInvoked members:\n")
-        it.invokedMethods.forEach { invokedMethod ->
-            builder.append("\t\t\t${invokedMethod.name}\n")
+        if (it.invokedMethods.isNotEmpty()) {
+            builder.append("\t\tInvoked members:\n")
+            it.invokedMethods.forEach { invokedMethod ->
+                builder.append("\t\t\t${invokedMethod.name} : ${invokedMethod.parent.name}\n")
+            }
         }
-        builder.append("\t\tAccessed fields:\n")
-        it.accessedFields.forEach { field ->
-            builder.append("\t\t\t${field.type} ${field.name}\n")
+        if (it.accessedFields.isNotEmpty()) {
+            builder.append("\t\tAccessed fields:\n")
+            it.accessedFields.forEach { field ->
+                builder.append("\t\t\t${field.type} ${field.name}\n")
+            }
         }
-        builder.append("\t\tLocal variables:\n")
-        it.localVariables.forEach { localVariable ->
-            builder.append("\t\t\t${localVariable.type} ${localVariable.name}\n")
+        if (it.localVariables.isNotEmpty()) {
+            builder.append("\t\tLocal variables:\n")
+            it.localVariables.forEach { localVariable ->
+                builder.append("\t\t\t${localVariable.type} ${localVariable.name}\n")
+            }
         }
+    }
+
+    private fun printField(field: CadetField, builder: java.lang.StringBuilder) {
+        builder.append("\t")
+        field.modifiers.forEach { modifier ->
+            builder.append(modifier.type).append(" ")
+        }
+        builder.append("${field.type} ")
+        builder.append(field.name).append("\t")
+        builder.append("\n")
     }
 
     private fun printParams(paramList: List<CadetParameter>, builder: java.lang.StringBuilder) {

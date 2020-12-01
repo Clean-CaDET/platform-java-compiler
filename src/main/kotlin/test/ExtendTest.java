@@ -6,6 +6,7 @@ public class ExtendTest extends BaseTest {
     public BaseTest baseField;
     public ExtendTest extField;
     public Test testField;
+    public StaticTest staticTest;
 
     ExtendTest() {
         // Inherited methods
@@ -17,9 +18,9 @@ public class ExtendTest extends BaseTest {
         super.toString();
 
         // Static methods
-        StaticTest.self();
+        staticTest.self();
         StaticTest.itself(new StaticTest());    // TODO Constructors from foreign hierarchies are not recognized
-        StaticTest.self().itself(new StaticTest(new StaticTest()));
+        StaticTest.self().itself(new StaticTest(staticTest));
 
         // Local variables
         Test test = new Test();
@@ -70,12 +71,13 @@ public class ExtendTest extends BaseTest {
         super.fail();
 
         // Deeper field access
-        /*extSelf().baseField = new BaseTest();
+        extSelf().baseField = new BaseTest();
         super.baseField = new BaseTest();
         this.baseField = new BaseTest();
         baseField = new BaseTest();
         extItself(extSelf()).baseField = new BaseTest();
-        StaticTest.staticField.staticField = new StaticTest();*/
+        StaticTest.staticField.staticField = new StaticTest();
+        staticTest.staticField.failStatic();
     }
 
     // TODO These tests will fail

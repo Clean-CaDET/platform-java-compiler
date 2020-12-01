@@ -12,12 +12,13 @@ class NameSolverNode(
 
     override fun doResolve() {
         symbolMap.getVariableInContext((node as NameExpr).nameAsString)
-            ?.let {
+        .also {
+            if (it != null) {
                 this.resolvedReference = it
                 this.returnType = it.type
-                return
             }
-        returnType = node.nameAsString  // Class names in static access are treated as NameExpr
-        // TODO Does this have children which are being called/accessed?
+            else
+                returnType = node.nameAsString
+        }
     }
 }
