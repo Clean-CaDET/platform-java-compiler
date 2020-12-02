@@ -71,6 +71,14 @@ class SymbolContextMap {
         }
     }
 
+    fun isSuperType(childType: String, parentType: String): Boolean {
+        return hierarchyGraph.isSuperType(childType, parentType)
+    }
+
+    fun containsInterface(className: String, interfaceName: String): Boolean {
+        return hierarchyGraph.containsInterface(className, interfaceName)
+    }
+
     fun getContextClassSuperType(): String? = hierarchyGraph.getClassParent(currentClass().name)?.name
     fun getContextClassName(): String = currentClass().name
 

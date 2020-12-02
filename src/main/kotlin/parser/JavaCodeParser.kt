@@ -6,6 +6,7 @@ import com.github.javaparser.ast.CompilationUnit
 import model.CadetClass
 import resolver.SymbolContextMap
 import resolver.SymbolResolver
+import signature.MemberSignature
 import visitor.HierarchyVisitor
 import visitor.InnerVisitor
 import visitor.OuterVisitor
@@ -35,6 +36,7 @@ class JavaCodeParser {
             outerVisit(cUnit)
         }
 
+        MemberSignature.loadSymbolMap(classMap)
         resolveHierarchy()
         innerVisit()
         testPrint()

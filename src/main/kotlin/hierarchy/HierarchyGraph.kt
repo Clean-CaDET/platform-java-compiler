@@ -118,4 +118,40 @@ class HierarchyGraph {
             printClassHierarchy(c.parent!!)
         }
     }
+
+    fun isSuperType(classType: String, parentType: String): Boolean {
+        classGraph[classType]?.let {
+            it.parent?.let { parent ->
+                if (parent.cadetClass.name == parentType) return true
+                return isSuperType(parent, parentType)
+            }
+        }
+        return false
+    }
+
+    private fun isSuperType(classNode: ClassGraphNode, parentType: String): Boolean {
+        classNode.parent?.let { parent ->
+            if (parent.cadetClass.name == parentType) return true
+            return isSuperType(parent, parentType)
+        }
+        return false
+    }
+
+    fun containsInterface(className: String, interfaceName: String): Boolean {
+        classGraph[className]?.let { classNode ->
+            if (classNode.interfaces.contains(interfaceName)) return true
+            classNode.parent?.let { parent ->
+                return containsInterface(parent, interfaceName)
+            }
+        }
+        return false
+    }
+
+    private fun containsInterface(classNode: ClassGraphNode, interfaceName: String): Boolean {
+        if (classNode.interfaces.contains(interfaceName)) return true
+        classNode.parent?.let { parent ->
+            return containsInterface(parent, interfaceName)
+        }
+        return false
+    }
 }

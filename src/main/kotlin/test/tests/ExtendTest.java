@@ -1,7 +1,7 @@
 package test.tests;
 
 // Errors in this file are intentional, in order to test some functionalities.
-public class ExtendTest extends BaseTest {
+public class ExtendTest extends BaseTest implements SimpleInterface {
 
     public BaseTest baseField;
     public ExtendTest extField;

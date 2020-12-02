@@ -1,5 +1,6 @@
 package parser.node
 
+import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.type.ClassOrInterfaceType
@@ -16,7 +17,9 @@ object ClassDeclarationParser : AbstractNodeParser() {
         }
     }
 
-    fun getExtendingClassesAndInterfaces(node: ClassOrInterfaceDeclaration): List<ClassOrInterfaceType> {
-        return getChildrenByType(node)
+    fun getExtendingClassesAndInterfaces(node: CompilationUnit): List<ClassOrInterfaceType> {
+        getChildByType<ClassOrInterfaceDeclaration>(node)!!.apply {
+            return getChildrenByType(this)
+        }
     }
 }

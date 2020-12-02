@@ -1,7 +1,7 @@
 package test.tests;
 
 // Errors in this file are intentional, in order to test some functionalities.
-public class StaticTest {
+public class StaticTest extends ExtendTest {
 
     public static StaticTest staticField;
     private Object objectField;
@@ -20,6 +20,15 @@ public class StaticTest {
         et.baseField.baseSelf().baseEnd();
 
         et.baseField.baseField.baseField.baseField.baseEnd();
+
+        SuperTypeTest(objectField);
+        SuperTypeTest(this);
+
+        DITest(new ExtendTest());
+        DITest(this);
+
+        FailedDITest(baseField);
+        FailedDITest(new Test());
     }
 
     public void print(String s) {}
@@ -27,4 +36,9 @@ public class StaticTest {
     public static StaticTest itself(StaticTest t) {return t;}
     public StaticTest string(String s) {return new StaticTest(null);}
     public StaticTest method(StaticTest test) {return new StaticTest(test);}
+
+    public void SuperTypeTest(Object object) {}
+    public void DITest(SimpleInterface simpleInterface) {}
+
+    public void FailedDITest(SimpleInterface simpleInterface) {}
 }
