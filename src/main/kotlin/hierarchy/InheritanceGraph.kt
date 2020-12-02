@@ -2,6 +2,7 @@ package hierarchy
 
 import model.CadetClass
 import model.CadetMember
+import model.CadetParameter
 
 class InheritanceGraph {
 
@@ -46,16 +47,9 @@ class InheritanceGraph {
             recursiveParentAdd(node.parent!!, list)
     }
 
-    fun belongsToClassHierarchy(name: String, className: String): Boolean {
-        if (name == className) return true
-        getClassParent(className).also {
-            if (it != null)
-                return belongsToClassHierarchy(name, it.name)
-        }
-        return false
-    }
+    fun getClass(name: String): CadetClass? = classGraph[name]?.cadetClass
 
-        private fun instantiateObjectBase(): CadetClass {
+    private fun instantiateObjectBase(): CadetClass {
         val obj = CadetClass()
         obj.name = "Object"
 
@@ -77,11 +71,31 @@ class InheritanceGraph {
         val equals = CadetMember().apply {
             name = "equals"
             returnType = "boolean"
+            params.add(CadetParameter("object", "Object"))
+            parent = obj
+        }
+        val constructor = CadetMember().apply {
+            name = "Object"
+            returnType = "Object"
             parent = obj
         }
         obj.members.apply {
-            add(toString); add(hashCode); add(clone); add(equals)
+            add(toString); add(hashCode); add(clone); add(equals); add(constructor);
         }
         return obj
+    }
+
+    fun printHierarchy() {
+        classGraph.forEach { (_, c) ->
+            printClassHierarchy(c)
+            println()
+        }
+    }
+
+    private fun printClassHierarchy(c: ClassGraphNode) {
+        print("\t-> ${c.cadetClass.name}")
+        c.parent?.let {
+            printClassHierarchy(c.parent!!)
+        }
     }
 }

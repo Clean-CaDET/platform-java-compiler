@@ -28,14 +28,6 @@ class InnerVisitor(
         visit(compilationUnit, null)
     }
 
-    override fun visit(node: ClassOrInterfaceDeclaration?, arg: ClassContext?) {
-        ClassDeclarationParser.getExtendingClassesAndInterfaces(node!!)
-            .forEach { superClass ->   // TODO This could be an interface!
-                classMap.modifyCurrentClassParent(superClass.nameAsString)
-            }
-        super.visit(node, arg)
-    }
-
     override fun visit(node: MethodDeclaration?, arg: ClassContext?) {
         classMap.createMemberContext(MemberSignature(MemberDeclarationSignature(node!!)))
         super.visit(node, classMap.getMemberContext())

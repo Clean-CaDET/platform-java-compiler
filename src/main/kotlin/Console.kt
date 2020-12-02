@@ -52,7 +52,7 @@ object Console {
         if (it.invokedMethods.isNotEmpty()) {
             builder.append("\t\tInvoked members:\n")
             it.invokedMethods.forEach { invokedMethod ->
-                builder.append("\t\t\t${invokedMethod.name} : ${invokedMethod.parent.name}\n")
+                builder.append("\t\t\t${invokedMethod.name}() : ${invokedMethod.parent.name}\n")
             }
         }
         if (it.accessedFields.isNotEmpty()) {

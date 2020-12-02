@@ -6,6 +6,7 @@ import com.github.javaparser.ast.CompilationUnit
 import model.CadetClass
 import resolver.SymbolContextMap
 import resolver.SymbolResolver
+import visitor.HierarchyVisitor
 import visitor.InnerVisitor
 import visitor.OuterVisitor
 import java.lang.IllegalArgumentException
@@ -15,6 +16,7 @@ import java.nio.file.Path
 class JavaCodeParser {
     private val outerVisitor = OuterVisitor()
     private val classMap = SymbolContextMap()
+    private val hierarchyVisitor = HierarchyVisitor(classMap)
     private val innerVisitor = InnerVisitor(classMap, SymbolResolver(classMap))
     private val rootNodes = mutableListOf<CompilationUnit>()
 
@@ -33,8 +35,11 @@ class JavaCodeParser {
             outerVisit(cUnit)
         }
 
-        innerVisit(rootNodes)
+        resolveHierarchy()
+        innerVisit()
         testPrint()
+
+        classMap.printClassHierarchy()
         return classMap.getClasses()
     }
 
@@ -51,10 +56,14 @@ class JavaCodeParser {
             }
     }
 
-    private fun innerVisit(rootNodes: List<CompilationUnit>) {
-        for (index in rootNodes.indices) {
+    private fun resolveHierarchy() {
+        for (index in rootNodes.indices)
+            hierarchyVisitor.parseTree(rootNodes[index], classMap.getClassAt(index))
+    }
+
+    private fun innerVisit() {
+        for (index in rootNodes.indices)
             innerVisitor.parseTree(rootNodes[index], classMap.getClassAt(index))
-        }
     }
 
 

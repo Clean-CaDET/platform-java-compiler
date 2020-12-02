@@ -12,6 +12,10 @@ class SymbolContextMap {
     private val hierarchyGraph = InheritanceGraph()
     private val contextHolder = ContextHolder()
 
+    fun printClassHierarchy() {
+        hierarchyGraph.printHierarchy()
+    }
+
     fun getClassAt(index: Int) = classes[index]
     fun getClasses(): List<CadetClass> = classes
     fun addClass(cadetClass: CadetClass) {
@@ -23,19 +27,15 @@ class SymbolContextMap {
     fun createMemberContext(signature: MemberSignature) = contextHolder.createMemberContext(signature)
     fun getMemberContext() = contextHolder.memberContext
 
-    fun modifyCurrentClassParent(superClassName: String) {
+    fun modifyCurrentClassHierarchy(superClassName: String) {
         hierarchyGraph.modifyClassParent(currentClass().name, superClassName)
     }
 
-    fun getMember(callerName: String?, signature: MemberSignature): CadetMember? {
-        if (callerName == null || belongsToClassHierarchy(callerName, currentClass().name)) {
+    fun getMember(callerType: String?, signature: MemberSignature): CadetMember? {
+        if (callerType == null) {
             return getMemberFromHierarchy(signature, currentClass().name)
         }
-        contextHolder.getContextScopedType(callerName)
-            ?.let { callerType ->
-                return getMemberFromHierarchy(signature, callerType)
-            }
-        getClass(callerName)?.let {
+        getClass(callerType)?.let {
             return getMemberFromHierarchy(signature, it.name)
         }
         return null
@@ -82,10 +82,8 @@ class SymbolContextMap {
     fun getContextClassName(): String = currentClass().name
 
     private fun currentClass() = contextHolder.classContext.cadetClass
-    private fun getClass(name: String): CadetClass? = classes.find { Class -> Class.name == name }
+    private fun getClass(name: String): CadetClass? = hierarchyGraph.getClass(name)
     private fun getClassHierarchy(className: String) = hierarchyGraph.getClassHierarchy(className)
-    private fun belongsToClassHierarchy(name: String, className: String): Boolean
-            = hierarchyGraph.belongsToClassHierarchy(name, className)
 
     private fun getMemberFromHierarchy(signature: MemberSignature, className: String): CadetMember? {
         getClassHierarchy(className).forEach { classObj ->

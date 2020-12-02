@@ -1,4 +1,4 @@
-package test;
+package test.tests;
 
 class BaseTest {
     public BaseTest baseField;

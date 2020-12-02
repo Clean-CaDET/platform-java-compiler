@@ -24,13 +24,14 @@ class OuterVisitor : VoidVisitorAdapter<CadetClass>() {
      *  @return CadetClass skeleton of the given AST
      */
     fun parseTree(compilationUnit: CompilationUnit): CadetClass {
-        visit(compilationUnit, null)    // This will recursively visit the whole AST
+        visit(compilationUnit, null)
         return parent
     }
 
     // Class
     override fun visit(node: ClassOrInterfaceDeclaration?, arg: CadetClass?) {
-        ClassDeclarationParser.instantiateClass(node!!, arg)   // TODO Implement inner class if arg != null
+        if (node!!.isInterface) return
+        ClassDeclarationParser.instantiateClass(node, arg)   // TODO Implement inner class if arg != null
             .also {
                 parent = it
                 super.visit(node, parent)

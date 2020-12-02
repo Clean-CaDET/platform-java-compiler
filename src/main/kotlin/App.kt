@@ -1,19 +1,26 @@
 import parser.JavaCodeParser
+import java.io.File
 
-const val directoryPath = "src\\main\\kotlin\\test\\"
+const val root = "src\\main\\kotlin\\test\\"
+const val javaFileExtension = "java"
 
 fun main(args: Array<String>) {
 
     val parser = JavaCodeParser()
 
-    val test = path("Test.java")
-    val baseTest = path("BaseTest.java")
-    val extTest = path("ExtendTest.java")
-    val staticTest = path("StaticTest.java")
-
-    parser.parseFiles(listOf(baseTest, extTest, test, staticTest))
+    parser.parseFiles(getAllFilePaths(root + "shapes"))
 }
 
-fun path(fileName: String): String {
+private fun path(fileName: String, directoryPath: String): String {
     return directoryPath + fileName
+}
+
+private fun getAllFilePaths(path: String): List<String> {
+    return mutableListOf<String>()
+        .also {paths ->
+            File(path).walkBottomUp().forEach {
+                if (it.isFile && it.extension == javaFileExtension)
+                    paths.add(it.absolutePath)
+            }
+        }
 }

@@ -1,4 +1,4 @@
-package test;
+package test.tests;
 
 // Errors in this file are intentional, in order to test some functionalities.
 public class Test {
