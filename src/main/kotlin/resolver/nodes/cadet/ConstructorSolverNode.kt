@@ -8,9 +8,7 @@ import resolver.nodes.abs.MemberCallSolverNode
 class ConstructorSolverNode(node: ObjectCreationExpr, symbolMap: SymbolContextMap)
     : MemberCallSolverNode(node, symbolMap)
 {
-    override var caller: Node?
-        get() = null
-        set(value) {}
+    override var caller: Node? = null
 
     override fun doResolve() {
         this.returnType = (node as ObjectCreationExpr).typeAsString

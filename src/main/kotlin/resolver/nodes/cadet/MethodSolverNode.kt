@@ -5,7 +5,6 @@ import com.github.javaparser.ast.expr.MethodCallExpr
 import model.CadetMember
 import parser.node.MethodCallExpressionParser
 import resolver.SymbolContextMap
-import resolver.SymbolResolver
 import resolver.nodes.abs.MemberCallSolverNode
 
 class MethodSolverNode(
@@ -13,9 +12,7 @@ class MethodSolverNode(
     symbolMap: SymbolContextMap
 ) : MemberCallSolverNode(node, symbolMap) {
 
-    override var caller: Node?
-        get() = MethodCallExpressionParser.getCaller(node as MethodCallExpr)
-        set(value) {}
+    override var caller: Node? = MethodCallExpressionParser.getCaller(node)
 
     override fun doResolve() {
         super.doResolve()

@@ -13,13 +13,13 @@ import context.MemberContext
 import model.CadetClass
 import parser.node.ClassDeclarationParser
 import parser.node.FieldDeclarationParser
+import resolver.SymbolContextMap
 import resolver.SymbolResolver
-import resolver.VisitorClassMap
 import signature.MemberDeclarationSignature
 import signature.MemberSignature
 
 class InnerVisitor(
-    private val classMap: VisitorClassMap,
+    private val classMap: SymbolContextMap,
     private val resolver: SymbolResolver
 ) : VoidVisitorAdapter<ClassContext>() {
 
