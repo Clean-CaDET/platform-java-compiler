@@ -14,8 +14,8 @@ import java.nio.file.Path
 
 
 class JavaCodeParser {
-    private val outerVisitor = OuterVisitor()
     private val classMap = SymbolContextMap()
+    private val outerVisitor = OuterVisitor(classMap)
     private val hierarchyVisitor = HierarchyVisitor(classMap)
     private val innerVisitor = InnerVisitor(classMap, SymbolResolver(classMap))
     private val rootNodes = mutableListOf<CompilationUnit>()

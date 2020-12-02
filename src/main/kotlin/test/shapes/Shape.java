@@ -1,8 +1,8 @@
 package test.shapes;
 
 
-public abstract class Shape {
+public interface Shape {
 
-    public abstract double getCircumference();
-    public abstract double getArea();
+    double getCircumference();
+    double getArea();
 }

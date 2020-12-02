@@ -1,7 +1,7 @@
 package resolver
 
 import context.ContextHolder
-import hierarchy.InheritanceGraph
+import hierarchy.HierarchyGraph
 import model.*
 import model.abs.CadetVariable
 import signature.MemberSignature
@@ -9,12 +9,10 @@ import java.lang.IllegalArgumentException
 
 class SymbolContextMap {
     private val classes = mutableListOf<CadetClass>()
-    private val hierarchyGraph = InheritanceGraph()
+    private val hierarchyGraph = HierarchyGraph()
     private val contextHolder = ContextHolder()
 
-    fun printClassHierarchy() {
-        hierarchyGraph.printHierarchy()
-    }
+    fun printClassHierarchy() = hierarchyGraph.printHierarchy()
 
     fun getClassAt(index: Int) = classes[index]
     fun getClasses(): List<CadetClass> = classes
@@ -22,13 +20,14 @@ class SymbolContextMap {
         classes.add(cadetClass)
         hierarchyGraph.addClass(cadetClass)
     }
+    fun addInterface(name: String) = hierarchyGraph.addInterface(name)
 
     fun createClassContext(cadetClass: CadetClass) = contextHolder.createClassContext(cadetClass)
     fun createMemberContext(signature: MemberSignature) = contextHolder.createMemberContext(signature)
     fun getMemberContext() = contextHolder.memberContext
 
-    fun modifyCurrentClassHierarchy(superClassName: String) {
-        hierarchyGraph.modifyClassParent(currentClass().name, superClassName)
+    fun modifyCurrentClassHierarchy(symbolName: String) {
+        hierarchyGraph.modifyClassHierarchy(currentClass().name, symbolName)
     }
 
     fun getMember(callerType: String?, signature: MemberSignature): CadetMember? {
@@ -60,14 +59,8 @@ class SymbolContextMap {
 
     fun <T> notifyUsage(resolvedReference: T) {
         when (resolvedReference) {
-            is CadetMember -> {
-                contextHolder.addMemberInvocation(resolvedReference)
-                //println("\tResolved method: ${resolvedReference.returnType} ${resolvedReference.name}()")
-            }
-            is CadetField -> {
-                contextHolder.addFieldAccess(resolvedReference)
-                //println("\tResolved field: ${resolvedReference.type} ${resolvedReference.name}")
-            }
+            is CadetMember -> contextHolder.addMemberInvocation(resolvedReference)
+            is CadetField -> contextHolder.addFieldAccess(resolvedReference)
             is CadetParameter -> {
                 //println("\tResolved parameter: ${resolvedReference.type} ${resolvedReference.name}")
             }

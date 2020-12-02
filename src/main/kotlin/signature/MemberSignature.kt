@@ -1,11 +1,21 @@
 package signature
 
+import resolver.SymbolContextMap
+
 /**
  * Object representing a unique signature for a [SignableMember].
  * Uniqueness is guaranteed within the defining class scope.
  */
 class MemberSignature(signable: SignableMember) {
     private var hash = 0
+
+    companion object {
+        private lateinit var symbolMap: SymbolContextMap
+
+        fun addSymbolMap(symbolMap: SymbolContextMap) {
+            MemberSignature.symbolMap = symbolMap
+        }
+    }
 
     init {
         this.hash = generateHash(signable)

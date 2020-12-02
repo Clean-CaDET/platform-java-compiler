@@ -8,11 +8,7 @@ fun main(args: Array<String>) {
 
     val parser = JavaCodeParser()
 
-    parser.parseFiles(getAllFilePaths(root + "shapes"))
-}
-
-private fun path(fileName: String, directoryPath: String): String {
-    return directoryPath + fileName
+    parser.parseFiles(getAllFilePaths(root + "tests"))
 }
 
 private fun getAllFilePaths(path: String): List<String> {

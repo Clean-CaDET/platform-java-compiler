@@ -10,11 +10,12 @@ import model.CadetClass
 import parser.node.ClassDeclarationParser
 import parser.node.FieldDeclarationParser
 import parser.node.MemberDeclarationParser
+import resolver.SymbolContextMap
 
 /**
  *  AST traversal class. Use [parseTree] to create a [CadetClass] skeleton.
  */
-class OuterVisitor : VoidVisitorAdapter<CadetClass>() {
+class OuterVisitor(private val symbolMap: SymbolContextMap) : VoidVisitorAdapter<CadetClass>() {
 
     private lateinit var parent: CadetClass
 
@@ -30,12 +31,15 @@ class OuterVisitor : VoidVisitorAdapter<CadetClass>() {
 
     // Class
     override fun visit(node: ClassOrInterfaceDeclaration?, arg: CadetClass?) {
-        if (node!!.isInterface) return
-        ClassDeclarationParser.instantiateClass(node, arg)   // TODO Implement inner class if arg != null
-            .also {
-                parent = it
-                super.visit(node, parent)
-            }
+        if (node!!.isInterface) {
+            symbolMap.addInterface(node.nameAsString)
+        }
+        else
+            ClassDeclarationParser.instantiateClass(node, arg)
+                .also {
+                    parent = it
+                    super.visit(node, parent)
+                }
     }
 
     // Method

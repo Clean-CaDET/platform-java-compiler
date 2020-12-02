@@ -4,15 +4,13 @@ import model.CadetClass
 import model.CadetMember
 import model.CadetParameter
 
-class InheritanceGraph {
+class HierarchyGraph {
 
     private val classGraph = mutableMapOf<String, ClassGraphNode>()
+    private val interfaceMap = mutableMapOf<String, String>()
     private val baseKey = "Object"
 
-    constructor(baseClass: CadetClass) {
-        classGraph[baseKey] = ClassGraphNode(baseClass)
-    }
-    constructor() {
+    init {
         classGraph[baseKey] = ClassGraphNode(instantiateObjectBase())
     }
 
@@ -24,11 +22,36 @@ class InheritanceGraph {
             }
     }
 
-    private fun baseClass() = classGraph[baseKey]
-
-    fun modifyClassParent(className: String, parentName: String) {
-        classGraph[className]?.parent = classGraph[parentName]
+    fun addInterface(name: String) {
+        interfaceMap[name] = name
     }
+
+    fun modifyClassHierarchy(className: String, symbolName: String) {
+        if (classGraph[className] != null) {
+            classGraph[symbolName]?.let {
+                addSuperClass(className, symbolName)
+                return
+            }
+            interfaceMap[symbolName]?.let {
+                addInterfaceImplementation(className, symbolName)
+            }
+        }
+    }
+
+    private fun addInterfaceImplementation(className: String, interfaceName: String) {
+        interfaceMap[interfaceName] = interfaceName
+            .also {
+                classGraph[className]!!.interfaces.add(it)
+            }
+    }
+
+    private fun addSuperClass(className: String, parentName: String) {
+        classGraph[className]!!.parent = classGraph[parentName]
+    }
+
+    fun getClass(name: String): CadetClass? = classGraph[name]?.cadetClass
+    fun getClassParent(className: String): CadetClass? = classGraph[className]?.parent?.cadetClass
+    private fun baseClass() = classGraph[baseKey]
 
     fun getClassHierarchy(className: String): List<CadetClass> {
         val classList = mutableListOf<CadetClass>()
@@ -39,15 +62,12 @@ class InheritanceGraph {
         return classList
     }
 
-    fun getClassParent(className: String): CadetClass? = classGraph[className]?.parent?.cadetClass
-
     private fun recursiveParentAdd(node: ClassGraphNode, list: MutableCollection<CadetClass>) {
         list.add(node.cadetClass)
-        if (node.parent != null)
+        if (node.parent != null) {
             recursiveParentAdd(node.parent!!, list)
+        }
     }
-
-    fun getClass(name: String): CadetClass? = classGraph[name]?.cadetClass
 
     private fun instantiateObjectBase(): CadetClass {
         val obj = CadetClass()

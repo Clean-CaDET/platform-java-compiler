@@ -1,6 +1,6 @@
 package test.shapes;
 
-public class Rectangle extends Shape {
+public class Rectangle implements Shape {
 
     public int x;
     public int y;
@@ -9,7 +9,6 @@ public class Rectangle extends Shape {
         this.x = x;
         this.y = y;
     }
-
 
     @Override
     public double getCircumference() {

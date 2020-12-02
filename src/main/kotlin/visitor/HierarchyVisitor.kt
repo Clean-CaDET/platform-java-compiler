@@ -2,10 +2,8 @@ package visitor
 
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Node
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.type.ClassOrInterfaceType
 import model.CadetClass
-import parser.node.ClassDeclarationParser
 import resolver.SymbolContextMap
 
 class HierarchyVisitor(private val symbolContextMap: SymbolContextMap) {
@@ -14,22 +12,20 @@ class HierarchyVisitor(private val symbolContextMap: SymbolContextMap) {
         symbolContextMap.createClassContext(cadetClass)
         traverseChildren(
             compilationUnit,
-            function = {
-                extractHierarchySymbols(it)
-                    .forEach { symbol ->
-                        symbolContextMap.modifyCurrentClassHierarchy(symbol.nameAsString)
-                    }
+            onSymbolFound = {
+                if (it != symbolContextMap.getContextClassName())
+                    symbolContextMap.modifyCurrentClassHierarchy(it)
             }
         )
     }
 
-    private fun traverseChildren(node: Node, function: (node: ClassOrInterfaceDeclaration) -> Unit) {
-        if (node is ClassOrInterfaceDeclaration)
-            function(node)
-        node.childNodes.forEach { traverseChildren(it, function) }
+    private fun traverseChildren(
+        node: Node,
+        onSymbolFound: (symbolName: String) -> Unit
+    ){
+        if (node is ClassOrInterfaceType) {
+            onSymbolFound(node.nameAsString)
+        }
+        node.childNodes.forEach { traverseChildren(it, onSymbolFound) }
     }
-
-    private fun extractHierarchySymbols(classDeclaration: ClassOrInterfaceDeclaration)
-            : List<ClassOrInterfaceType>
-            = ClassDeclarationParser.getExtendingClassesAndInterfaces(classDeclaration)
 }
