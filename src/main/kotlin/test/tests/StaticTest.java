@@ -27,8 +27,13 @@ public class StaticTest extends ExtendTest {
         DITest(new ExtendTest());
         DITest(this);
 
+        staticField.NullTest(null);
+        itself(null);
+
         FailedDITest(baseField);
         FailedDITest(new Test());
+
+        staticField.FailedNullTest(null, null);
     }
 
     public void print(String s) {}
@@ -38,7 +43,10 @@ public class StaticTest extends ExtendTest {
     public StaticTest method(StaticTest test) {return new StaticTest(test);}
 
     public void SuperTypeTest(Object object) {}
-    public void DITest(SimpleInterface simpleInterface) {}
 
+    public void DITest(SimpleInterface simpleInterface) {}
     public void FailedDITest(SimpleInterface simpleInterface) {}
+
+    public void NullTest(StaticTest test) {}
+    public void FailedNullTest(StaticTest test) {}
 }

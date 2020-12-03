@@ -17,33 +17,34 @@ public class Run {
         square.getCircumference();
 
         Run run = new Run();
+
         run.DITest(rect);
         run.DITest(square);
+        run.DITest(cube);
 
         run.SuperTypeTest(square);
-
-        run.DITest(cube);
         run.SuperTypeTest(cube);
 
-        run.FailedDITest(run);
+        run.NullTest(null);
+        run.NullTestMultipleArgs(null, null, 2d);   // This fails if '2' is passed to be auto-converted
 
+        // These tests should fail
+        run.FailedNullTest(null, null);
+        run.FailedDITest(run);
         run.FailedSuperTypeTest(rect);
         run.FailedSuperTypeTest(square);
-
         run.FailedDITest(not);
     }
 
-    public void DITest(Shape shape) {
-        // Test whether implementing classes can be passed in as arguments instead of an interface
-    }
+    public void DITest(Shape shape) {}
+    public void FailedDITest(Shape shape) {}
 
-    public void FailedDITest(Shape shape) {
-
-    }
-
-    public void SuperTypeTest(Rectangle rect) {
-
-    }
-
+    public void SuperTypeTest(Rectangle rect) {}
     public void FailedSuperTypeTest(Cube cube) {}
+
+    public void NullTest(Object object ) {}
+    public void NullTestMultipleArgs(Object object, Run run, double number) {}
+    public void FailedNullTest(Object object) {}
+
+
 }
