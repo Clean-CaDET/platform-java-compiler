@@ -30,13 +30,18 @@ class SymbolContextMap {
         hierarchyGraph.modifyClassHierarchy(currentClass().name, symbolName)
     }
 
-    fun getMember(callerType: String?, signature: MemberSignature): CadetMember? {
+    fun getMethod(callerType: String?, signature: MemberSignature): CadetMember? {
         callerType ?: return getMemberFromHierarchy(signature, currentClass().name)
 
         getClass(callerType).let { Class ->
             Class ?: return null
             return getMemberFromHierarchy(signature, Class.name)
         }
+    }
+
+    fun getConstructor(className: String, signature: MemberSignature): CadetMember? {
+        getClass(className)?.let { return it.getMemberViaSignature(signature) }
+        return null
     }
 
     fun getField(callerType: String, variableName: String): CadetField? {

@@ -16,24 +16,29 @@ abstract class MemberCallSolverNode(node: Node, symbolMap: SymbolContextMap)
     override fun doResolve() {
         initArgumentNodes()
         children.forEach { it.resolve() }
-        resolvedReference =
-            symbolMap.getMember(callerResolverNode?.returnType, MemberSignature(this))
+        callResolveReference()?.let {
+            resolvedReference = it
+            returnType = it.returnType
+        }
     }
+
+    protected abstract fun callResolveReference(): CadetMember?
+    protected abstract fun initChildCondition(child: Node): Boolean
 
     private fun initArgumentNodes() {
         node.childNodes.forEach { child ->
-            if (child !== caller)
+            if (initChildCondition(child)) {
                 SymbolResolver.createSolverNode(child, symbolMap)
                     ?.let { this.children.add(it) }
+            }
         }
     }
 
-    // Member signature overriden methods
     override fun getParameterTypes(): List<String> {
         return mutableListOf<String>()
-        .apply {
-            children.forEach { child -> this.add(child.returnType) }
-        }
+            .also { list ->
+                children.forEach { list.add(it.returnType) }
+            }
     }
     override fun getNumberOfParameters(): Int = children.size
 }

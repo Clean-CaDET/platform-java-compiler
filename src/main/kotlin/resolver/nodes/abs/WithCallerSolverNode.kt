@@ -16,7 +16,7 @@ abstract class WithCallerSolverNode<T>(node: Node, symbolContextMap: SymbolConte
     }
 
     private fun resolveCaller() {
-        if (caller == null) return
+        caller ?: return
         SymbolResolver.createSolverNode(caller!!, symbolMap)
             ?.let {
                 callerResolverNode = it

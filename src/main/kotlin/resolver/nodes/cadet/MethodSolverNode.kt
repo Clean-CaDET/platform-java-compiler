@@ -6,6 +6,7 @@ import model.CadetMember
 import parser.node.MethodCallExpressionParser
 import resolver.SymbolContextMap
 import resolver.nodes.abs.MemberCallSolverNode
+import signature.MemberSignature
 
 class MethodSolverNode(
     node: MethodCallExpr,
@@ -14,12 +15,11 @@ class MethodSolverNode(
 
     override var caller: Node? = MethodCallExpressionParser.getCaller(node)
 
-    override fun doResolve() {
-        super.doResolve()
-
-        if (resolvedReference != null)
-            this.returnType = (resolvedReference as CadetMember).returnType
+    override fun callResolveReference(): CadetMember? {
+        return symbolMap.getMethod(callerResolverNode?.returnType, MemberSignature(this))
     }
+
+    override fun initChildCondition(child: Node): Boolean = child !== caller
 
     override fun getName(): String = (node as MethodCallExpr).nameAsString
 }
