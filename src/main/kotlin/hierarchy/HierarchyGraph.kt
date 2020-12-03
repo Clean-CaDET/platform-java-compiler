@@ -3,6 +3,7 @@ package hierarchy
 import model.CadetClass
 import model.CadetMember
 import model.CadetParameter
+import java.lang.IllegalArgumentException
 
 class HierarchyGraph {
 
@@ -14,9 +15,12 @@ class HierarchyGraph {
         classGraph[baseKey] = ClassGraphNode(instantiateObjectBase())
     }
 
+    fun getClass(name: String): CadetClass? = classGraph[name]?.cadetClass
+    fun getClassParent(className: String): CadetClass? = classGraph[className]?.parent?.cadetClass
+
     fun addClass(cadetClass: CadetClass) {
         ClassGraphNode(cadetClass)
-            .also {
+            .let {
                 it.parent = baseClass()
                 classGraph[cadetClass.name] = it
             }
@@ -39,34 +43,36 @@ class HierarchyGraph {
     }
 
     private fun addInterfaceImplementation(className: String, interfaceName: String) {
-        interfaceMap[interfaceName] = interfaceName
-            .also {
-                classGraph[className]!!.interfaces.add(it)
-            }
+        interfaceName.let {
+            interfaceMap[it] = it
+            classGraph[className]!!.interfaces.add(it)
+        }
     }
 
     private fun addSuperClass(className: String, parentName: String) {
-        classGraph[className]!!.parent = classGraph[parentName]
+        classGraph[className].let { classNode ->
+            classNode ?: throw IllegalArgumentException("Class $className not found in hierarchy")
+            classGraph[parentName].let { parentNode ->
+                parentNode ?: throw IllegalArgumentException("Parent class $parentName not found in hierarchy")
+                classNode.parent = parentNode
+            }
+        }
     }
 
-    fun getClass(name: String): CadetClass? = classGraph[name]?.cadetClass
-    fun getClassParent(className: String): CadetClass? = classGraph[className]?.parent?.cadetClass
     private fun baseClass() = classGraph[baseKey]
 
     fun getClassHierarchy(className: String): List<CadetClass> {
-        val classList = mutableListOf<CadetClass>()
-        classGraph[className]
-            ?.let {
-                recursiveParentAdd(it, classList)
+        classGraph[className]?.let { node ->
+            return mutableListOf<CadetClass>().also { list ->
+                recursiveParentAdd(node, list)
             }
-        return classList
+        }
+        throw IllegalArgumentException("Class $className not found in hierarchy.")
     }
 
     private fun recursiveParentAdd(node: ClassGraphNode, list: MutableCollection<CadetClass>) {
         list.add(node.cadetClass)
-        if (node.parent != null) {
-            recursiveParentAdd(node.parent!!, list)
-        }
+        node.parent?.let { recursiveParentAdd(it, list) }
     }
 
     private fun instantiateObjectBase(): CadetClass {
@@ -105,6 +111,19 @@ class HierarchyGraph {
         return obj
     }
 
+    fun isImplementation(className: String, interfaceName: String): Boolean {
+        classGraph[className]?.let { return isImplementation(it, interfaceName) }
+        return false
+    }
+
+    private fun isImplementation(classNode: ClassGraphNode, interfaceName: String): Boolean {
+        if (classNode.interfaces.contains(interfaceName)) return true
+        classNode.parent?.let { parent ->
+            return isImplementation(parent, interfaceName)
+        }
+        return false
+    }
+
     fun printHierarchy() {
         classGraph.forEach { (_, c) ->
             printClassHierarchy(c)
@@ -117,41 +136,5 @@ class HierarchyGraph {
         c.parent?.let {
             printClassHierarchy(c.parent!!)
         }
-    }
-
-    fun isSuperType(classType: String, parentType: String): Boolean {
-        classGraph[classType]?.let {
-            it.parent?.let { parent ->
-                if (parent.cadetClass.name == parentType) return true
-                return isSuperType(parent, parentType)
-            }
-        }
-        return false
-    }
-
-    private fun isSuperType(classNode: ClassGraphNode, parentType: String): Boolean {
-        classNode.parent?.let { parent ->
-            if (parent.cadetClass.name == parentType) return true
-            return isSuperType(parent, parentType)
-        }
-        return false
-    }
-
-    fun containsInterface(className: String, interfaceName: String): Boolean {
-        classGraph[className]?.let { classNode ->
-            if (classNode.interfaces.contains(interfaceName)) return true
-            classNode.parent?.let { parent ->
-                return containsInterface(parent, interfaceName)
-            }
-        }
-        return false
-    }
-
-    private fun containsInterface(classNode: ClassGraphNode, interfaceName: String): Boolean {
-        if (classNode.interfaces.contains(interfaceName)) return true
-        classNode.parent?.let { parent ->
-            return containsInterface(parent, interfaceName)
-        }
-        return false
     }
 }

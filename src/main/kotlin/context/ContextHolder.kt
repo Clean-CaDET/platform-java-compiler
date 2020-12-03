@@ -21,30 +21,9 @@ class ContextHolder {
     fun addMemberInvocation(cadetMember: CadetMember) = memberContext.addInvokedMember(cadetMember)
     fun addFieldAccess(cadetField: CadetField) = memberContext.addAccessedField(cadetField)
 
-    /** @return Type name if the given caller exists within the current member or class context */
-    fun getContextScopedType(callerName: String): String? {
-        getMemberContextScopedType(callerName)?.let { return it }
-        getClassContextScopedType(callerName)?.let { return it }
-
-        return null
-    }
-
     fun getMemberContextScopedVariable(name: String): CadetVariable? {
-        memberContext.getContextScopedParameter(name)?.let { return it }
-        memberContext.getContextScopedLocalVariable(name)?.let { return it }
-        return null
-    }
-
-    /** @return Type name if the given caller name is a member parameter or local variable */
-    private fun getMemberContextScopedType(callerName: String): String? {
-        memberContext.getContextScopedLocalVariable(callerName)?.let { return it.type }
-        memberContext.getContextScopedParameter(callerName)?.let { return it.type }
-        return null
-    }
-
-    /** @return Type name if the given caller name is a class field */
-    private fun getClassContextScopedType(callerName: String): String? {
-        classContext.getContextScopedField(callerName)?.let { return it.type }
+        memberContext.getParameter(name)?.let { return it }
+        memberContext.getLocalVariable(name)?.let { return it }
         return null
     }
 }

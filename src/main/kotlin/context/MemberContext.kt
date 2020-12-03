@@ -12,33 +12,16 @@ class MemberContext(
 
     init {
         cadetClass.getMemberViaSignature(signature)
-        .also {
-            it ?: throw IllegalArgumentException("Cannot create method context.")
+        .let {
+            it ?: throw IllegalArgumentException("Failed to create member context in class ${classContext.cadetClass.name}")
             this.cadetMember = it
         }
     }
 
-    fun addInvokedMember(member: CadetMember) {
-        cadetMember.invokedMethods.add(member)
-    }
+    fun addInvokedMember(member: CadetMember) = cadetMember.invokedMethods.add(member)
+    fun addLocalVariable(localVariable: CadetLocalVariable) = cadetMember.localVariables.add(localVariable)
+    fun addAccessedField(field: CadetField) = cadetMember.accessedFields.add(field)
 
-    fun addLocalVariable(localVariable: CadetLocalVariable) {
-        cadetMember.localVariables.add(localVariable)
-    }
-
-    fun addAccessedField(field: CadetField) {
-        cadetMember.accessedFields.add(field)
-    }
-
-    fun getContextScopedParameter(name: String): CadetParameter? {
-        return cadetMember.params.find { param ->
-            param.name == name
-        }
-    }
-
-    fun getContextScopedLocalVariable(name: String): CadetLocalVariable? {
-        return cadetMember.localVariables.find { field ->
-            field.name == name
-        }
-    }
+    fun getParameter(name: String) = cadetMember.params.find { it.name == name }
+    fun getLocalVariable(name: String) = cadetMember.localVariables.find { it.name == name }
 }

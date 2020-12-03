@@ -28,8 +28,8 @@ class MemberDeclarationSignature
     override fun getNumberOfParameters(): Int = parameterTypes.size
 
     private fun getParameterTypes(node: Node) {
-        getChildrenByType<Parameter>(node).forEach { parameterNode ->
-            parameterTypes.add(parameterNode.typeAsString)
+        getChildrenByType<Parameter>(node).forEach { paramNode ->
+            parameterTypes.add(paramNode.typeAsString)
         }
     }
 

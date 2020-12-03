@@ -8,9 +8,7 @@ class CadetMemberSignature(cadetMember: CadetMember) : SignableMember {
     private val parameterTypes = mutableListOf<String>()
 
     init {
-        cadetMember.params.forEach { param ->
-            parameterTypes.add(param.type)
-        }
+        cadetMember.params.forEach { parameterTypes.add(it.type) }
     }
 
     override fun getName(): String = name

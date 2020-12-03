@@ -64,6 +64,6 @@ class MemberSignature(signable: SignableMember) {
     }
 
     private fun isDependencyInjection(className: String, interfaceName: String): Boolean {
-        return symbolMap.containsInterface(className, interfaceName)
+        return symbolMap.isImplementation(className, interfaceName)
     }
 }

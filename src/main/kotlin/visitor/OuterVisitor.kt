@@ -12,57 +12,37 @@ import parser.node.FieldDeclarationParser
 import parser.node.MemberDeclarationParser
 import resolver.SymbolContextMap
 
-/**
- *  AST traversal class. Use [parseTree] to create a [CadetClass] skeleton.
- */
 class OuterVisitor(private val symbolMap: SymbolContextMap) : VoidVisitorAdapter<CadetClass>() {
 
-    private lateinit var parent: CadetClass
+    private lateinit var cadetClass: CadetClass
 
-    /**
-     *  Convert the AST to which the given [CompilationUnit] belongs to, into a [CadetClass] skeleton.
-     *  @param compilationUnit Compilation unit at the root of the AST
-     *  @return CadetClass skeleton of the given AST
-     */
     fun parseTree(compilationUnit: CompilationUnit): CadetClass {
         visit(compilationUnit, null)
-        return parent
+        return cadetClass
     }
 
-    // Class
     override fun visit(node: ClassOrInterfaceDeclaration?, arg: CadetClass?) {
-        if (node!!.isInterface) {
+        if (node!!.isInterface)
             symbolMap.addInterface(node.nameAsString)
-        }
-        else
+        else {
             ClassDeclarationParser.instantiateClass(node, arg)
-                .also {
-                    parent = it
-                    super.visit(node, parent)
-                }
+                .let { cadetClass = it }
+            super.visit(node, cadetClass)
+        }
     }
 
-    // Method
     override fun visit(node: MethodDeclaration?, arg: CadetClass?) {
         MemberDeclarationParser.instantiateMethod(node!!, arg!!)
-            .apply {
-                arg.members.add(this)
-            }
+            .let { arg.members.add(it) }
     }
 
-    // Constructor
     override fun visit(node: ConstructorDeclaration, arg: CadetClass?) {
         MemberDeclarationParser.instantiateConstructor(node, arg!!)
-            .apply {
-                arg.members.add(this)
-            }
+            .let { arg.members.add(it) }
     }
 
-    // Field
     override fun visit(node: FieldDeclaration, arg: CadetClass?) {
         FieldDeclarationParser.instantiateClassField(node, arg!!)
-            .apply {
-                arg.fields.add(this)
-            }
+            .let { arg.fields.add(it) }
     }
 }

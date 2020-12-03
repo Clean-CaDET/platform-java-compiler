@@ -31,13 +31,12 @@ class SymbolContextMap {
     }
 
     fun getMember(callerType: String?, signature: MemberSignature): CadetMember? {
-        if (callerType == null) {
-            return getMemberFromHierarchy(signature, currentClass().name)
+        callerType ?: return getMemberFromHierarchy(signature, currentClass().name)
+
+        getClass(callerType).let { Class ->
+            Class ?: return null
+            return getMemberFromHierarchy(signature, Class.name)
         }
-        getClass(callerType)?.let {
-            return getMemberFromHierarchy(signature, it.name)
-        }
-        return null
     }
 
     fun getField(callerType: String, variableName: String): CadetField? {
@@ -50,40 +49,33 @@ class SymbolContextMap {
 
     fun getVariableInContext(name: String): CadetVariable? {
         contextHolder.getMemberContextScopedVariable(name)?.let { return it }
-        getClassHierarchy(currentClass().name)
-            .forEach { Class ->
-                Class.getField(name)?.let { return it }
-            }
-        return null
+        return getField(currentClass().name, name)
     }
 
     fun <T> notifyUsage(resolvedReference: T) {
         when (resolvedReference) {
             is CadetMember -> contextHolder.addMemberInvocation(resolvedReference)
             is CadetField -> contextHolder.addFieldAccess(resolvedReference)
-            is CadetParameter -> {
-                //println("\tResolved parameter: ${resolvedReference.type} ${resolvedReference.name}")
-            }
-            is CadetLocalVariable -> {
-                //println("\tResolved local variable ${resolvedReference.type} ${resolvedReference.name}")
-            }
+            is CadetParameter -> {}
+            is CadetLocalVariable -> {}
             else -> throw IllegalArgumentException("Unsupported reference usage: ${resolvedReference.toString()}")
         }
     }
 
     fun isSuperType(childType: String, parentType: String): Boolean {
-        return hierarchyGraph.isSuperType(childType, parentType)
+        getClassHierarchy(childType).find { c -> c.name == parentType }
+            .also { return it != null }
     }
 
-    fun containsInterface(className: String, interfaceName: String): Boolean {
-        return hierarchyGraph.containsInterface(className, interfaceName)
+    fun isImplementation(className: String, interfaceName: String): Boolean {
+        return hierarchyGraph.isImplementation(className, interfaceName)
     }
 
-    fun getContextClassSuperType(): String? = hierarchyGraph.getClassParent(currentClass().name)?.name
-    fun getContextClassName(): String = currentClass().name
+    fun getContextClassSuperType() = hierarchyGraph.getClassParent(currentClass().name)?.name
+    fun getContextClassName() = currentClass().name
 
     private fun currentClass() = contextHolder.classContext.cadetClass
-    private fun getClass(name: String): CadetClass? = hierarchyGraph.getClass(name)
+    private fun getClass(name: String) = hierarchyGraph.getClass(name)
     private fun getClassHierarchy(className: String) = hierarchyGraph.getClassHierarchy(className)
 
     private fun getMemberFromHierarchy(signature: MemberSignature, className: String): CadetMember? {

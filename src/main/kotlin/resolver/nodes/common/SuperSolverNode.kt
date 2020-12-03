@@ -9,10 +9,8 @@ class SuperSolverNode(node: SuperExpr, symbolMap: SymbolContextMap) : ReferenceS
 
     override fun resolve() {
         symbolMap.getContextClassSuperType()
-            ?.let {
-                returnType = it
-                return
+            .let {
+                returnType = it ?: SymbolResolver.WildcardType
             }
-        returnType = SymbolResolver.WildcardType
     }
 }

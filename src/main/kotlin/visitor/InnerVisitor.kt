@@ -1,6 +1,7 @@
 package visitor
 
 import com.github.javaparser.ast.CompilationUnit
+import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
@@ -11,7 +12,6 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import context.ClassContext
 import context.MemberContext
 import model.CadetClass
-import parser.node.ClassDeclarationParser
 import parser.node.FieldDeclarationParser
 import resolver.SymbolContextMap
 import resolver.SymbolResolver
@@ -33,37 +33,43 @@ class InnerVisitor(
     }
 
     override fun visit(node: MethodDeclaration?, arg: ClassContext?) {
-        classMap.createMemberContext(MemberSignature(MemberDeclarationSignature(node!!)))
+        createMemberContext(node!!)
         super.visit(node, classMap.getMemberContext())
     }
 
     override fun visit(node: ConstructorDeclaration?, arg: ClassContext?) {
-        classMap.createMemberContext(MemberSignature(MemberDeclarationSignature(node!!)))
+        createMemberContext(node!!)
         super.visit(node, classMap.getMemberContext())
     }
 
     override fun visit(node: MethodCallExpr?, arg: ClassContext?) {
-        arg?.let { context ->
-            if (context is MemberContext)
-                resolver.resolve(node!!)
-        }
+        if (isMemberContext(arg))
+            resolver.resolve(node!!)
     }
 
     override fun visit(node: FieldAccessExpr?, arg: ClassContext?) {
-        arg?.let { context ->
-            if (context is MemberContext)
-                resolver.resolve(node!!)
-        }
+        if (isMemberContext(arg))
+            resolver.resolve(node!!)
     }
 
     override fun visit(node: VariableDeclarator?, arg: ClassContext?) {
-        arg?.let { context ->
-            if (context is MemberContext) {
-                context.addLocalVariable(FieldDeclarationParser.instantiateLocalVariable(node!!))
-                super.visit(node, arg)
-            }
+        if (isMemberContext(arg)) {
+            (arg as MemberContext).addLocalVariable(FieldDeclarationParser.instantiateLocalVariable(node!!))
+            super.visit(node, arg)
         }
     }
 
+    // Shorthand methods
+    private fun createMemberContext(node: Node) {
+        when (node) {
+            is MethodDeclaration -> classMap.createMemberContext(MemberSignature(MemberDeclarationSignature(node)))
+            is ConstructorDeclaration -> classMap.createMemberContext(MemberSignature(MemberDeclarationSignature(node)))
+            else -> {}
+        }
+    }
 
+    private fun isMemberContext(arg: ClassContext?): Boolean {
+        arg ?: return false
+        return arg is MemberContext
+    }
 }
