@@ -10,8 +10,8 @@ import second_pass.signature.MemberSignature
 
 class MethodSolverNode(
     node: MethodCallExpr,
-    symbolMap: SymbolSolvingBundle
-) : MemberCallSolverNode(node, symbolMap) {
+    symbolSolvingBundle: SymbolSolvingBundle
+) : MemberCallSolverNode(node, symbolSolvingBundle) {
 
     override var caller: Node? = MethodCallExpressionParser.getCaller(node)
 

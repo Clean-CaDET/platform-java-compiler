@@ -7,8 +7,8 @@ import second_pass.resolver.solver_nodes.abs.CadetSolverNode
 
 class NameSolverNode(
     node: NameExpr,
-    symbolMap: SymbolSolvingBundle
-): CadetSolverNode<CadetVariable>(node, symbolMap) {
+    symbolSolvingBundle: SymbolSolvingBundle
+): CadetSolverNode<CadetVariable>(node, symbolSolvingBundle) {
 
     override fun doResolve() {
         symbolSolvingBundle.getVariableInContext((node as NameExpr).nameAsString)

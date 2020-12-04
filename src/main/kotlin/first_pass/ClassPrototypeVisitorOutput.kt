@@ -2,7 +2,7 @@ package first_pass
 
 import cadet_model.CadetClass
 
-class OuterVisitorOutput {
+class ClassPrototypeVisitorOutput {
     lateinit var cadetClass: CadetClass
     val interfaces = mutableListOf<String>()
 }

@@ -7,8 +7,8 @@ import first_pass.node_parser.FieldAccessExpressionParser
 import second_pass.resolver.SymbolSolvingBundle
 import second_pass.resolver.solver_nodes.abs.WithCallerSolverNode
 
-class FieldAccessSolverNode(node: FieldAccessExpr, symbolMap: SymbolSolvingBundle)
-    : WithCallerSolverNode<CadetVariable>(node, symbolMap)
+class FieldAccessSolverNode(node: FieldAccessExpr, symbolSolvingBundle: SymbolSolvingBundle)
+    : WithCallerSolverNode<CadetVariable>(node, symbolSolvingBundle)
 {
     override var caller: Node? = FieldAccessExpressionParser.getCallerNode(node)
 

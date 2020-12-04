@@ -18,7 +18,7 @@ import second_pass.resolver.SymbolResolver
 import second_pass.signature.MemberDeclarationSignature
 import second_pass.signature.MemberSignature
 
-class InnerVisitor(
+class SymbolResolverVisitor(
     private val visitorContext: VisitorContext,
     private val resolver: SymbolResolver
 ) : VoidVisitorAdapter<ClassContext>() {

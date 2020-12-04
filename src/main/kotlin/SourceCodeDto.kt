@@ -1,2 +1,8 @@
-class SourceCodeDto(val fileName: String, val sourceCode: String) {
+
+class SourceCodeDto(
+    val fileName: String,
+    val sourceCode: String
+)
+{
+
 }

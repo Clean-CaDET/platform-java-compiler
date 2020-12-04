@@ -13,7 +13,7 @@ class MemberContext(
     init {
         cadetClass.getMemberViaSignature(signature)
         .let {
-            it ?: throw IllegalArgumentException("Failed to create member second_pass.context in class ${classContext.cadetClass.name}")
+            it ?: throw IllegalArgumentException("Failed to create member context in class ${classContext.cadetClass.name}")
             this.cadetMember = it
         }
     }

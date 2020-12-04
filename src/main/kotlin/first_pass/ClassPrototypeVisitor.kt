@@ -6,20 +6,17 @@ import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.FieldDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
-import second_pass.hierarchy.HierarchyGraph
 import cadet_model.CadetClass
 import first_pass.node_parser.ClassDeclarationParser
 import first_pass.node_parser.FieldDeclarationParser
 import first_pass.node_parser.MemberDeclarationParser
 
-class OuterVisitor() : VoidVisitorAdapter<CadetClass>() {
+class ClassPrototypeVisitor : VoidVisitorAdapter<CadetClass>() {
 
-    private val output = OuterVisitorOutput()
-    private lateinit var cadetClass: CadetClass
+    private val output = ClassPrototypeVisitorOutput()
 
-    fun parseTree(compilationUnit: CompilationUnit): OuterVisitorOutput {
+    fun parseTree(compilationUnit: CompilationUnit): ClassPrototypeVisitorOutput {
         visit(compilationUnit, null)
-        output.cadetClass = cadetClass
         return output
     }
 
@@ -28,8 +25,8 @@ class OuterVisitor() : VoidVisitorAdapter<CadetClass>() {
             output.interfaces.add(node.nameAsString)
         else {
             ClassDeclarationParser.instantiateClass(node, arg)
-                .let { cadetClass = it }
-            super.visit(node, cadetClass)
+                .let { output.cadetClass = it }
+            super.visit(node, output.cadetClass)
         }
     }
 

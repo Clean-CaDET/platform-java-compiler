@@ -8,8 +8,8 @@ import second_pass.resolver.SymbolSolvingBundle
 import second_pass.resolver.SymbolResolver
 import second_pass.signature.MemberSignature
 import second_pass.HierarchyVisitor
-import second_pass.InnerVisitor
-import first_pass.OuterVisitor
+import second_pass.SymbolResolverVisitor
+import first_pass.ClassPrototypeVisitor
 
 
 class JavaCodeParser {
@@ -17,22 +17,22 @@ class JavaCodeParser {
     private val visitorContext = VisitorContext()
     private val symbolSolvingBundle = SymbolSolvingBundle(hierarchyGraph, visitorContext)
 
-    private val outerVisitor = OuterVisitor()
+    private val outerVisitor = ClassPrototypeVisitor()
     private val hierarchyVisitor = HierarchyVisitor(visitorContext, hierarchyGraph)
-    private val innerVisitor = InnerVisitor(visitorContext, SymbolResolver(symbolSolvingBundle))
+    private val innerVisitor = SymbolResolverVisitor(visitorContext, SymbolResolver(symbolSolvingBundle))
 
-    private val classParserBundleList = mutableListOf<CadetClassParserBundle>()
+    private val classParserResourceList = mutableListOf<CadetClassParserResources>()
 
     fun parseFiles(sourceCodeDtoList: List<SourceCodeDto>): List<CadetClass>? {
         lateinit var cUnit: CompilationUnit
 
         for (sourceCodeDto in sourceCodeDtoList) {
-            try { cUnit = parse(sourceCodeDto.sourceCode) }
+            try { cUnit = StaticJavaParser.parse(sourceCodeDto.sourceCode) }
             catch (e: ParseProblemException) {
                 println("Syntax errors at file ${sourceCodeDto.fileName}")
                 return null
             }
-            classParserBundleList.add(CadetClassParserBundle(cUnit, outerVisit(cUnit)))
+            classParserResourceList.add(CadetClassParserResources(cUnit, outerVisit(cUnit)))
         }
 
         MemberSignature.injectHierarchyGraph(hierarchyGraph)
@@ -54,23 +54,17 @@ class JavaCodeParser {
     }
 
     private fun resolveHierarchy() {
-        for (classBundle in classParserBundleList)
-            hierarchyVisitor.parseTree(classBundle.compilationUnit, classBundle.cadetClass)
+        for (resource in classParserResourceList)
+            hierarchyVisitor.parseTree(resource.compilationUnit, resource.cadetClass)
     }
 
     private fun innerVisit() {
-        for (classBundle in classParserBundleList)
-            innerVisitor.parseTree(classBundle.compilationUnit, classBundle.cadetClass)
+        for (resource in classParserResourceList)
+            innerVisitor.parseTree(resource.compilationUnit, resource.cadetClass)
     }
 
-    private class CadetClassParserBundle(
+    private class CadetClassParserResources(
         val compilationUnit: CompilationUnit,
         val cadetClass: CadetClass
-    ) {}
-
-
-// JavaParser method
-    private fun parse(sourceCode: String): CompilationUnit {
-        return StaticJavaParser.parse(sourceCode)
-    }
+    )
 }
