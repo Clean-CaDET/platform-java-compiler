@@ -13,7 +13,10 @@ class ConstructorSolverNode(node: ObjectCreationExpr, symbolSolvingBundle: Symbo
     override var caller: Node? = null
 
     override fun callResolveReference(): CadetMember? {
-        return symbolSolvingBundle.getConstructor((node as ObjectCreationExpr).typeAsString, MemberSignature(this))
+        return symbolSolvingBundle.getConstructor(
+                (node as ObjectCreationExpr).typeAsString,
+                MemberSignature(this, symbolSolvingBundle.getHierarchyGraph())
+        )
     }
 
     override fun initChildCondition(child: Node): Boolean = true

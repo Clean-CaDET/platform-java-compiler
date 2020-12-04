@@ -35,7 +35,6 @@ class JavaCodeParser {
             classParserResourceList.add(CadetClassParserResources(cUnit, outerVisit(cUnit)))
         }
 
-        MemberSignature.injectHierarchyGraph(hierarchyGraph)
         resolveHierarchy()
         innerVisit()
 

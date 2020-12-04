@@ -16,7 +16,10 @@ class MethodSolverNode(
     override var caller: Node? = MethodCallExpressionParser.getCaller(node)
 
     override fun callResolveReference(): CadetMember? {
-        return symbolSolvingBundle.getMethod(callerResolverNode?.returnType, MemberSignature(this))
+        return symbolSolvingBundle.getMethod(
+            callerResolverNode?.returnType,
+            MemberSignature(this, symbolSolvingBundle.getHierarchyGraph())
+        )
     }
 
     override fun initChildCondition(child: Node): Boolean = child !== caller

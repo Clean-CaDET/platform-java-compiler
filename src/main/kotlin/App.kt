@@ -7,7 +7,7 @@ fun main(args: Array<String>) {
 
     val parser = JavaCodeParser()
 
-    parser.parseFiles(extractSourceCode(getAllFilePaths(root + "tests")))
+    parser.parseFiles(extractSourceCode(getAllFilePaths(root + "shapes")))
 }
 
 private fun getAllFilePaths(path: String): List<String> {

@@ -11,6 +11,7 @@ class SymbolSolvingBundle(
     private val visitorContext: VisitorContext
 ) {
     fun getVisitorContext() = visitorContext
+    fun getHierarchyGraph() = hierarchyGraph
 
     fun getConstructor(className: String, signature: MemberSignature): CadetMember? {
         hierarchyGraph.getClass(className)?.let { return it.getMemberViaSignature(signature) }
@@ -30,11 +31,6 @@ class SymbolSolvingBundle(
         return getField(visitorContext.getCurrentClassName(), name)
     }
 
-    fun getCurrentClassSuperType(): String? {
-        hierarchyGraph.getClassParent(visitorContext.getCurrentClassName())?.let { return it.name }
-        return null
-    }
-
     fun getMethod(callerType: String?, signature: MemberSignature): CadetMember? {
         callerType ?: return getMemberFromHierarchy(signature, visitorContext.getCurrentClassName())
 
@@ -48,6 +44,11 @@ class SymbolSolvingBundle(
         hierarchyGraph.getClassHierarchy(className).forEach { classObj ->
             classObj.getMemberViaSignature(signature)?.let { return it }
         }
+        return null
+    }
+
+    fun getCurrentClassSuperType(): String? {
+        hierarchyGraph.getClassParent(visitorContext.getCurrentClassName())?.let { return it.name }
         return null
     }
 }

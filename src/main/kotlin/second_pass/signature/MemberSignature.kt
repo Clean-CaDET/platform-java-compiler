@@ -8,18 +8,13 @@ import java.lang.IllegalArgumentException
  * Object representing a unique second_pass.signature for a [SignableMember].
  * Uniqueness is guaranteed within the defining class scope.
  */
-class MemberSignature(signable: SignableMember) {
+class MemberSignature(
+    signable: SignableMember,
+    private val hierarchyGraph: HierarchyGraph? = null
+) {
     private var nameHash = 0
     private var numberOfParameters = 0
     private val paramTypes = mutableListOf<String>()
-
-    companion object {
-        private lateinit var hierarchyGraph: HierarchyGraph
-
-        fun injectHierarchyGraph(hierarchyGraph: HierarchyGraph) {
-            MemberSignature.hierarchyGraph = hierarchyGraph
-        }
-    }
 
     init {
         generateSignature(signable)
@@ -61,10 +56,12 @@ class MemberSignature(signable: SignableMember) {
     }
 
     private fun isSuperType(parentType: String, childType: String): Boolean {
+        hierarchyGraph ?: throw NullPointerException("Hierarchy graph not injected into Member signature.")
         return hierarchyGraph.isSuperType(childType, parentType)
     }
 
     private fun isDependencyInjection(className: String, interfaceName: String): Boolean {
+        hierarchyGraph ?: throw NullPointerException("Hierarchy graph not injected into Member signature.")
         return hierarchyGraph.isImplementation(className, interfaceName)
     }
 }
