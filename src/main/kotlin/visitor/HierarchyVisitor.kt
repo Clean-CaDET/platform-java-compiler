@@ -1,21 +1,19 @@
 package visitor
 
 import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.Node
-import com.github.javaparser.ast.stmt.BlockStmt
-import com.github.javaparser.ast.type.ClassOrInterfaceType
+import context.VisitorContext
+import hierarchy.HierarchyGraph
 import model.CadetClass
 import parser.node.ClassDeclarationParser
-import resolver.SymbolContextMap
 
-class HierarchyVisitor(private val symbolContextMap: SymbolContextMap) {
+class HierarchyVisitor(private val visitorContext: VisitorContext, private val hierarchyGraph: HierarchyGraph) {
 
     fun parseTree(compilationUnit: CompilationUnit, cadetClass: CadetClass) {
-        symbolContextMap.createClassContext(cadetClass)
+        visitorContext.createClassContext(cadetClass)
 
         ClassDeclarationParser.getExtendingClassesAndInterfaces(compilationUnit)
             .forEach { node ->
-                symbolContextMap.modifyCurrentClassHierarchy(node.nameAsString)
+                hierarchyGraph.modifyClassHierarchy(visitorContext.getCurrentClassName(), node.nameAsString)
             }
     }
 }

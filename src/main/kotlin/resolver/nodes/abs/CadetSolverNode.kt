@@ -4,16 +4,19 @@ import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.javaparser.ast.expr.NameExpr
 import com.github.javaparser.ast.expr.ObjectCreationExpr
-import resolver.SymbolContextMap
+import resolver.SymbolSolvingBundle
 
-abstract class CadetSolverNode<T>(node: Node, symbolMap: SymbolContextMap) : ReferenceSolverNode(node, symbolMap) {
+abstract class CadetSolverNode<T>(
+    node: Node,
+    protected val symbolSolvingBundle: SymbolSolvingBundle
+) : BaseSolverNode(node) {
 
     protected var resolvedReference: T? = null
     protected abstract fun doResolve()
 
     private fun notifyContextOfUsage() {
         resolvedReference ?: return
-        symbolMap.notifyUsage(resolvedReference)
+        symbolSolvingBundle.getVisitorContext().notifyUsage(resolvedReference)
     }
 
     override fun resolve() {
@@ -22,7 +25,7 @@ abstract class CadetSolverNode<T>(node: Node, symbolMap: SymbolContextMap) : Ref
 
         // Diagnostics for failed resolving
         resolvedReference ?:
-            println("${node.metaModel.typeName} : '${nodeName(node)}' from ${symbolMap.getContextClassName()}")
+            println("${node.metaModel.typeName} : '${nodeName(node)}' from ${symbolSolvingBundle.getVisitorContext().getCurrentClassName()}")
     }
 
     // TODO Diagnostics method

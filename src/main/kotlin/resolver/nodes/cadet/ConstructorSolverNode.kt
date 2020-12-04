@@ -3,17 +3,17 @@ package resolver.nodes.cadet
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.ObjectCreationExpr
 import model.CadetMember
-import resolver.SymbolContextMap
+import resolver.SymbolSolvingBundle
 import resolver.nodes.abs.MemberCallSolverNode
 import signature.MemberSignature
 
-class ConstructorSolverNode(node: ObjectCreationExpr, symbolMap: SymbolContextMap)
-    : MemberCallSolverNode(node, symbolMap)
+class ConstructorSolverNode(node: ObjectCreationExpr, symbolSolvingBundle: SymbolSolvingBundle)
+    : MemberCallSolverNode(node, symbolSolvingBundle)
 {
     override var caller: Node? = null
 
     override fun callResolveReference(): CadetMember? {
-        return symbolMap.getConstructor((node as ObjectCreationExpr).typeAsString, MemberSignature(this))
+        return symbolSolvingBundle.getConstructor((node as ObjectCreationExpr).typeAsString, MemberSignature(this))
     }
 
     override fun initChildCondition(child: Node): Boolean = true

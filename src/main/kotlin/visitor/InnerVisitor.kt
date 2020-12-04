@@ -11,20 +11,20 @@ import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import context.ClassContext
 import context.MemberContext
+import context.VisitorContext
 import model.CadetClass
 import parser.node.FieldDeclarationParser
-import resolver.SymbolContextMap
 import resolver.SymbolResolver
 import signature.MemberDeclarationSignature
 import signature.MemberSignature
 
 class InnerVisitor(
-    private val classMap: SymbolContextMap,
+    private val visitorContext: VisitorContext,
     private val resolver: SymbolResolver
 ) : VoidVisitorAdapter<ClassContext>() {
 
     fun parseTree(compilationUnit: CompilationUnit, cadetClass: CadetClass) {
-        classMap.createClassContext(cadetClass)
+        visitorContext.createClassContext(cadetClass)
         visit(compilationUnit, null)
     }
 
@@ -34,12 +34,12 @@ class InnerVisitor(
 
     override fun visit(node: MethodDeclaration, arg: ClassContext?) {
         createMemberContext(node)
-        super.visit(node, classMap.getMemberContext())
+        super.visit(node, visitorContext.memberContext)
     }
 
     override fun visit(node: ConstructorDeclaration, arg: ClassContext?) {
         createMemberContext(node)
-        super.visit(node, classMap.getMemberContext())
+        super.visit(node, visitorContext.memberContext)
     }
 
     override fun visit(node: MethodCallExpr, arg: ClassContext?) {
@@ -62,8 +62,8 @@ class InnerVisitor(
     // Shorthand methods
     private fun createMemberContext(node: Node) {
         when (node) {
-            is MethodDeclaration -> classMap.createMemberContext(MemberSignature(MemberDeclarationSignature(node)))
-            is ConstructorDeclaration -> classMap.createMemberContext(MemberSignature(MemberDeclarationSignature(node)))
+            is MethodDeclaration -> visitorContext.createMemberContext(MemberSignature(MemberDeclarationSignature(node)))
+            is ConstructorDeclaration -> visitorContext.createMemberContext(MemberSignature(MemberDeclarationSignature(node)))
             else -> {}
         }
     }

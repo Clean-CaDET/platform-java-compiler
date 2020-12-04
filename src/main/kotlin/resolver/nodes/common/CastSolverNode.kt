@@ -1,16 +1,18 @@
 package resolver.nodes.common
 
 import com.github.javaparser.ast.expr.CastExpr
-import resolver.SymbolContextMap
+import resolver.SymbolSolvingBundle
 import resolver.SymbolResolver
-import resolver.nodes.abs.ReferenceSolverNode
+import resolver.nodes.abs.BaseSolverNode
 
-class CastSolverNode(node: CastExpr, symbolMap: SymbolContextMap) : ReferenceSolverNode(node, symbolMap) {
+class CastSolverNode(node: CastExpr, private val symbolSolvingBundle: SymbolSolvingBundle)
+    : BaseSolverNode(node)
+{
     override fun resolve() {
         this.returnType = (node as CastExpr).typeAsString
 
         node.childNodes.forEach { child ->
-            SymbolResolver.createSolverNode(child, symbolMap)?.resolve()
+            SymbolResolver.createSolverNode(child, symbolSolvingBundle)?.resolve()
         }
     }
 }

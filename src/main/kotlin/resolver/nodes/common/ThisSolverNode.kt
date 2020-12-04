@@ -1,12 +1,13 @@
 package resolver.nodes.common
 
 import com.github.javaparser.ast.Node
-import resolver.SymbolContextMap
-import resolver.nodes.abs.ReferenceSolverNode
+import context.VisitorContext
+import resolver.SymbolSolvingBundle
+import resolver.nodes.abs.BaseSolverNode
 
-class ThisSolverNode(node: Node, symbolMap: SymbolContextMap) : ReferenceSolverNode(node, symbolMap) {
+class ThisSolverNode(node: Node, private val symbolSolvingBundle: SymbolSolvingBundle) : BaseSolverNode(node) {
 
     override fun resolve() {
-        this.returnType = symbolMap.getContextClassName()
+        this.returnType = symbolSolvingBundle.getVisitorContext().getCurrentClassName()
     }
 }

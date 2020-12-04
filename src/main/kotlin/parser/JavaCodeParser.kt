@@ -7,7 +7,7 @@ import com.github.javaparser.ast.CompilationUnit
 import context.VisitorContext
 import hierarchy.HierarchyGraph
 import model.CadetClass
-import resolver.SymbolContextMap
+import resolver.SymbolSolvingBundle
 import resolver.SymbolResolver
 import signature.MemberSignature
 import visitor.HierarchyVisitor
@@ -18,10 +18,12 @@ import visitor.OuterVisitor
 class JavaCodeParser {
     private val hierarchyGraph = HierarchyGraph()
     private val visitorContext = VisitorContext()
-    private val symbolContextMap = SymbolContextMap(hierarchyGraph, visitorContext)
+    private val symbolSolvingBundle = SymbolSolvingBundle(hierarchyGraph, visitorContext)
+
     private val outerVisitor = OuterVisitor(hierarchyGraph)
-    private val hierarchyVisitor = HierarchyVisitor(symbolContextMap)
-    private val innerVisitor = InnerVisitor(symbolContextMap, SymbolResolver(symbolContextMap))
+    private val hierarchyVisitor = HierarchyVisitor(visitorContext, hierarchyGraph)
+    private val innerVisitor = InnerVisitor(visitorContext, SymbolResolver(symbolSolvingBundle))
+
     private val classParserBundleList = mutableListOf<CadetClassParserBundle>()
 
     fun parseFiles(sourceCodeDtoList: List<SourceCodeDto>): List<CadetClass>? {

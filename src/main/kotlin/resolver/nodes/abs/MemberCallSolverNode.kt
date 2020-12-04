@@ -2,13 +2,12 @@ package resolver.nodes.abs
 
 import com.github.javaparser.ast.Node
 import model.CadetMember
-import resolver.SymbolContextMap
+import resolver.SymbolSolvingBundle
 import resolver.SymbolResolver
-import signature.MemberSignature
 import signature.SignableMember
 
-abstract class MemberCallSolverNode(node: Node, symbolMap: SymbolContextMap)
-    : WithCallerSolverNode<CadetMember>(node, symbolMap),
+abstract class MemberCallSolverNode(node: Node, symbolSolvingBundle: SymbolSolvingBundle)
+    : WithCallerSolverNode<CadetMember>(node, symbolSolvingBundle),
     SignableMember
 {
     private val children = mutableListOf<BaseSolverNode>()
@@ -28,7 +27,7 @@ abstract class MemberCallSolverNode(node: Node, symbolMap: SymbolContextMap)
     private fun initArgumentNodes() {
         node.childNodes.forEach { child ->
             if (initChildCondition(child)) {
-                SymbolResolver.createSolverNode(child, symbolMap)
+                SymbolResolver.createSolverNode(child, symbolSolvingBundle)
                     ?.let { this.children.add(it) }
             }
         }

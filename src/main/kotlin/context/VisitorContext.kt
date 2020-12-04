@@ -1,10 +1,9 @@
 package context
 
-import model.CadetClass
-import model.CadetField
-import model.CadetMember
+import model.*
 import model.abs.CadetVariable
 import signature.MemberSignature
+import java.lang.IllegalArgumentException
 
 class VisitorContext {
     lateinit var classContext: ClassContext
@@ -14,16 +13,28 @@ class VisitorContext {
         classContext = ClassContext(cadetClass)
     }
 
+    fun getCurrentClassName() = classContext.cadetClass.name
+
     fun createMemberContext(signature: MemberSignature) {
         memberContext = MemberContext(classContext, signature)
     }
 
-    fun addMemberInvocation(cadetMember: CadetMember) = memberContext.addInvokedMember(cadetMember)
-    fun addFieldAccess(cadetField: CadetField) = memberContext.addAccessedField(cadetField)
+    private fun addMemberInvocation(cadetMember: CadetMember) = memberContext.addInvokedMember(cadetMember)
+    private fun addFieldAccess(cadetField: CadetField) = memberContext.addAccessedField(cadetField)
 
     fun getMemberContextScopedVariable(name: String): CadetVariable? {
         memberContext.getParameter(name)?.let { return it }
         memberContext.getLocalVariable(name)?.let { return it }
         return null
     }
+    fun <T> notifyUsage(resolvedReference: T) {
+        when (resolvedReference) {
+            is CadetMember -> addMemberInvocation(resolvedReference)
+            is CadetField -> addFieldAccess(resolvedReference)
+            is CadetParameter -> {}
+            is CadetLocalVariable -> {}
+            else -> throw IllegalArgumentException("Unsupported reference usage: ${resolvedReference.toString()}")
+        }
+    }
+
 }
