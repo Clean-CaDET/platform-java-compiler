@@ -28,33 +28,33 @@ class InnerVisitor(
         visit(compilationUnit, null)
     }
 
-    override fun visit(node: ClassOrInterfaceDeclaration?, arg: ClassContext?) {
-        if (!node!!.isInterface) super.visit(node, arg)
+    override fun visit(node: ClassOrInterfaceDeclaration, arg: ClassContext?) {
+        if (!node.isInterface) super.visit(node, arg)
     }
 
-    override fun visit(node: MethodDeclaration?, arg: ClassContext?) {
-        createMemberContext(node!!)
+    override fun visit(node: MethodDeclaration, arg: ClassContext?) {
+        createMemberContext(node)
         super.visit(node, classMap.getMemberContext())
     }
 
-    override fun visit(node: ConstructorDeclaration?, arg: ClassContext?) {
-        createMemberContext(node!!)
+    override fun visit(node: ConstructorDeclaration, arg: ClassContext?) {
+        createMemberContext(node)
         super.visit(node, classMap.getMemberContext())
     }
 
-    override fun visit(node: MethodCallExpr?, arg: ClassContext?) {
+    override fun visit(node: MethodCallExpr, arg: ClassContext?) {
         if (isMemberContext(arg))
-            resolver.resolve(node!!)
+            resolver.resolve(node)
     }
 
-    override fun visit(node: FieldAccessExpr?, arg: ClassContext?) {
+    override fun visit(node: FieldAccessExpr, arg: ClassContext?) {
         if (isMemberContext(arg))
-            resolver.resolve(node!!)
+            resolver.resolve(node)
     }
 
-    override fun visit(node: VariableDeclarator?, arg: ClassContext?) {
+    override fun visit(node: VariableDeclarator, arg: ClassContext?) {
         if (isMemberContext(arg)) {
-            (arg as MemberContext).addLocalVariable(FieldDeclarationParser.instantiateLocalVariable(node!!))
+            (arg as MemberContext).addLocalVariable(FieldDeclarationParser.instantiateLocalVariable(node))
             super.visit(node, arg)
         }
     }

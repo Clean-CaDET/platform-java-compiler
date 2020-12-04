@@ -8,7 +8,7 @@ fun main(args: Array<String>) {
 
     val parser = JavaCodeParser()
 
-    parser.parseFiles(getAllFilePaths(root + "tests"))
+    parser.parseFiles(extractSourceCode(getAllFilePaths(root + "shapes")))
 }
 
 private fun getAllFilePaths(path: String): List<String> {
@@ -17,6 +17,15 @@ private fun getAllFilePaths(path: String): List<String> {
             File(path).walkBottomUp().forEach {
                 if (it.isFile && it.extension == javaFileExtension)
                     paths.add(it.absolutePath)
+            }
+        }
+}
+
+private fun extractSourceCode(paths: List<String>): List<SourceCodeDto> {
+    return mutableListOf<SourceCodeDto>()
+        .also { sourceCodeList ->
+            paths.forEach { filePath ->
+                sourceCodeList.add(SourceCodeDto(filePath, File(filePath).readText()))
             }
         }
 }

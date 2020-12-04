@@ -19,4 +19,4 @@ class ConstructorSolverNode(node: ObjectCreationExpr, symbolMap: SymbolContextMa
     override fun initChildCondition(child: Node): Boolean = true
 
     override fun getName(): String = (node as ObjectCreationExpr).typeAsString
-}
+}// new Object(param1, param2)

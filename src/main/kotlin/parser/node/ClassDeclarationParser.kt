@@ -8,7 +8,6 @@ import model.CadetClass
 
 object ClassDeclarationParser : AbstractNodeParser() {
 
-    /** Instantiates a [CadetClass] object with all the basic data available from its [Node] */
     fun instantiateClass(node: ClassOrInterfaceDeclaration, parent: CadetClass?): CadetClass {
         return CadetClass().apply {
             this.name = node.nameAsString

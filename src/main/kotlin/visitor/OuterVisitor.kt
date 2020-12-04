@@ -6,13 +6,13 @@ import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.FieldDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
+import hierarchy.HierarchyGraph
 import model.CadetClass
 import parser.node.ClassDeclarationParser
 import parser.node.FieldDeclarationParser
 import parser.node.MemberDeclarationParser
-import resolver.SymbolContextMap
 
-class OuterVisitor(private val symbolMap: SymbolContextMap) : VoidVisitorAdapter<CadetClass>() {
+class OuterVisitor(private val hierarchyGraph: HierarchyGraph) : VoidVisitorAdapter<CadetClass>() {
 
     private lateinit var cadetClass: CadetClass
 
@@ -21,9 +21,9 @@ class OuterVisitor(private val symbolMap: SymbolContextMap) : VoidVisitorAdapter
         return cadetClass
     }
 
-    override fun visit(node: ClassOrInterfaceDeclaration?, arg: CadetClass?) {
-        if (node!!.isInterface)
-            symbolMap.addInterface(node.nameAsString)
+    override fun visit(node: ClassOrInterfaceDeclaration, arg: CadetClass?) {
+        if (node.isInterface)
+            hierarchyGraph.addInterface(node.nameAsString)
         else {
             ClassDeclarationParser.instantiateClass(node, arg)
                 .let { cadetClass = it }
@@ -31,8 +31,8 @@ class OuterVisitor(private val symbolMap: SymbolContextMap) : VoidVisitorAdapter
         }
     }
 
-    override fun visit(node: MethodDeclaration?, arg: CadetClass?) {
-        MemberDeclarationParser.instantiateMethod(node!!, arg!!)
+    override fun visit(node: MethodDeclaration, arg: CadetClass?) {
+        MemberDeclarationParser.instantiateMethod(node, arg!!)
             .let { arg.members.add(it) }
     }
 

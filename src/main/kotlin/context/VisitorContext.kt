@@ -6,7 +6,7 @@ import model.CadetMember
 import model.abs.CadetVariable
 import signature.MemberSignature
 
-class ContextHolder {
+class VisitorContext {
     lateinit var classContext: ClassContext
     lateinit var memberContext: MemberContext
 

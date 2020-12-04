@@ -11,10 +11,6 @@ import model.CadetParameter
 
 object MemberDeclarationParser : AbstractNodeParser() {
 
-    /**
-     *  Instantiates a [CadetMember] object with type [CadetMemberType.Method], and all the data
-     *  available from the given [node]
-     */
     fun instantiateMethod(node: MethodDeclaration, parent: CadetClass): CadetMember {
         return CadetMember().apply {
             this.name = node.nameAsString
@@ -27,10 +23,6 @@ object MemberDeclarationParser : AbstractNodeParser() {
         }
     }
 
-    /**
-     *  Instantiates a [CadetMember] object with type [CadetMemberType.Constructor], and all the data
-     *  available from the given [node]
-     */
     fun instantiateConstructor(node: ConstructorDeclaration, parent: CadetClass): CadetMember {
         return CadetMember().apply {
             this.name = node.nameAsString

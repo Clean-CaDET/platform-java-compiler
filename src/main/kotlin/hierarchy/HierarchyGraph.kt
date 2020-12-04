@@ -17,6 +17,13 @@ class HierarchyGraph {
 
     fun getClass(name: String): CadetClass? = classGraph[name]?.cadetClass
     fun getClassParent(className: String): CadetClass? = classGraph[className]?.parent?.cadetClass
+    fun getClasses(): List<CadetClass> {
+        return mutableListOf<CadetClass>().apply {
+            classGraph.forEach { classNode ->
+                this.add(classNode.value.cadetClass)
+            }
+        }
+    }
 
     fun addClass(cadetClass: CadetClass) {
         ClassGraphNode(cadetClass)
@@ -55,6 +62,7 @@ class HierarchyGraph {
             classGraph[parentName].let { parentNode ->
                 parentNode ?: throw IllegalArgumentException("Parent class $parentName not found in hierarchy")
                 classNode.parent = parentNode
+                classNode.cadetClass.parent = parentNode.cadetClass
             }
         }
     }
@@ -73,6 +81,26 @@ class HierarchyGraph {
     private fun recursiveParentAdd(node: ClassGraphNode, list: MutableCollection<CadetClass>) {
         list.add(node.cadetClass)
         node.parent?.let { recursiveParentAdd(it, list) }
+    }
+
+    fun isSuperType(className: String, parentName: String): Boolean {
+        classGraph[className]?.let { classNode ->
+            if (classNode.cadetClass.name == parentName) return true
+            classNode.parent?.let { parentNode ->
+                return isSuperType(parentNode.cadetClass.name, parentName)
+            }
+        }
+        return false
+    }
+
+    fun isImplementation(className: String, interfaceName: String): Boolean {
+        classGraph[className]?.let { classNode ->
+            if (classNode.interfaces.contains(interfaceName)) return true
+            classNode.parent?.let { parentNode ->
+                return isImplementation(parentNode.cadetClass.name, interfaceName)
+            }
+        }
+        return false
     }
 
     private fun instantiateObjectBase(): CadetClass {
@@ -109,32 +137,5 @@ class HierarchyGraph {
             add(toString); add(hashCode); add(clone); add(equals); add(constructor);
         }
         return obj
-    }
-
-    fun isImplementation(className: String, interfaceName: String): Boolean {
-        classGraph[className]?.let { return isImplementation(it, interfaceName) }
-        return false
-    }
-
-    private fun isImplementation(classNode: ClassGraphNode, interfaceName: String): Boolean {
-        if (classNode.interfaces.contains(interfaceName)) return true
-        classNode.parent?.let { parent ->
-            return isImplementation(parent, interfaceName)
-        }
-        return false
-    }
-
-    fun printHierarchy() {
-        classGraph.forEach { (_, c) ->
-            printClassHierarchy(c)
-            println()
-        }
-    }
-
-    private fun printClassHierarchy(c: ClassGraphNode) {
-        print("\t-> ${c.cadetClass.name}")
-        c.parent?.let {
-            printClassHierarchy(c.parent!!)
-        }
     }
 }

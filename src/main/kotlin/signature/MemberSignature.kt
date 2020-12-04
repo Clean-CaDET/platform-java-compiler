@@ -1,6 +1,6 @@
 package signature
 
-import resolver.SymbolContextMap
+import hierarchy.HierarchyGraph
 import resolver.SymbolResolver
 import java.lang.IllegalArgumentException
 
@@ -14,18 +14,18 @@ class MemberSignature(signable: SignableMember) {
     private val paramTypes = mutableListOf<String>()
 
     companion object {
-        private lateinit var symbolMap: SymbolContextMap
+        private lateinit var hierarchyGraph: HierarchyGraph
 
-        fun loadSymbolMap(symbolMap: SymbolContextMap) {
-            MemberSignature.symbolMap = symbolMap
+        fun injectHierarchyGraph(hierarchyGraph: HierarchyGraph) {
+            MemberSignature.hierarchyGraph = hierarchyGraph
         }
     }
 
     init {
-        generateHash(signable)
+        generateSignature(signable)
     }
 
-    private fun generateHash(signable: SignableMember) {
+    private fun generateSignature(signable: SignableMember) {
         nameHash = signable.getName().hashCode()
         numberOfParameters = signable.getNumberOfParameters()
         signable.getParameterTypes().forEach { paramTypes.add(it) }
@@ -45,10 +45,11 @@ class MemberSignature(signable: SignableMember) {
                 val pThis = this.paramTypes[i]
                 val pOther = it.paramTypes[i]
 
+                if (pThis == pOther) continue
                 if (pThis == SymbolResolver.WildcardType)
                     continue
                 if (pOther == SymbolResolver.WildcardType)
-                    throw IllegalArgumentException("Argument param type cannot be Wildcard.")
+                    throw IllegalArgumentException("Parameter type cannot be Wildcard.")
                 if (pThis != pOther) {
                     if (isSuperType(pOther, pThis)) continue
                     if (isDependencyInjection(pThis, pOther)) continue
@@ -60,10 +61,10 @@ class MemberSignature(signable: SignableMember) {
     }
 
     private fun isSuperType(parentType: String, childType: String): Boolean {
-        return symbolMap.isSuperType(childType, parentType)
+        return hierarchyGraph.isSuperType(childType, parentType)
     }
 
     private fun isDependencyInjection(className: String, interfaceName: String): Boolean {
-        return symbolMap.isImplementation(className, interfaceName)
+        return hierarchyGraph.isImplementation(className, interfaceName)
     }
 }
