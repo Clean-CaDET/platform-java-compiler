@@ -1,5 +1,5 @@
 import com.github.javaparser.ast.Node
-import model.*
+import cadet_model.*
 
 // Test class only
 object Console {

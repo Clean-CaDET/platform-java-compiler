@@ -1,7 +1,6 @@
-import parser.JavaCodeParser
 import java.io.File
 
-const val root = "src\\main\\kotlin\\test\\"
+const val root = "test\\"
 const val javaFileExtension = "java"
 
 fun main(args: Array<String>) {
