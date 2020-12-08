@@ -1,6 +1,5 @@
 package second_pass
 
-import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.ConstructorDeclaration
@@ -12,20 +11,37 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import second_pass.context.ClassContext
 import second_pass.context.MemberContext
 import second_pass.context.VisitorContext
-import cadet_model.CadetClass
 import first_pass.node_parser.FieldDeclarationParser
+import second_pass.hierarchy.HierarchyGraph
 import second_pass.resolver.SymbolResolver
+import second_pass.resolver.SymbolSolvingBundle
 import second_pass.signature.MemberDeclarationSignature
 import second_pass.signature.MemberSignature
+import util.ResolverVisitorResource
 
 class SymbolResolverVisitor(
-    private val visitorContext: VisitorContext,
-    private val resolver: SymbolResolver
+    private val hierarchyGraph: HierarchyGraph,
+    private val resources: List<ResolverVisitorResource>
 ) : VoidVisitorAdapter<ClassContext>() {
 
-    fun parseTree(compilationUnit: CompilationUnit, cadetClass: CadetClass) {
-        visitorContext.createClassContext(cadetClass)
-        visit(compilationUnit, null)
+    private val visitorContext = VisitorContext()
+    private val resolver = SymbolResolver(SymbolSolvingBundle(hierarchyGraph, visitorContext))
+
+    fun resolveResources() {
+        resolveHierarchy(resources)
+        resolveSymbols(resources)
+    }
+
+    private fun resolveHierarchy(resources: List<ResolverVisitorResource>) {
+        val hierarchyVisitor = HierarchyVisitor(visitorContext, hierarchyGraph)
+        resources.forEach { hierarchyVisitor.parseTree(it.compilationUnit, it.cadetClass) }
+    }
+
+    private fun resolveSymbols(resources: List<ResolverVisitorResource>) {
+        resources.forEach { resource ->
+            visitorContext.createClassContext(resource.cadetClass)
+            super.visit(resource.compilationUnit, null)
+        }
     }
 
     override fun visit(node: ClassOrInterfaceDeclaration, arg: ClassContext?) {

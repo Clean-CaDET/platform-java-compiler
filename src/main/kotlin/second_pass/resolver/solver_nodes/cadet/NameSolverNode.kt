@@ -11,7 +11,7 @@ class NameSolverNode(
 ): CadetSolverNode<CadetVariable>(node, symbolSolvingBundle) {
 
     override fun doResolve() {
-        symbolSolvingBundle.getVariableInContext((node as NameExpr).nameAsString)
+        symbolSolvingBundle.getVariableInScope((node as NameExpr).nameAsString)
         .also {
             if (it != null) {
                 this.resolvedReference = it

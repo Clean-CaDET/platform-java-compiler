@@ -22,7 +22,7 @@ class VisitorContext {
     private fun addMemberInvocation(cadetMember: CadetMember) = memberContext.addInvokedMember(cadetMember)
     private fun addFieldAccess(cadetField: CadetField) = memberContext.addAccessedField(cadetField)
 
-    fun getMemberContextScopedVariable(name: String): CadetVariable? {
+    fun getMemberScopedVariable(name: String): CadetVariable? {
         memberContext.getParameter(name)?.let { return it }
         memberContext.getLocalVariable(name)?.let { return it }
         return null

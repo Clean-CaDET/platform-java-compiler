@@ -26,8 +26,8 @@ class SymbolSolvingBundle(
         return null
     }
 
-    fun getVariableInContext(name: String): CadetVariable? {
-        visitorContext.getMemberContextScopedVariable(name)?.let { return it }
+    fun getVariableInScope(name: String): CadetVariable? {
+        visitorContext.getMemberScopedVariable(name)?.let { return it }
         return getField(visitorContext.getCurrentClassName(), name)
     }
 
