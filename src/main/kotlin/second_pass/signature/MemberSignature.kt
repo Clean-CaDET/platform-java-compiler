@@ -1,8 +1,7 @@
 package second_pass.signature
 
-import second_pass.hierarchy.HierarchyGraph
+import hierarchy.HierarchyGraph
 import second_pass.resolver.SymbolResolver
-import java.lang.IllegalArgumentException
 
 /**
  * Object representing a unique second_pass.signature for a [SignableMember].

@@ -1,12 +1,12 @@
 package first_pass
 
+import cadet_model.CadetClass
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.FieldDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
-import cadet_model.CadetClass
 import first_pass.node_parser.ClassDeclarationParser
 import first_pass.node_parser.FieldDeclarationParser
 import first_pass.node_parser.MemberDeclarationParser

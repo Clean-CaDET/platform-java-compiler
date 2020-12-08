@@ -1,15 +1,13 @@
 package second_pass.resolver.solver_nodes.abs
 
-import com.github.javaparser.ast.Node
 import cadet_model.CadetMember
-import second_pass.resolver.SymbolSolvingBundle
+import com.github.javaparser.ast.Node
 import second_pass.resolver.SymbolResolver
 import second_pass.signature.SignableMember
 
-abstract class MemberCallSolverNode(node: Node, symbolSolvingBundle: SymbolSolvingBundle)
-    : WithCallerSolverNode<CadetMember>(node, symbolSolvingBundle),
-    SignableMember
-{
+abstract class MemberCallSolverNode(node: Node, resolver: SymbolResolver) :
+    WithCallerSolverNode<CadetMember>(node, resolver),
+    SignableMember {
     private val children = mutableListOf<BaseSolverNode>()
 
     override fun doResolve() {
@@ -27,7 +25,7 @@ abstract class MemberCallSolverNode(node: Node, symbolSolvingBundle: SymbolSolvi
     private fun initArgumentNodes() {
         node.childNodes.forEach { child ->
             if (initChildCondition(child)) {
-                SymbolResolver.createSolverNode(child, symbolSolvingBundle)
+                resolver.createSolverNode(child)
                     ?.let { this.children.add(it) }
             }
         }
@@ -39,5 +37,6 @@ abstract class MemberCallSolverNode(node: Node, symbolSolvingBundle: SymbolSolvi
                 children.forEach { list.add(it.returnType) }
             }
     }
+
     override fun getNumberOfParameters(): Int = children.size
 }

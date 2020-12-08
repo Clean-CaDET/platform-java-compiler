@@ -1,13 +1,13 @@
 package first_pass.node_parser
 
-import com.github.javaparser.ast.Node
-import com.github.javaparser.ast.body.ConstructorDeclaration
-import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.body.Parameter
 import cadet_model.CadetClass
 import cadet_model.CadetMember
 import cadet_model.CadetMemberType
 import cadet_model.CadetParameter
+import com.github.javaparser.ast.Node
+import com.github.javaparser.ast.body.ConstructorDeclaration
+import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.body.Parameter
 
 object MemberDeclarationParser : AbstractNodeParser() {
 

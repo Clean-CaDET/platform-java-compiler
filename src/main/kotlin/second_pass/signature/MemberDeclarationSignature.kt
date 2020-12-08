@@ -8,8 +8,7 @@ import first_pass.node_parser.AbstractNodeParser
 
 class MemberDeclarationSignature
     : AbstractNodeParser,
-    SignableMember
-{
+    SignableMember {
     private val name: String
     private val parameterTypes = mutableListOf<String>()
 

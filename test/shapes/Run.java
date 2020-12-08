@@ -36,15 +36,26 @@ public class Run {
         run.FailedDITest(not);
     }
 
-    public void DITest(Shape shape) {}
-    public void FailedDITest(Shape shape) {}
+    public void DITest(Shape shape) {
+    }
 
-    public void SuperTypeTest(Rectangle rect) {}
-    public void FailedSuperTypeTest(Cube cube) {}
+    public void FailedDITest(Shape shape) {
+    }
 
-    public void NullTest(Object object ) {}
-    public void NullTestMultipleArgs(Object object, Run run, double number) {}
-    public void FailedNullTest(Object object) {}
+    public void SuperTypeTest(Rectangle rect) {
+    }
+
+    public void FailedSuperTypeTest(Cube cube) {
+    }
+
+    public void NullTest(Object object) {
+    }
+
+    public void NullTestMultipleArgs(Object object, Run run, double number) {
+    }
+
+    public void FailedNullTest(Object object) {
+    }
 
 
 }

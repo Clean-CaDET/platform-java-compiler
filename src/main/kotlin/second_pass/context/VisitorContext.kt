@@ -3,7 +3,6 @@ package second_pass.context
 import cadet_model.*
 import cadet_model.abs.CadetVariable
 import second_pass.signature.MemberSignature
-import java.lang.IllegalArgumentException
 
 class VisitorContext {
     lateinit var classContext: ClassContext
@@ -27,12 +26,15 @@ class VisitorContext {
         memberContext.getLocalVariable(name)?.let { return it }
         return null
     }
-    fun <T> notifyUsage(resolvedReference: T) {
+
+    fun <T : Any> notifyUsage(resolvedReference: T) {
         when (resolvedReference) {
             is CadetMember -> addMemberInvocation(resolvedReference)
             is CadetField -> addFieldAccess(resolvedReference)
-            is CadetParameter -> {}
-            is CadetLocalVariable -> {}
+            is CadetParameter -> {
+            }
+            is CadetLocalVariable -> {
+            }
             else -> throw IllegalArgumentException("Unsupported reference usage: ${resolvedReference.toString()}")
         }
     }

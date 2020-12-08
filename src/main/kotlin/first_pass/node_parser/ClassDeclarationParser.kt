@@ -1,9 +1,9 @@
 package first_pass.node_parser
 
+import cadet_model.CadetClass
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.type.ClassOrInterfaceType
-import cadet_model.CadetClass
 
 object ClassDeclarationParser : AbstractNodeParser() {
 

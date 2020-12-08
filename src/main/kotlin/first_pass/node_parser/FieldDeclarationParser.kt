@@ -1,12 +1,12 @@
 package first_pass.node_parser
 
-import com.github.javaparser.ast.Modifier
-import com.github.javaparser.ast.body.FieldDeclaration
-import com.github.javaparser.ast.body.VariableDeclarator
 import cadet_model.CadetClass
 import cadet_model.CadetField
 import cadet_model.CadetLocalVariable
 import cadet_model.CadetModifier
+import com.github.javaparser.ast.Modifier
+import com.github.javaparser.ast.body.FieldDeclaration
+import com.github.javaparser.ast.body.VariableDeclarator
 
 object FieldDeclarationParser : AbstractNodeParser() {
 

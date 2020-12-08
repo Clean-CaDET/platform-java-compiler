@@ -1,10 +1,10 @@
 package second_pass
 
-import com.github.javaparser.ast.CompilationUnit
-import second_pass.context.VisitorContext
 import cadet_model.CadetClass
+import com.github.javaparser.ast.CompilationUnit
 import first_pass.node_parser.ClassDeclarationParser
-import second_pass.hierarchy.HierarchyGraph
+import hierarchy.HierarchyGraph
+import second_pass.context.VisitorContext
 
 class HierarchyVisitor(
     private val visitorContext: VisitorContext,

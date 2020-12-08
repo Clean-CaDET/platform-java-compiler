@@ -1,11 +1,10 @@
 package second_pass.resolver.solver_nodes.abs
 
 import com.github.javaparser.ast.Node
-import second_pass.resolver.SymbolSolvingBundle
 import second_pass.resolver.SymbolResolver
 
-abstract class WithCallerSolverNode<T>(node: Node, symbolSolvingBundle: SymbolSolvingBundle)
-    : CadetSolverNode<T>(node, symbolSolvingBundle)
+abstract class WithCallerSolverNode<T : Any>(node: Node, resolver: SymbolResolver)
+    : CadetSolverNode<T>(node, resolver)
 {
     protected abstract var caller: Node?
     protected var callerResolverNode: BaseSolverNode? = null
@@ -17,7 +16,7 @@ abstract class WithCallerSolverNode<T>(node: Node, symbolSolvingBundle: SymbolSo
 
     private fun resolveCaller() {
         caller ?: return
-        SymbolResolver.createSolverNode(caller!!, symbolSolvingBundle)
+        resolver.createSolverNode(caller!!)
             ?.let {
                 callerResolverNode = it
                 it.resolve()

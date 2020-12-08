@@ -1,4 +1,4 @@
-package second_pass.hierarchy
+package hierarchy
 
 import cadet_model.CadetClass
 

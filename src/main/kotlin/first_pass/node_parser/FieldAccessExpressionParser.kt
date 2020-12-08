@@ -3,7 +3,6 @@ package first_pass.node_parser
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.FieldAccessExpr
 import com.github.javaparser.ast.expr.SimpleName
-import java.lang.IllegalArgumentException
 
 object FieldAccessExpressionParser : AbstractNodeParser() {
 

@@ -15,8 +15,17 @@ class BaseTest {
         baseSelf().baseItself(this).baseItself(new BaseTest()).baseField.baseEnd();
     }
 
-    public void print(String s) {}
-    public void baseEnd() {}
-    public BaseTest baseSelf() {return this;}
-    public BaseTest baseItself(BaseTest t) {return this;}
+    public void print(String s) {
+    }
+
+    public void baseEnd() {
+    }
+
+    public BaseTest baseSelf() {
+        return this;
+    }
+
+    public BaseTest baseItself(BaseTest t) {
+        return this;
+    }
 }

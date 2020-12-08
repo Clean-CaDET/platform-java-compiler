@@ -1,18 +1,22 @@
-package second_pass.hierarchy
+package hierarchy
 
 import cadet_model.CadetClass
 import cadet_model.CadetMember
+import cadet_model.CadetMemberType
 import cadet_model.CadetParameter
-import java.lang.IllegalArgumentException
 
 class HierarchyGraph {
 
     private val classGraph = mutableMapOf<String, ClassGraphNode>()
     private val interfaceMap = mutableMapOf<String, String>()
-    private val baseKey = "Object"
+    private val baseClass: ClassGraphNode
 
     init {
-        classGraph[baseKey] = ClassGraphNode(instantiateObjectBase())
+        val baseKey = "Object"
+        ClassGraphNode(instantiateObjectBase()).let {
+            classGraph[baseKey] = it
+            baseClass = it
+        }
     }
 
     fun getClass(name: String): CadetClass? = classGraph[name]?.cadetClass
@@ -28,7 +32,7 @@ class HierarchyGraph {
     fun addClass(cadetClass: CadetClass) {
         ClassGraphNode(cadetClass)
             .let {
-                it.parent = baseClass()
+                it.parent = baseClass
                 classGraph[cadetClass.name] = it
             }
     }
@@ -58,29 +62,14 @@ class HierarchyGraph {
 
     private fun addSuperClass(className: String, parentName: String) {
         classGraph[className].let { classNode ->
-            classNode ?: throw IllegalArgumentException("Class $className not found in second_pass.hierarchy")
+            classNode ?: throw IllegalArgumentException("Class $className not found in hierarchy")
             classGraph[parentName].let { parentNode ->
-                parentNode ?: throw IllegalArgumentException("Parent class $parentName not found in second_pass.hierarchy")
+                parentNode
+                    ?: throw IllegalArgumentException("Parent class $parentName not found in hierarchy")
                 classNode.parent = parentNode
                 classNode.cadetClass.parent = parentNode.cadetClass
             }
         }
-    }
-
-    private fun baseClass() = classGraph[baseKey]
-
-    fun getClassHierarchy(className: String): List<CadetClass> {
-        classGraph[className]?.let { node ->
-            return mutableListOf<CadetClass>().also { list ->
-                recursiveParentAdd(node, list)
-            }
-        }
-        throw IllegalArgumentException("Class $className not found in second_pass.hierarchy.")
-    }
-
-    private fun recursiveParentAdd(node: ClassGraphNode, list: MutableCollection<CadetClass>) {
-        list.add(node.cadetClass)
-        node.parent?.let { recursiveParentAdd(it, list) }
     }
 
     fun isSuperType(className: String, parentName: String): Boolean {
@@ -103,35 +92,55 @@ class HierarchyGraph {
         return false
     }
 
+    fun getClassHierarchy(className: String): List<CadetClass> {
+        classGraph[className]?.let { node ->
+            return mutableListOf<CadetClass>().also { list ->
+                recursiveParentAdd(node, list)
+            }
+        }
+        throw IllegalArgumentException("Class $className not found in hierarchy.")
+    }
+
+    private fun recursiveParentAdd(node: ClassGraphNode, list: MutableCollection<CadetClass>) {
+        list.add(node.cadetClass)
+        node.parent?.let { recursiveParentAdd(it, list) }
+    }
+
     private fun instantiateObjectBase(): CadetClass {
         val obj = CadetClass()
         obj.name = "Object"
+        obj.fullName = "java.lang.Object"
 
         val toString = CadetMember().apply {
             name = "toString"
             returnType = "String"
             parent = obj
+            cadetMemberType = CadetMemberType.Method
         }
         val hashCode = CadetMember().apply {
             name = "hashCode"
             returnType = "int"
             parent = obj
+            cadetMemberType = CadetMemberType.Method
         }
         val clone = CadetMember().apply {
             name = "clone"
             returnType = "Object"
             parent = obj
+            cadetMemberType = CadetMemberType.Method
         }
         val equals = CadetMember().apply {
             name = "equals"
             returnType = "boolean"
             params.add(CadetParameter("object", "Object"))
             parent = obj
+            cadetMemberType = CadetMemberType.Method
         }
         val constructor = CadetMember().apply {
             name = "Object"
             returnType = "Object"
             parent = obj
+            cadetMemberType = CadetMemberType.Method
         }
         obj.members.apply {
             add(toString); add(hashCode); add(clone); add(equals); add(constructor);

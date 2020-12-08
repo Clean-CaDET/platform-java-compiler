@@ -1,6 +1,8 @@
 package second_pass.context
 
-import cadet_model.*
+import cadet_model.CadetField
+import cadet_model.CadetLocalVariable
+import cadet_model.CadetMember
 import second_pass.signature.MemberSignature
 
 class MemberContext(
@@ -12,10 +14,11 @@ class MemberContext(
 
     init {
         cadetClass.getMemberViaSignature(signature)
-        .let {
-            it ?: throw IllegalArgumentException("Failed to create member context in class ${classContext.cadetClass.name}")
-            this.cadetMember = it
-        }
+            .let {
+                it
+                    ?: throw IllegalArgumentException("Failed to create member context in class ${classContext.cadetClass.name}")
+                this.cadetMember = it
+            }
     }
 
     fun addInvokedMember(member: CadetMember) = cadetMember.invokedMethods.add(member)

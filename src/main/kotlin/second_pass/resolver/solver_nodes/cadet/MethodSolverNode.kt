@@ -1,24 +1,24 @@
 package second_pass.resolver.solver_nodes.cadet
 
+import cadet_model.CadetMember
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.MethodCallExpr
-import cadet_model.CadetMember
 import first_pass.node_parser.MethodCallExpressionParser
-import second_pass.resolver.SymbolSolvingBundle
+import second_pass.resolver.SymbolResolver
 import second_pass.resolver.solver_nodes.abs.MemberCallSolverNode
 import second_pass.signature.MemberSignature
 
 class MethodSolverNode(
     node: MethodCallExpr,
-    symbolSolvingBundle: SymbolSolvingBundle
-) : MemberCallSolverNode(node, symbolSolvingBundle) {
+    resolver: SymbolResolver
+) : MemberCallSolverNode(node, resolver) {
 
     override var caller: Node? = MethodCallExpressionParser.getCaller(node)
 
     override fun callResolveReference(): CadetMember? {
-        return symbolSolvingBundle.getMethod(
+        return resolver.getMethod(
             callerResolverNode?.returnType,
-            MemberSignature(this, symbolSolvingBundle.getHierarchyGraph())
+            MemberSignature(this, resolver.getHierarchyGraph())
         )
     }
 

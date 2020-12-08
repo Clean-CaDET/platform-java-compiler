@@ -2,7 +2,6 @@ package first_pass.node_parser
 
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.*
-import java.lang.IllegalArgumentException
 
 object MethodCallExpressionParser : AbstractNodeParser() {
 
@@ -37,7 +36,7 @@ object MethodCallExpressionParser : AbstractNodeParser() {
         // 3. Parameter[] list, where each parameter is 1 child node, with arbitrary depth, depending on which
         //    type of parameter it is (literals will have no children, MethodCallExpr will have children, etc)
         if (node.childNodes.isEmpty()) return null
-        return when(val callerNode = node.childNodes[0]) {
+        return when (val callerNode = node.childNodes[0]) {
             is SimpleName -> null
             is ThisExpr -> callerNode
             is NameExpr -> callerNode

@@ -29,8 +29,11 @@ public class ExtendTest extends BaseTest implements SimpleInterface {
 
         // Basic method calls
         foreignArg(test);
-        extSelf(); this.extEnd();
-        extItself(new ExtendTest()); extItself(ext); extItself(this);
+        extSelf();
+        this.extEnd();
+        extItself(new ExtendTest());
+        extItself(ext);
+        extItself(this);
         extItself(extItself(ext));
 
         // Multiple arguments
@@ -40,12 +43,12 @@ public class ExtendTest extends BaseTest implements SimpleInterface {
         // Method chaining
         this.extItself(new ExtendTest()).foreignArg(test).extSelf().multipleArgs(1, 2d, false, this).extEnd();
         super.baseItself(base).baseSelf().baseEnd();
-        test.selfArg(test).stringArg((String)22).self().end();
+        test.selfArg(test).stringArg((String) 22).self().end();
         ext.extItself(ext).extEnd();
 
         // Casting variables
-        this.extItself((ExtendTest)new Object());
-        this.multipleArgs((int)"s", (double)2, false, this);
+        this.extItself((ExtendTest) new Object());
+        this.multipleArgs((int) "s", (double) 2, false, this);
 
         // Variable single access
         new Test().hashCode();
@@ -54,6 +57,9 @@ public class ExtendTest extends BaseTest implements SimpleInterface {
         test.end();
         testField.end();
         testField.hashCode();
+
+        // Null argument
+        multipleArgs(1, 2d, false, null);
 
         new ExtendTest().extEnd();
         new BaseTest().baseEnd();
@@ -69,6 +75,12 @@ public class ExtendTest extends BaseTest implements SimpleInterface {
         base.fail();
         test.fail();
         super.fail();
+        // Nonexisting class being passed as parameter is treated like Wildcard argument
+        extItself(new SomethingNonexistent(this));
+        new SomethingNonexistent(new Object()).nonexistentMethod();
+        // Nonexisting field access
+        this.nonexistingField.nonexistingMethod();
+        this.extItself(nonexistingMethod());
 
         // Deeper field access
         extSelf().baseField = new BaseTest();
@@ -78,16 +90,31 @@ public class ExtendTest extends BaseTest implements SimpleInterface {
         extItself(extSelf()).baseField = new BaseTest();
         StaticTest.staticField.staticField = new StaticTest();
         staticTest.staticField.failStatic();
+        extItself(new ExtendTest());
     }
 
     // TODO These tests will fail
     // multipleArgs(1, 2, false, this);    Automatic conversion '2'->'2d' allows this, but resolver won't recognize it
-    // multipleArgs(1, 2d, false, null);   Nullable arguments
 
-    public void extFail() {}
-    public void extEnd() {}
-    public ExtendTest extSelf() {return this;}
-    public ExtendTest extItself(ExtendTest t) {return this;}
-    public ExtendTest foreignArg(Test t) {return this;}
-    public ExtendTest multipleArgs(int a, double b, boolean c, ExtendTest t) {return this;}
+    public void extFail() {
+    }
+
+    public void extEnd() {
+    }
+
+    public ExtendTest extSelf() {
+        return this;
+    }
+
+    public ExtendTest extItself(ExtendTest t) {
+        return this;
+    }
+
+    public ExtendTest foreignArg(Test t) {
+        return this;
+    }
+
+    public ExtendTest multipleArgs(int a, double b, boolean c, ExtendTest t) {
+        return this;
+    }
 }

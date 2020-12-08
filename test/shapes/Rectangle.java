@@ -12,11 +12,11 @@ public class Rectangle implements Shape {
 
     @Override
     public double getCircumference() {
-        return 2*x + 2*y;
+        return 2 * x + 2 * y;
     }
 
     @Override
     public double getArea() {
-        return x*y;
+        return x * y;
     }
 }
