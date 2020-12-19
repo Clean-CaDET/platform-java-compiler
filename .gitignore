@@ -62,3 +62,10 @@ local.properties
 buildSrcTmp/
 distTmp/
 outTmp/
+pickled_validation
+pickled_test
+dataset/*
+results.csv
+main.py
+evaluate.py
+__pycache__/*

@@ -3,7 +3,7 @@ package second_pass.resolver.solver_nodes.cadet
 import cadet_model.abs.CadetVariable
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.FieldAccessExpr
-import first_pass.node_parser.FieldAccessExpressionParser
+import second_pass.resolver.node_parser.FieldAccessExpressionParser
 import second_pass.resolver.SymbolResolver
 import second_pass.resolver.solver_nodes.abs.WithCallerSolverNode
 

@@ -31,11 +31,9 @@ class VisitorContext {
         when (resolvedReference) {
             is CadetMember -> addMemberInvocation(resolvedReference)
             is CadetField -> addFieldAccess(resolvedReference)
-            is CadetParameter -> {
-            }
-            is CadetLocalVariable -> {
-            }
-            else -> throw IllegalArgumentException("Unsupported reference usage: ${resolvedReference.toString()}")
+            is CadetParameter -> {}
+            is CadetLocalVariable -> {}
+            else -> throw IllegalArgumentException("Unsupported reference usage: $resolvedReference")
         }
     }
 

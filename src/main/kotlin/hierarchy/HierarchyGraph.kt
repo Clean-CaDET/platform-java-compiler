@@ -30,11 +30,9 @@ class HierarchyGraph {
     }
 
     fun addClass(cadetClass: CadetClass) {
-        ClassGraphNode(cadetClass)
-            .let {
-                it.parent = baseClass
-                classGraph[cadetClass.name] = it
-            }
+        val node = ClassGraphNode(cadetClass)
+        node.parent = baseClass
+        classGraph[cadetClass.name] = node
     }
 
     fun addInterface(name: String) {
@@ -42,68 +40,59 @@ class HierarchyGraph {
     }
 
     fun modifyClassHierarchy(className: String, symbolName: String) {
-        if (classGraph[className] != null) {
-            classGraph[symbolName]?.let {
-                addSuperClass(className, symbolName)
-                return
-            }
-            interfaceMap[symbolName]?.let {
-                addInterfaceImplementation(className, symbolName)
-            }
-        }
+        if (classGraph[symbolName] != null)
+            addSuperClass(className, symbolName)
+        else
+            addInterfaceImplementation(className, symbolName)
     }
 
     private fun addInterfaceImplementation(className: String, interfaceName: String) {
-        interfaceName.let {
-            interfaceMap[it] = it
-            classGraph[className]!!.interfaces.add(it)
-        }
+        val node = classGraph[className]
+        node ?: throw IllegalArgumentException("Class $className not found in hierarchy")
+        node.interfaces.add(interfaceName)
     }
 
     private fun addSuperClass(className: String, parentName: String) {
-        classGraph[className].let { classNode ->
-            classNode ?: throw IllegalArgumentException("Class $className not found in hierarchy")
-            classGraph[parentName].let { parentNode ->
-                parentNode
-                    ?: throw IllegalArgumentException("Parent class $parentName not found in hierarchy")
-                classNode.parent = parentNode
-                classNode.cadetClass.parent = parentNode.cadetClass
-            }
-        }
+        val node = classGraph[className]
+        val parent = classGraph[parentName]
+
+        node ?: throw IllegalArgumentException("Class $className not found in hierarchy")
+        parent ?: throw IllegalArgumentException("Parent class $parentName not found in hierarchy")
+
+        node.parent = parent
+        node.cadetClass.parent = parent.cadetClass
     }
 
     fun isSuperType(className: String, parentName: String): Boolean {
-        classGraph[className]?.let { classNode ->
-            if (classNode.cadetClass.name == parentName) return true
-            classNode.parent?.let { parentNode ->
-                return isSuperType(parentNode.cadetClass.name, parentName)
-            }
+        var node = classGraph[className]?.parent
+        node ?: throw java.lang.IllegalArgumentException("Class $className not found. (Supertype lookup)")
+        while (node != null) {
+            if (node.cadetClass.name == parentName) return true
+            node = node.parent
         }
         return false
     }
 
     fun isImplementation(className: String, interfaceName: String): Boolean {
-        classGraph[className]?.let { classNode ->
-            if (classNode.interfaces.contains(interfaceName)) return true
-            classNode.parent?.let { parentNode ->
-                return isImplementation(parentNode.cadetClass.name, interfaceName)
-            }
+        var node = classGraph[className]
+        while (node != null) {
+            if (node.interfaces.contains(interfaceName)) return true
+            node = node.parent
         }
         return false
     }
 
     fun getClassHierarchy(className: String): List<CadetClass> {
-        classGraph[className]?.let { node ->
-            return mutableListOf<CadetClass>().also { list ->
-                recursiveParentAdd(node, list)
-            }
-        }
-        throw IllegalArgumentException("Class $className not found in hierarchy.")
-    }
+        val hierarchy = mutableListOf<CadetClass>()
+        var node = classGraph[className]
+        node ?: throw IllegalArgumentException("Class $className not found in hierarchy.")
 
-    private fun recursiveParentAdd(node: ClassGraphNode, list: MutableCollection<CadetClass>) {
-        list.add(node.cadetClass)
-        node.parent?.let { recursiveParentAdd(it, list) }
+        while (node != null) {
+            hierarchy.add(node.cadetClass)
+            node = node.parent
+        }
+
+        return hierarchy
     }
 
     private fun instantiateObjectBase(): CadetClass {
@@ -131,7 +120,6 @@ class HierarchyGraph {
         }
         val equals = CadetMember().apply {
             name = "equals"
-            returnType = "boolean"
             params.add(CadetParameter("object", "Object"))
             parent = obj
             cadetMemberType = CadetMemberType.Method

@@ -10,7 +10,7 @@ import com.github.javaparser.ast.body.VariableDeclarator
 
 object FieldDeclarationParser : AbstractNodeParser() {
 
-    fun instantiateClassField(node: FieldDeclaration, parent: CadetClass): CadetField {
+    fun instantiateField(node: FieldDeclaration, parent: CadetClass): CadetField {
         return CadetField().apply {
             this.name = getFieldName(node)
             this.parent = parent
@@ -19,14 +19,6 @@ object FieldDeclarationParser : AbstractNodeParser() {
             }
             this.type = node.elementType.asString()
         }
-    }
-
-    // TODO Move this out into a separate parser class?
-    fun instantiateLocalVariable(node: VariableDeclarator): CadetLocalVariable {
-        return CadetLocalVariable(
-            node.nameAsString,
-            node.typeAsString
-        )
     }
 
     private fun getFieldName(node: FieldDeclaration): String {

@@ -8,12 +8,12 @@ import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.FieldAccessExpr
 import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
-import first_pass.node_parser.FieldDeclarationParser
 import second_pass.context.ClassContext
 import second_pass.context.MemberContext
 import second_pass.context.VisitorContext
 import hierarchy.HierarchyGraph
 import second_pass.resolver.SymbolResolver
+import second_pass.resolver.node_parser.LocalVariableParser
 import second_pass.signature.MemberDeclarationSignature
 import second_pass.signature.MemberSignature
 import util.ResolverVisitorResource
@@ -75,7 +75,7 @@ class SymbolResolverVisitor : VoidVisitorAdapter<ClassContext>() {
 
     override fun visit(node: VariableDeclarator, arg: ClassContext?) {
         if (isMemberContext(arg)) {
-            (arg as MemberContext).addLocalVariable(FieldDeclarationParser.instantiateLocalVariable(node))
+            (arg as MemberContext).addLocalVariable(LocalVariableParser.instantiateLocalVariable(node))
             super.visit(node, arg)
         }
     }
@@ -84,15 +84,8 @@ class SymbolResolverVisitor : VoidVisitorAdapter<ClassContext>() {
     private fun createMemberContext(node: Node) {
         when (node) {
             is MethodDeclaration -> visitorContext.createMemberContext(MemberSignature(MemberDeclarationSignature(node)))
-            is ConstructorDeclaration -> visitorContext.createMemberContext(
-                MemberSignature(
-                    MemberDeclarationSignature(
-                        node
-                    )
-                )
-            )
-            else -> {
-            }
+            is ConstructorDeclaration -> visitorContext.createMemberContext(MemberSignature(MemberDeclarationSignature(node)))
+            else -> {}
         }
     }
 

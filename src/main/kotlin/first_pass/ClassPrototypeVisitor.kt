@@ -13,9 +13,9 @@ import first_pass.node_parser.MemberDeclarationParser
 
 class ClassPrototypeVisitor : VoidVisitorAdapter<CadetClass>() {
 
-    private val output = ClassPrototypeVisitorOutput()
+    private val output = ClassPrototype()
 
-    fun parseTree(compilationUnit: CompilationUnit): ClassPrototypeVisitorOutput {
+    fun parseTree(compilationUnit: CompilationUnit): ClassPrototype {
         visit(compilationUnit, null)
         return output
     }
@@ -41,7 +41,7 @@ class ClassPrototypeVisitor : VoidVisitorAdapter<CadetClass>() {
     }
 
     override fun visit(node: FieldDeclaration, arg: CadetClass?) {
-        FieldDeclarationParser.instantiateClassField(node, arg!!)
+        FieldDeclarationParser.instantiateField(node, arg!!)
             .let { arg.fields.add(it) }
     }
 }

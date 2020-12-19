@@ -1,7 +1,8 @@
-package first_pass.node_parser
+package second_pass.resolver.node_parser
 
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.*
+import first_pass.node_parser.AbstractNodeParser
 
 object MethodCallExpressionParser : AbstractNodeParser() {
 

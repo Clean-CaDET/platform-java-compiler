@@ -16,13 +16,13 @@ class JavaCodeParser {
     private val resolverVisitor = SymbolResolverVisitor()
     private val resolverResourceList = mutableListOf<ResolverVisitorResource>()
 
-    fun parseFiles(sourceCodeDtoList: List<SourceCodeDto>): List<CadetClass>? {
+    fun parseSourceCode(sourceCodeList: List<String>): List<CadetClass>? {
 
         lateinit var cUnit: CompilationUnit
 
-        for (sourceCodeDto in sourceCodeDtoList) {
+        for (sourceCode in sourceCodeList) {
             try {
-                cUnit = StaticJavaParser.parse(sourceCodeDto.sourceCode)
+                cUnit = StaticJavaParser.parse(sourceCode)
             }
             catch (e: ParseProblemException) {
                 return null

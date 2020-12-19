@@ -6,7 +6,7 @@ const val javaFileExtension = "java"
 
 fun main(args: Array<String>) {
 
-    JavaCodeParser().parseFiles(extractSourceCode(getAllFilePaths(root + "shapes")))
+    JavaCodeParser().parseSourceCode(extractSourceCode(getAllFilePaths(root + "tests")))
 }
 
 private fun getAllFilePaths(path: String): List<String> {
@@ -19,11 +19,11 @@ private fun getAllFilePaths(path: String): List<String> {
         }
 }
 
-private fun extractSourceCode(paths: List<String>): List<SourceCodeDto> {
-    return mutableListOf<SourceCodeDto>()
+private fun extractSourceCode(paths: List<String>): List<String> {
+    return mutableListOf<String>()
         .also { sourceCodeList ->
             paths.forEach { filePath ->
-                sourceCodeList.add(SourceCodeDto(filePath, File(filePath).readText()))
+                sourceCodeList.add(File(filePath).readText())
             }
         }
 }

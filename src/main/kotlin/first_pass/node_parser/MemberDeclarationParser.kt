@@ -8,30 +8,31 @@ import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.Parameter
+import java.lang.IllegalArgumentException
 
 object MemberDeclarationParser : AbstractNodeParser() {
 
     fun instantiateMethod(node: MethodDeclaration, parent: CadetClass): CadetMember {
-        return CadetMember().apply {
+        return instantiateBaseMember(node, parent, CadetMemberType.Method).apply {
             this.name = node.nameAsString
-            this.parent = parent
-            this.cadetMemberType = CadetMemberType.Method
-            getParameters(node).forEach {
-                this.params.add(it)
-            }
             this.returnType = node.typeAsString
         }
     }
 
     fun instantiateConstructor(node: ConstructorDeclaration, parent: CadetClass): CadetMember {
-        return CadetMember().apply {
+        return instantiateBaseMember(node, parent, CadetMemberType.Constructor).apply {
             this.name = node.nameAsString
+            this.returnType = node.nameAsString
+        }
+    }
+
+    private fun instantiateBaseMember(node: Node, parent: CadetClass, type: CadetMemberType): CadetMember {
+        return CadetMember().apply {
             this.parent = parent
-            this.cadetMemberType = CadetMemberType.Constructor
+            this.cadetMemberType = type
             getParameters(node).forEach {
                 this.params.add(it)
             }
-            this.returnType = node.nameAsString
         }
     }
 

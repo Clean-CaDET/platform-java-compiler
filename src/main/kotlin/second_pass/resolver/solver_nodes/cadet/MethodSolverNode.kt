@@ -3,7 +3,7 @@ package second_pass.resolver.solver_nodes.cadet
 import cadet_model.CadetMember
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.MethodCallExpr
-import first_pass.node_parser.MethodCallExpressionParser
+import second_pass.resolver.node_parser.MethodCallExpressionParser
 import second_pass.resolver.SymbolResolver
 import second_pass.resolver.solver_nodes.abs.MemberCallSolverNode
 import second_pass.signature.MemberSignature
