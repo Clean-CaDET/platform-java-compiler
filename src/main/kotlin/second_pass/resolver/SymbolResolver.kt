@@ -5,6 +5,7 @@ import cadet_model.CadetMember
 import cadet_model.abs.CadetVariable
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.*
+import first_pass.prototype_dto.JavaPrototype
 import second_pass.context.VisitorContext
 import second_pass.hierarchy.HierarchyGraph
 import second_pass.resolver.solver_nodes.abs.BaseSolverNode
@@ -17,8 +18,10 @@ import second_pass.signature.MemberSignature
 
 class SymbolResolver(
     private val visitorContext: VisitorContext,
-    private val hierarchyGraph: HierarchyGraph
+    prototypes: List<JavaPrototype>
 ) {
+    private val hierarchyGraph = HierarchyGraphFactory.initializeHierarchyGraph(prototypes)
+
     companion object {
         const val WildcardType: String = "#"
     }

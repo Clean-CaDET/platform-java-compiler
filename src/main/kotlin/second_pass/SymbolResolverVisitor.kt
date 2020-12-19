@@ -27,13 +27,9 @@ class SymbolResolverVisitor : VoidVisitorAdapter<ClassContext>() {
     private val visitorContext = VisitorContext()
     private lateinit var resolver: SymbolResolver
 
-// Resolving methods
-    fun resolveSourceCode(compilationUnits: List<CompilationUnit>, prototypes: List<JavaPrototype>): List<CadetClass> {
-        val hierarchyGraph = initializeHierarchyGraph(prototypes)
-        resolver = SymbolResolver(visitorContext, hierarchyGraph)
-
+    fun resolveSourceCode(compilationUnits: List<CompilationUnit>, prototypes: List<JavaPrototype>) {
+        resolver = SymbolResolver(visitorContext, prototypes)
         resolvePrototypes(compilationUnits, prototypes)
-        return hierarchyGraph.getClasses()
     }
 
     private fun resolvePrototypes(compilationUnits: List<CompilationUnit>, prototypes: List<JavaPrototype>)
@@ -45,34 +41,6 @@ class SymbolResolverVisitor : VoidVisitorAdapter<ClassContext>() {
             }
         }
     }
-
-// Hierarchy graph init methods
-    private fun initializeHierarchyGraph(prototypes: List<JavaPrototype>): HierarchyGraph {
-        val hierarchyGraph = HierarchyGraph()
-
-        loadHierarchyNodes(prototypes, hierarchyGraph)
-        connectHierarchyNodes(prototypes, hierarchyGraph)
-
-        return hierarchyGraph
-    }
-
-    private fun loadHierarchyNodes(prototypes: List<JavaPrototype>, hierarchyGraph: HierarchyGraph) {
-        for (prototype in prototypes) {
-            if (prototype is InterfacePrototype) hierarchyGraph.addInterface(prototype.getName())
-            else if (prototype is ClassPrototype) hierarchyGraph.addClass(prototype.cadetClass)
-        }
-    }
-
-    private fun connectHierarchyNodes(prototypes: List<JavaPrototype>, hierarchyGraph: HierarchyGraph) {
-        for (prototype in prototypes) {
-            if (prototype is ClassPrototype) {
-                for (symbol in prototype.hierarchySymbols) {
-                    hierarchyGraph.modifyClassHierarchy(prototype.getName(), symbol)
-                }
-            }
-        }
-    }
-
 
 // Overriden visitor methods
     override fun visit(node: ClassOrInterfaceDeclaration, arg: ClassContext?) {

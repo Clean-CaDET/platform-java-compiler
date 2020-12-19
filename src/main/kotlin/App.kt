@@ -5,7 +5,7 @@ const val javaFileExtension = "java"
 
 fun main(args: Array<String>) {
 
-    JavaCodeParser().parseSourceCode(extractSourceCode(getAllFilePaths(root + "shapes")))
+    JavaCodeParser().parseSourceCode(extractSourceCode(getAllFilePaths(root + "tests")))
 }
 
 private fun getAllFilePaths(path: String): List<String> {
