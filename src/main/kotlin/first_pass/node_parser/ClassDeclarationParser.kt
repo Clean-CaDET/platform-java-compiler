@@ -15,9 +15,7 @@ object ClassDeclarationParser : AbstractNodeParser() {
         }
     }
 
-    fun getExtendingClassesAndInterfaces(node: CompilationUnit): List<ClassOrInterfaceType> {
-        getChildByType<ClassOrInterfaceDeclaration>(node)!!.apply {
-            return getChildrenByType(this)
-        }
+    fun getExtendingClassesAndInterfaces(node: ClassOrInterfaceDeclaration): List<ClassOrInterfaceType> {
+            return getChildrenByType(node)
     }
 }

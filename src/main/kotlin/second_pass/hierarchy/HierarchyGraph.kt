@@ -1,4 +1,4 @@
-package hierarchy
+package second_pass.hierarchy
 
 import cadet_model.CadetClass
 import cadet_model.CadetMember
@@ -48,7 +48,7 @@ class HierarchyGraph {
 
     private fun addInterfaceImplementation(className: String, interfaceName: String) {
         val node = classGraph[className]
-        node ?: throw IllegalArgumentException("Class $className not found in hierarchy")
+        node ?: throw IllegalArgumentException("Class $className not found in second_pass.hierarchy")
         node.interfaces.add(interfaceName)
     }
 
@@ -56,8 +56,8 @@ class HierarchyGraph {
         val node = classGraph[className]
         val parent = classGraph[parentName]
 
-        node ?: throw IllegalArgumentException("Class $className not found in hierarchy")
-        parent ?: throw IllegalArgumentException("Parent class $parentName not found in hierarchy")
+        node ?: throw IllegalArgumentException("Class $className not found in second_pass.hierarchy")
+        parent ?: throw IllegalArgumentException("Parent class $parentName not found in second_pass.hierarchy")
 
         node.parent = parent
         node.cadetClass.parent = parent.cadetClass
@@ -85,7 +85,7 @@ class HierarchyGraph {
     fun getClassHierarchy(className: String): List<CadetClass> {
         val hierarchy = mutableListOf<CadetClass>()
         var node = classGraph[className]
-        node ?: throw IllegalArgumentException("Class $className not found in hierarchy.")
+        node ?: throw IllegalArgumentException("Class $className not found in second_pass.hierarchy.")
 
         while (node != null) {
             hierarchy.add(node.cadetClass)

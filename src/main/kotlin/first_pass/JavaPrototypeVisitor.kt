@@ -10,23 +10,32 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import first_pass.node_parser.ClassDeclarationParser
 import first_pass.node_parser.FieldDeclarationParser
 import first_pass.node_parser.MemberDeclarationParser
+import first_pass.prototype_dto.ClassPrototype
+import first_pass.prototype_dto.InterfacePrototype
+import first_pass.prototype_dto.JavaPrototype
 
-class ClassPrototypeVisitor : VoidVisitorAdapter<CadetClass>() {
+class JavaPrototypeVisitor : VoidVisitorAdapter<CadetClass>() {
 
-    private val output = ClassPrototype()
+    private lateinit var output: JavaPrototype
 
-    fun parseTree(compilationUnit: CompilationUnit): ClassPrototype {
+    fun parseTree(compilationUnit: CompilationUnit): JavaPrototype {
         visit(compilationUnit, null)
         return output
     }
 
     override fun visit(node: ClassOrInterfaceDeclaration, arg: CadetClass?) {
-        if (node.isInterface)
-            output.interfaces.add(node.nameAsString)
+        if (node.isInterface) {
+            output = InterfacePrototype(node.nameAsString)
+        }
         else {
-            ClassDeclarationParser.instantiateClass(node, arg)
-                .let { output.cadetClass = it }
-            super.visit(node, output.cadetClass)
+            val cadetClass = ClassDeclarationParser.instantiateClass(node, arg)
+            output = ClassPrototype(cadetClass)
+
+            val symbols = ClassDeclarationParser.getExtendingClassesAndInterfaces(node)
+            for (symbol in symbols)
+                (output as ClassPrototype).hierarchySymbols.add(symbol.nameAsString)
+
+            super.visit(node, cadetClass)
         }
     }
 

@@ -1,6 +1,6 @@
 package second_pass.signature
 
-import hierarchy.HierarchyGraph
+import second_pass.hierarchy.HierarchyGraph
 import second_pass.resolver.SymbolResolver
 
 /**

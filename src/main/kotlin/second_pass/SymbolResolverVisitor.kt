@@ -1,5 +1,7 @@
 package second_pass
 
+import cadet_model.CadetClass
+import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.body.ConstructorDeclaration
@@ -8,45 +10,69 @@ import com.github.javaparser.ast.body.VariableDeclarator
 import com.github.javaparser.ast.expr.FieldAccessExpr
 import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
+import first_pass.prototype_dto.ClassPrototype
+import first_pass.prototype_dto.InterfacePrototype
+import first_pass.prototype_dto.JavaPrototype
 import second_pass.context.ClassContext
 import second_pass.context.MemberContext
 import second_pass.context.VisitorContext
-import hierarchy.HierarchyGraph
+import second_pass.hierarchy.HierarchyGraph
 import second_pass.resolver.SymbolResolver
 import second_pass.resolver.node_parser.LocalVariableParser
 import second_pass.signature.MemberDeclarationSignature
 import second_pass.signature.MemberSignature
-import util.ResolverVisitorResource
 
 class SymbolResolverVisitor : VoidVisitorAdapter<ClassContext>() {
 
-    private lateinit var visitorContext: VisitorContext
-    private lateinit var hierarchyVisitor: HierarchyVisitor
+    private val visitorContext = VisitorContext()
     private lateinit var resolver: SymbolResolver
 
-    private fun initializeDataStructures(hierarchyGraph: HierarchyGraph) {
-        visitorContext = VisitorContext()
-        hierarchyVisitor = HierarchyVisitor(visitorContext, hierarchyGraph)
-        resolver = SymbolResolver(visitorContext, hierarchyGraph)
-    }
-
 // Resolving methods
-    fun resolveResources(hierarchyGraph: HierarchyGraph, resources: List<ResolverVisitorResource>) {
-        initializeDataStructures(hierarchyGraph)
-        resolveHierarchy(resources)
-        resolveSymbols(resources)
+    fun resolveSourceCode(compilationUnits: List<CompilationUnit>, prototypes: List<JavaPrototype>): List<CadetClass> {
+        val hierarchyGraph = initializeHierarchyGraph(prototypes)
+        resolver = SymbolResolver(visitorContext, hierarchyGraph)
+
+        resolvePrototypes(compilationUnits, prototypes)
+        return hierarchyGraph.getClasses()
     }
 
-    private fun resolveHierarchy(resources: List<ResolverVisitorResource>) {
-        resources.forEach { hierarchyVisitor.parseTree(it.compilationUnit, it.cadetClass) }
-    }
-
-    private fun resolveSymbols(resources: List<ResolverVisitorResource>) {
-        resources.forEach { resource ->
-            visitorContext.createClassContext(resource.cadetClass)
-            super.visit(resource.compilationUnit, null)
+    private fun resolvePrototypes(compilationUnits: List<CompilationUnit>, prototypes: List<JavaPrototype>)
+    {
+        for (index in compilationUnits.indices) {
+            if (prototypes[index] is ClassPrototype) {
+                visitorContext.createClassContext((prototypes[index] as ClassPrototype).cadetClass)
+                super.visit(compilationUnits[index], null)
+            }
         }
     }
+
+// Hierarchy graph init methods
+    private fun initializeHierarchyGraph(prototypes: List<JavaPrototype>): HierarchyGraph {
+        val hierarchyGraph = HierarchyGraph()
+
+        loadHierarchyNodes(prototypes, hierarchyGraph)
+        connectHierarchyNodes(prototypes, hierarchyGraph)
+
+        return hierarchyGraph
+    }
+
+    private fun loadHierarchyNodes(prototypes: List<JavaPrototype>, hierarchyGraph: HierarchyGraph) {
+        for (prototype in prototypes) {
+            if (prototype is InterfacePrototype) hierarchyGraph.addInterface(prototype.getName())
+            else if (prototype is ClassPrototype) hierarchyGraph.addClass(prototype.cadetClass)
+        }
+    }
+
+    private fun connectHierarchyNodes(prototypes: List<JavaPrototype>, hierarchyGraph: HierarchyGraph) {
+        for (prototype in prototypes) {
+            if (prototype is ClassPrototype) {
+                for (symbol in prototype.hierarchySymbols) {
+                    hierarchyGraph.modifyClassHierarchy(prototype.getName(), symbol)
+                }
+            }
+        }
+    }
+
 
 // Overriden visitor methods
     override fun visit(node: ClassOrInterfaceDeclaration, arg: ClassContext?) {
@@ -80,7 +106,7 @@ class SymbolResolverVisitor : VoidVisitorAdapter<ClassContext>() {
         }
     }
 
-    // Shorthand methods
+// Shorthand methods
     private fun createMemberContext(node: Node) {
         when (node) {
             is MethodDeclaration -> visitorContext.createMemberContext(MemberSignature(MemberDeclarationSignature(node)))

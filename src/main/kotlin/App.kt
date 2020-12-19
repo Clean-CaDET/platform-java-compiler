@@ -1,4 +1,3 @@
-import util.SourceCodeDto
 import java.io.File
 
 const val root = "test\\"
@@ -6,7 +5,7 @@ const val javaFileExtension = "java"
 
 fun main(args: Array<String>) {
 
-    JavaCodeParser().parseSourceCode(extractSourceCode(getAllFilePaths(root + "tests")))
+    JavaCodeParser().parseSourceCode(extractSourceCode(getAllFilePaths(root + "shapes")))
 }
 
 private fun getAllFilePaths(path: String): List<String> {
