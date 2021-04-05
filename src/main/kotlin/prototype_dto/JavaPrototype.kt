@@ -1,4 +1,4 @@
-package first_pass.prototype_dto
+package prototype_dto
 
 interface JavaPrototype {
     fun getName(): String

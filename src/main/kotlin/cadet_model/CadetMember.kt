@@ -1,6 +1,6 @@
 package cadet_model
 
-class CadetMember() {
+class CadetMember{
     lateinit var name: String
     lateinit var cadetMemberType: CadetMemberType
     lateinit var source: String

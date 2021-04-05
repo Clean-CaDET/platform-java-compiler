@@ -1,4 +1,4 @@
-package first_pass.prototype_dto
+package prototype_dto
 
 import cadet_model.CadetClass
 

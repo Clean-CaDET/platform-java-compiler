@@ -15,13 +15,14 @@ class MethodSolverNode(
 
     override var caller: Node? = MethodCallExpressionParser.getCaller(node)
 
-    override fun callResolveReference(): CadetMember? {
+    override fun resolveViaSignature(): CadetMember? {
         return resolver.getMethod(
             callerResolverNode?.returnType,
             MemberSignature(this, resolver.getHierarchyGraph())
         )
     }
 
+    // TODO This is messy, try to find a way around it
     override fun initChildCondition(child: Node): Boolean = child !== caller
 
     override fun getName(): String = (node as MethodCallExpr).nameAsString

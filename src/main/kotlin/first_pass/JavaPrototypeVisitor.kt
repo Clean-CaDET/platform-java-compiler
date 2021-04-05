@@ -10,37 +10,40 @@ import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import first_pass.node_parser.ClassDeclarationParser
 import first_pass.node_parser.FieldDeclarationParser
 import first_pass.node_parser.MemberDeclarationParser
-import first_pass.prototype_dto.ClassPrototype
-import first_pass.prototype_dto.InterfacePrototype
-import first_pass.prototype_dto.JavaPrototype
+import prototype_dto.ClassPrototype
+import prototype_dto.InterfacePrototype
+import prototype_dto.JavaPrototype
 
 class JavaPrototypeVisitor : VoidVisitorAdapter<CadetClass>() {
 
-    private lateinit var output: JavaPrototype
+    private val output: MutableList<Pair<ClassOrInterfaceDeclaration, JavaPrototype>> = mutableListOf()
 
-    fun parseTree(compilationUnit: CompilationUnit): JavaPrototype {
+    fun parseCompilationUnit(compilationUnit: CompilationUnit): List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>> {
         visit(compilationUnit, null)
         return output
     }
 
     override fun visit(node: ClassOrInterfaceDeclaration, arg: CadetClass?) {
-        if (node.isInterface) {
-            output = InterfacePrototype(node.nameAsString)
-        }
-        else {
-            val cadetClass = ClassDeclarationParser.instantiateClass(node, arg)
-            output = ClassPrototype(cadetClass)
+        when {
+            node.isEnumDeclaration -> return;
+            node.isInterface -> output.add(Pair(node, InterfacePrototype(node.nameAsString)));
+            else -> {
+                val cadetClass = ClassDeclarationParser.instantiateClass(node, arg)
+                val classPrototype = ClassPrototype(cadetClass)
+                output.add(Pair(node, classPrototype))
 
-            val symbols = ClassDeclarationParser.getExtendingClassesAndInterfaces(node)
-            for (symbol in symbols)
-                (output as ClassPrototype).hierarchySymbols.add(symbol.nameAsString)
+                val symbols = ClassDeclarationParser.getExtendingClassesAndInterfaces(node)
+                for (symbol in symbols)
+                    classPrototype.hierarchySymbols.add(symbol.nameAsString)
 
-            super.visit(node, cadetClass)
+                super.visit(node, cadetClass)
+            }
         }
     }
 
     override fun visit(node: MethodDeclaration, arg: CadetClass?) {
-        MemberDeclarationParser.instantiateMethod(node, arg!!)
+        arg ?: return
+        MemberDeclarationParser.instantiateMethod(node, arg)
             .let { arg.members.add(it) }
     }
 

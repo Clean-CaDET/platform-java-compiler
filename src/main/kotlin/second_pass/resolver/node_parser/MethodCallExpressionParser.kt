@@ -45,7 +45,12 @@ object MethodCallExpressionParser : AbstractNodeParser() {
             is MethodCallExpr -> callerNode
             is ObjectCreationExpr -> callerNode
             is SuperExpr -> callerNode
-            else -> throw IllegalArgumentException("Caller node of type ${callerNode.metaModel.typeName} not recognized as valid.")
+            is StringLiteralExpr -> callerNode
+            else -> {
+                println("Caller node of type ${callerNode.metaModel.typeName} not recognized as valid.")
+                return null
+                //throw IllegalArgumentException("Caller node of type ${callerNode.metaModel.typeName} not recognized as valid.")
+            }
         }
 
         // Caller could be determined by the following algorithm, revolving around 'SimpleName' position in the child node list

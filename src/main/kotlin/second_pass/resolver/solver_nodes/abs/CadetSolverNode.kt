@@ -17,6 +17,9 @@ abstract class CadetSolverNode<T : Any>(
 
     private fun notifyContextOfUsage() {
         if (resolvedReference == null) {
+            // In certain Solver scenarios such as when working with a LiteralNode, BaseSolver's return type will be
+            // known without actually resolving the reference
+            // However, returnType is lateinit so if it is not initialized, this will throw an exception
             try {
                 returnType
                 return
@@ -33,22 +36,25 @@ abstract class CadetSolverNode<T : Any>(
         doResolve()
         notifyContextOfUsage()
 
-        // Diagnostics for failed resolving
-        resolvedReference ?: println(
-            "${node.metaModel.typeName} : '${nodeName(node)}' from ${
+        if (resolvedReference == null) print("FAILED:  ")
+        else print("SUCCESS:  ")
+        showNodeDetails(node)
+    }
+
+    // TODO Diagnostics for failed resolving, delete for prod
+    private fun showNodeDetails(node: Node) {
+        println("${node.metaModel.typeName} : '${nodeName(node)}' from ${
                 resolver.getVisitorContext().getCurrentClassName()
             }"
         )
     }
-
-    // TODO Diagnostics method
     private fun nodeName(node: Node): String {
         return when (node) {
             is MethodCallExpr -> "${node.nameAsString}()"
             is ObjectCreationExpr -> "new ${node.typeAsString}()"
             is NameExpr -> node.nameAsString
             is FieldAccessExpr -> node.nameAsString
-            else -> "Unknown node type not resolvable"
+            else -> "${node.metaModel.typeName} node type not resolvable"
         }
     }
 }

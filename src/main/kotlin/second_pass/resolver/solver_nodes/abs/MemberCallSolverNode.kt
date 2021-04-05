@@ -5,28 +5,30 @@ import com.github.javaparser.ast.Node
 import second_pass.resolver.SymbolResolver
 import second_pass.signature.SignableMember
 
-abstract class MemberCallSolverNode(node: Node, resolver: SymbolResolver) :
-    WithCallerSolverNode<CadetMember>(node, resolver),
-    SignableMember {
-    private val children = mutableListOf<BaseSolverNode>()
+abstract class MemberCallSolverNode(node: Node, resolver: SymbolResolver)
+    : WithCallerSolverNode<CadetMember>(node, resolver),
+    SignableMember
+{
+    private val arguments = mutableListOf<BaseSolverNode>()
 
     override fun doResolve() {
         initArgumentNodes()
-        children.forEach { it.resolve() }
-        callResolveReference()?.let {
+        arguments.forEach { it.resolve() }
+        resolveViaSignature()?.let {
             resolvedReference = it
             returnType = it.returnType
         }
     }
 
-    protected abstract fun callResolveReference(): CadetMember?
+    protected abstract fun resolveViaSignature(): CadetMember?
     protected abstract fun initChildCondition(child: Node): Boolean
 
     private fun initArgumentNodes() {
         node.childNodes.forEach { child ->
+            // TODO Add predefined child != caller condition?
             if (initChildCondition(child)) {
                 resolver.createSolverNode(child)
-                    ?.let { this.children.add(it) }
+                    ?.let { this.arguments.add(it) }
             }
         }
     }
@@ -34,9 +36,9 @@ abstract class MemberCallSolverNode(node: Node, resolver: SymbolResolver) :
     override fun getParameterTypes(): List<String> {
         return mutableListOf<String>()
             .also { list ->
-                children.forEach { list.add(it.returnType) }
+                arguments.forEach { list.add(it.returnType) }
             }
     }
 
-    override fun getNumberOfParameters(): Int = children.size
+    override fun getNumberOfParameters(): Int = arguments.size
 }

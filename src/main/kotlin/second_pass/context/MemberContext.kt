@@ -15,8 +15,21 @@ class MemberContext(
     init {
         cadetClass.getMemberViaSignature(signature)
             .let {
-                it
-                    ?: throw IllegalArgumentException("Failed to create member context in class ${classContext.cadetClass.name}")
+                if (it == null) {
+                    println("MEMBERS FOR CLASS ${cadetClass.fullName}:")
+                    cadetClass.members.forEach { member ->
+                        print("\t${member.name}(")
+                        member.params.forEach {param ->
+                            print("${param.type} ${param.name}")
+                        }
+                        println(")")
+                    }
+                    error("Failed to find $signature inside of ClassContext ${classContext.cadetClass.fullName}")
+                }
+                else
+                //it ?: throw IllegalArgumentException(
+                 //   "Failed to create member context in class ${classContext.cadetClass.fullName}. No matching signatures found."
+                //)
                 this.cadetMember = it
             }
     }

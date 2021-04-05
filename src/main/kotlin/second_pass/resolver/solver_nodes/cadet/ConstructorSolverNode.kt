@@ -10,9 +10,10 @@ import second_pass.signature.MemberSignature
 class ConstructorSolverNode(node: ObjectCreationExpr, resolver: SymbolResolver) : MemberCallSolverNode(node, resolver) {
     override var caller: Node? = null
 
-    override fun callResolveReference(): CadetMember? {
+    override fun resolveViaSignature(): CadetMember? {
         return resolver.getConstructor(
             (node as ObjectCreationExpr).typeAsString,
+            // TODO This kind of injection is fucking ugly, remove this
             MemberSignature(this, resolver.getHierarchyGraph())
         )
     }

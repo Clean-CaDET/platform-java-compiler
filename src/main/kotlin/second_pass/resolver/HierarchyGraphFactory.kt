@@ -1,8 +1,8 @@
 package second_pass.resolver
 
-import first_pass.prototype_dto.ClassPrototype
-import first_pass.prototype_dto.InterfacePrototype
-import first_pass.prototype_dto.JavaPrototype
+import prototype_dto.ClassPrototype
+import prototype_dto.InterfacePrototype
+import prototype_dto.JavaPrototype
 import second_pass.hierarchy.HierarchyGraph
 
 object HierarchyGraphFactory {

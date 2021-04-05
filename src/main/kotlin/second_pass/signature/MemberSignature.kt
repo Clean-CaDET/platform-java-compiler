@@ -11,6 +11,7 @@ class MemberSignature(
     signable: SignableMember,
     private val hierarchyGraph: HierarchyGraph? = null
 ) {
+    private var name = ""
     private var nameHash = 0
     private var numberOfParameters = 0
     private val paramTypes = mutableListOf<String>()
@@ -21,6 +22,7 @@ class MemberSignature(
 
     private fun generateSignature(signable: SignableMember) {
         nameHash = signable.getName().hashCode()
+        name = signable.getName()
         numberOfParameters = signable.getNumberOfParameters()
         signable.getParameterTypes().forEach { paramTypes.add(it) }
     }
@@ -62,5 +64,9 @@ class MemberSignature(
     private fun isDependencyInjection(className: String, interfaceName: String): Boolean {
         hierarchyGraph ?: throw NullPointerException("Hierarchy graph not injected into Member signature.")
         return hierarchyGraph.isImplementation(className, interfaceName)
+    }
+
+    override fun toString(): String {
+        return "$name ($paramTypes)"
     }
 }

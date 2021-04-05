@@ -6,6 +6,7 @@ import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.Parameter
 import first_pass.node_parser.AbstractNodeParser
 
+// TODO Refactor [AbstractNodeParser] to be a static utility, do not extend in cases like this!
 class MemberDeclarationSignature
     : AbstractNodeParser,
     SignableMember {
@@ -31,5 +32,4 @@ class MemberDeclarationSignature
             parameterTypes.add(paramNode.typeAsString)
         }
     }
-
 }
