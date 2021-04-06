@@ -7,6 +7,7 @@ import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.*
 import prototype_dto.JavaPrototype
 import second_pass.context.VisitorContext
+import second_pass.hierarchy.HierarchyGraph
 import second_pass.resolver.solver_nodes.abs.BaseSolverNode
 import second_pass.resolver.solver_nodes.cadet.ConstructorSolverNode
 import second_pass.resolver.solver_nodes.cadet.FieldAccessSolverNode
@@ -19,7 +20,7 @@ class SymbolResolver(
     private val visitorContext: VisitorContext,
     prototypes: List<JavaPrototype>
 ) {
-    private val hierarchyGraph = HierarchyGraphFactory.initializeHierarchyGraph(prototypes)
+    private val hierarchyGraph = HierarchyGraph.Factory.initializeHierarchyGraph(prototypes)
 
     companion object {
         const val WildcardType: String = "#"
@@ -49,6 +50,7 @@ class SymbolResolver(
             is NameExpr -> NameSolverNode(node, this)
             is FieldAccessExpr -> FieldAccessSolverNode(node, this)
 
+            is EnclosedExpr -> EnclosedExprSolverNode(node, this)
             else -> return null
         }
     }
@@ -74,9 +76,9 @@ class SymbolResolver(
     fun getMethod(callerType: String?, signature: MemberSignature): CadetMember? {
         callerType ?: return getMemberFromHierarchy(signature, visitorContext.getCurrentClassName())
 
-        hierarchyGraph.getClass(callerType).let { Class ->
-            Class ?: return null
-            return getMemberFromHierarchy(signature, Class.name)
+        hierarchyGraph.getClass(callerType).let { cadetClass ->
+            cadetClass ?: return null
+            return getMemberFromHierarchy(signature, cadetClass.name)
         }
     }
 

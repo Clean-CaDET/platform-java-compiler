@@ -4,21 +4,50 @@ import cadet_model.CadetClass
 import cadet_model.CadetMember
 import cadet_model.CadetMemberType
 import cadet_model.CadetParameter
+import prototype_dto.ClassPrototype
+import prototype_dto.InterfacePrototype
+import prototype_dto.JavaPrototype
 
 class HierarchyGraph {
 
     private val classGraph = mutableMapOf<String, ClassGraphNode>()
     private val interfaceMap = mutableMapOf<String, String>()
 
-    fun getClass(name: String): CadetClass? = classGraph[name]?.cadetClass
-    fun getClassParent(className: String): CadetClass? = classGraph[className]?.parent?.cadetClass
-    fun getClasses(): List<CadetClass> {
-        return mutableListOf<CadetClass>().apply {
-            classGraph.forEach { classNode ->
-                this.add(classNode.value.cadetClass)
+    object Factory {
+        fun initializeHierarchyGraph(prototypes: List<JavaPrototype>): HierarchyGraph {
+            val hierarchyGraph = HierarchyGraph()
+
+            loadHierarchyNodes(prototypes, hierarchyGraph)
+            connectHierarchyNodes(prototypes, hierarchyGraph)
+
+            return hierarchyGraph
+        }
+
+        private fun loadHierarchyNodes(prototypes: List<JavaPrototype>, hierarchyGraph: HierarchyGraph) {
+            for (prototype in prototypes) {
+                if (prototype is InterfacePrototype) hierarchyGraph.addInterface(prototype.getName())
+                else if (prototype is ClassPrototype) hierarchyGraph.addClass(prototype.cadetClass)
+            }
+        }
+
+        private fun connectHierarchyNodes(prototypes: List<JavaPrototype>, hierarchyGraph: HierarchyGraph) {
+            for (prototype in prototypes) {
+                if (prototype is ClassPrototype) {
+                    for (symbol in prototype.hierarchySymbols) {
+                        hierarchyGraph.modifyClassHierarchy(prototype.getName(), symbol)
+                    }
+                }
             }
         }
     }
+
+    fun getClass(name: String): CadetClass? = classGraph[name]?.cadetClass
+    fun getAllClasses(): List<CadetClass> {
+        val classes = mutableListOf<CadetClass>()
+        classGraph.forEach{(_,v) -> classes.add(v.cadetClass)}
+        return classes
+    }
+    fun getClassParent(className: String): CadetClass? = classGraph[className]?.parent?.cadetClass
 
     fun addClass(cadetClass: CadetClass) {
         val node = ClassGraphNode(cadetClass)

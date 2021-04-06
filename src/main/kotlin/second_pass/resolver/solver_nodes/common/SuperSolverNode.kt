@@ -8,8 +8,7 @@ class SuperSolverNode(node: SuperExpr, private val resolver: SymbolResolver) : B
     override fun resolve() {
         resolver.getCurrentClassSuperType()
             .let {
-                it ?: throw IllegalArgumentException("'Super' not resolvable. Cannot find parent.")
-                returnType = it
+                returnType = it ?: SymbolResolver.WildcardType
             }
     }
 }

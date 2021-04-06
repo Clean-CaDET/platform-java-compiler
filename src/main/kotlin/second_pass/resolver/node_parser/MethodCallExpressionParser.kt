@@ -46,6 +46,7 @@ object MethodCallExpressionParser : AbstractNodeParser() {
             is ObjectCreationExpr -> callerNode
             is SuperExpr -> callerNode
             is StringLiteralExpr -> callerNode
+            is EnclosedExpr -> callerNode
             else -> {
                 println("Caller node of type ${callerNode.metaModel.typeName} not recognized as valid.")
                 return null
