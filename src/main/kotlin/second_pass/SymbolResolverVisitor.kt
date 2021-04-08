@@ -1,12 +1,13 @@
 package second_pass
 
+import com.github.javaparser.ast.Modifier
 import com.github.javaparser.ast.Node
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
-import com.github.javaparser.ast.body.ConstructorDeclaration
-import com.github.javaparser.ast.body.MethodDeclaration
-import com.github.javaparser.ast.body.VariableDeclarator
+import com.github.javaparser.ast.body.*
 import com.github.javaparser.ast.expr.FieldAccessExpr
 import com.github.javaparser.ast.expr.MethodCallExpr
+import com.github.javaparser.ast.expr.SimpleName
+import com.github.javaparser.ast.expr.SingleMemberAnnotationExpr
+import com.github.javaparser.ast.type.ClassOrInterfaceType
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import prototype_dto.ClassPrototype
 import prototype_dto.JavaPrototype
@@ -17,6 +18,8 @@ import second_pass.resolver.SymbolResolver
 import second_pass.resolver.node_parser.LocalVariableParser
 import second_pass.signature.MemberDeclarationSignature
 import second_pass.signature.MemberSignature
+import util.AstNodeUtil
+import java.lang.IllegalStateException
 
 class SymbolResolverVisitor : VoidVisitorAdapter<ClassContext>() {
 
@@ -44,19 +47,27 @@ class SymbolResolverVisitor : VoidVisitorAdapter<ClassContext>() {
         for (pair in resolverPairs) {
             if (pair.second is ClassPrototype) {
                 visitorContext.createClassContext((pair.second as ClassPrototype).cadetClass)
-                visit(pair.first, null)
+                visitTopLevelChildren(pair.first)
             }
         }
     }
 
-// Overriden visitor methods
-    private var parseFlag = false
+    private fun visitTopLevelChildren(node: ClassOrInterfaceDeclaration) {
+        AstNodeUtil
+            .getDirectChildNodes(node)
+            .forEach {childNode ->
+                when (childNode) {
+                    is MethodDeclaration -> visit(childNode, null)
+                    is ConstructorDeclaration -> visit(childNode, null)
+                    is FieldDeclaration -> visit(childNode, null)
+                    else -> {}
+                }
+            }
+    }
 
+// Overriden visitor methods
     override fun visit(node: ClassOrInterfaceDeclaration, arg: ClassContext?) {
-        if (parseFlag) return
-        parseFlag = true
-        super.visit(node, null);
-        parseFlag = false
+        return
     }
 
     // TODO Fix this jumble with VisitorContext calls, it's ugly

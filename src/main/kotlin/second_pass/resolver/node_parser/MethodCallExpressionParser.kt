@@ -2,9 +2,9 @@ package second_pass.resolver.node_parser
 
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.*
-import first_pass.node_parser.AbstractNodeParser
+import util.AstNodeUtil
 
-object MethodCallExpressionParser : AbstractNodeParser() {
+object MethodCallExpressionParser {
 
     // AST notes:
     // Parameters:

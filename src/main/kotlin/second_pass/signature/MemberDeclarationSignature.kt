@@ -4,12 +4,10 @@ import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.Parameter
-import first_pass.node_parser.AbstractNodeParser
+import util.AstNodeUtil
 
 // TODO Refactor [AbstractNodeParser] to be a static utility, do not extend in cases like this!
-class MemberDeclarationSignature
-    : AbstractNodeParser,
-    SignableMember {
+class MemberDeclarationSignature : SignableMember {
     private val name: String
     private val parameterTypes = mutableListOf<String>()
 
@@ -28,7 +26,7 @@ class MemberDeclarationSignature
     override fun getNumberOfParameters(): Int = parameterTypes.size
 
     private fun getParameterTypes(node: Node) {
-        getChildrenByType<Parameter>(node).forEach { paramNode ->
+        AstNodeUtil.getChildrenByType<Parameter>(node).forEach { paramNode ->
             parameterTypes.add(paramNode.typeAsString)
         }
     }

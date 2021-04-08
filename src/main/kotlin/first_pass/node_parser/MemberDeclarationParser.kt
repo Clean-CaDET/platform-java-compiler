@@ -8,9 +8,9 @@ import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.Parameter
-import java.lang.IllegalArgumentException
+import util.AstNodeUtil
 
-object MemberDeclarationParser : AbstractNodeParser() {
+object MemberDeclarationParser {
 
     fun instantiateMethod(node: MethodDeclaration, parent: CadetClass): CadetMember {
         return instantiateBaseMember(node, parent, CadetMemberType.Method).apply {
@@ -38,7 +38,7 @@ object MemberDeclarationParser : AbstractNodeParser() {
 
     private fun getParameters(node: Node): List<CadetParameter> {
         val params = mutableListOf<CadetParameter>()
-        getChildrenByType<Parameter>(node)
+        AstNodeUtil.getChildrenByType<Parameter>(node)
             .forEach {
                 params.add(CadetParameter(it.nameAsString, it.typeAsString))
             }

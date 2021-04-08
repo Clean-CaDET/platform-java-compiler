@@ -1,11 +1,11 @@
 package first_pass.node_parser
 
 import cadet_model.CadetClass
-import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.type.ClassOrInterfaceType
+import util.AstNodeUtil
 
-object ClassDeclarationParser : AbstractNodeParser() {
+object ClassDeclarationParser {
 
     fun instantiateClass(node: ClassOrInterfaceDeclaration, parent: CadetClass?): CadetClass {
         return CadetClass().apply {
@@ -16,6 +16,6 @@ object ClassDeclarationParser : AbstractNodeParser() {
     }
 
     fun getExtendingClassesAndInterfaces(node: ClassOrInterfaceDeclaration): List<ClassOrInterfaceType> {
-            return getChildrenByType(node)
+            return AstNodeUtil.getChildrenByType(node)
     }
 }

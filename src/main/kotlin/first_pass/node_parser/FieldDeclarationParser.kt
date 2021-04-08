@@ -2,13 +2,13 @@ package first_pass.node_parser
 
 import cadet_model.CadetClass
 import cadet_model.CadetField
-import cadet_model.CadetLocalVariable
 import cadet_model.CadetModifier
 import com.github.javaparser.ast.Modifier
 import com.github.javaparser.ast.body.FieldDeclaration
 import com.github.javaparser.ast.body.VariableDeclarator
+import util.AstNodeUtil
 
-object FieldDeclarationParser : AbstractNodeParser() {
+object FieldDeclarationParser {
 
     fun instantiateField(node: FieldDeclaration, parent: CadetClass): CadetField {
         return CadetField().apply {
@@ -22,7 +22,7 @@ object FieldDeclarationParser : AbstractNodeParser() {
     }
 
     private fun getFieldName(node: FieldDeclaration): String {
-        getChildByType<VariableDeclarator>(node)
+        AstNodeUtil.getChildByType<VariableDeclarator>(node)
             .also {
                 return (it as VariableDeclarator).nameAsString
             }
@@ -30,7 +30,7 @@ object FieldDeclarationParser : AbstractNodeParser() {
 
     private fun getModifiers(node: FieldDeclaration): List<CadetModifier> {
         val modifiers = mutableListOf<CadetModifier>()
-        getChildrenByType<Modifier>(node)
+        AstNodeUtil.getChildrenByType<Modifier>(node)
             .forEach {
                 modifiers.add(CadetModifier(it.keyword.asString()))
             }
