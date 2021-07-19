@@ -10,24 +10,20 @@ import second_pass.SymbolResolverVisitor
 
 
 class JavaCodeParser {
-
     fun parseSourceCode(sourceCodeList: List<String>): List<CadetClass> {
+        // Parse source code
         val compilationUnits = parseAllFiles(sourceCodeList)
-        println("Completed parsing source code.\nBeginning to extract prototypes")
-        val resolverPairs = createJavaPrototypes(compilationUnits)
-        println("Completed extracting prototypes. \nBeginning to resolve.")
-        val resolvedJavaPrototypes = SymbolResolverVisitor().resolveSourceCode(resolverPairs)
-        println("Completed resolving. \nFinishing...")
+
+        // First pass (extracting skeletons)
+        val unresolvedPairs = createJavaPrototypes(compilationUnits)
+
+        // Second pass (resolving references)
+        val resolvedJavaPrototypes = SymbolResolverVisitor().resolveSourceCode(unresolvedPairs)
+
+        // Final result extraction
         return extractCadetClassesFromPrototypes(resolvedJavaPrototypes)
     }
 
-    /**
-     *  Parses the given list of source code java strings and returns their respective
-     *  CompilationUnit objects within a list.
-     *  @return List of [CompilationUnit] if parsing succeeds. Null if any of the given source code files has an error.
-     *  @param [sourceCodeList] List of strings where each string should represent a single .java file
-     */
-    // StaticJavaParser call
     private fun parseAllFiles(sourceCodeList: List<String>): List<CompilationUnit> {
         val compilationUnits = mutableListOf<CompilationUnit>()
         for (sourceCode in sourceCodeList) {
@@ -42,11 +38,6 @@ class JavaCodeParser {
         return compilationUnits
     }
 
-    /**
-     *  @return List of [JavaPrototype] objects.
-     *  @param [compilationUnits] List of [CompilationUnit] objects created by the parser from source code.
-     */
-    // OuterVisitor call
     private fun createJavaPrototypes(compilationUnits: List<CompilationUnit>)
     : List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>
     {
@@ -54,17 +45,13 @@ class JavaCodeParser {
         val pairs = mutableListOf<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>()
 
         for (cUnit in compilationUnits) {
-            val cuPairs = prototypeVisitor.parseCompilationUnit(cUnit)
-            pairs.addAll(cuPairs)
+            val pair = prototypeVisitor.parseCompilationUnit(cUnit)
+            pairs.addAll(pair)
         }
 
         return pairs
     }
 
-    /**
-     *  Extracts all the [ClassPrototype] objects from the given list of [JavaPrototype] objects.
-     *  @return List of [ClassPrototype]
-     */
     private fun extractCadetClassesFromPrototypes(prototypes: List<JavaPrototype>): List<CadetClass>
     {
         val resolvedCadetClasses = mutableListOf<CadetClass>()

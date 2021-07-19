@@ -15,7 +15,7 @@ object ClassDeclarationParser {
         }
     }
 
-    fun getExtendingClassesAndInterfaces(node: ClassOrInterfaceDeclaration): List<ClassOrInterfaceType> {
-            return AstNodeUtil.getChildrenByType(node)
+    fun getExtendingClassesAndInterfaces(node: ClassOrInterfaceDeclaration): List<String> {
+        return AstNodeUtil.getChildrenByType<ClassOrInterfaceType>(node).map { child -> child.nameAsString }
     }
 }

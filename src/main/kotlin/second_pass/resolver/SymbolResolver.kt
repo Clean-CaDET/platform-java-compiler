@@ -17,7 +17,7 @@ import second_pass.resolver.solver_nodes.common.*
 import second_pass.signature.MemberSignature
 
 class SymbolResolver(
-    private val visitorContext: VisitorContext,
+    private val visitorContext: VisitorContext, // TODO This should not be passed as parameter!
     prototypes: List<JavaPrototype>
 ) {
     private val hierarchyGraph = HierarchyGraph.Factory.initializeHierarchyGraph(prototypes)

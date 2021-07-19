@@ -37,11 +37,7 @@ object MemberDeclarationParser {
     }
 
     private fun getParameters(node: Node): List<CadetParameter> {
-        val params = mutableListOf<CadetParameter>()
-        AstNodeUtil.getChildrenByType<Parameter>(node)
-            .forEach {
-                params.add(CadetParameter(it.nameAsString, it.typeAsString))
-            }
-        return params
+        return AstNodeUtil.getChildrenByType<Parameter>(node)
+            .map { param -> CadetParameter(param.nameAsString, param.typeAsString) }
     }
 }

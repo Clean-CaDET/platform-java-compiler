@@ -28,7 +28,7 @@ abstract class CadetSolverNode<T : Any>(
                 returnType = SymbolResolver.WildcardType
             }
         }
-        else
+        else    // TODO Resolver.notifyUsage()? To zvuci lose
             resolver.getVisitorContext().notifyUsage(resolvedReference!!)
     }
 

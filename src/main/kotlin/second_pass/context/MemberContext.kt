@@ -38,6 +38,7 @@ class MemberContext(
     fun addLocalVariable(localVariable: CadetLocalVariable) = cadetMember.localVariables.add(localVariable)
     fun addAccessedField(field: CadetField) = cadetMember.accessedFields.add(field)
 
+    // TODO Move all these methods to domain classes!!!
     fun getParameter(name: String) = cadetMember.params.find { it.name == name }
     fun getLocalVariable(name: String) = cadetMember.localVariables.find { it.name == name }
 }

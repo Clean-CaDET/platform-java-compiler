@@ -22,18 +22,12 @@ object FieldDeclarationParser {
     }
 
     private fun getFieldName(node: FieldDeclaration): String {
-        AstNodeUtil.getChildByType<VariableDeclarator>(node)
-            .also {
-                return (it as VariableDeclarator).nameAsString
-            }
+        val varDeclaratorNode = AstNodeUtil.getChildByType<VariableDeclarator>(node)
+        return varDeclaratorNode!!.nameAsString
     }
 
     private fun getModifiers(node: FieldDeclaration): List<CadetModifier> {
-        val modifiers = mutableListOf<CadetModifier>()
-        AstNodeUtil.getChildrenByType<Modifier>(node)
-            .forEach {
-                modifiers.add(CadetModifier(it.keyword.asString()))
-            }
-        return modifiers
+        return AstNodeUtil.getChildrenByType<Modifier>(node)
+            .map { child -> CadetModifier(child.keyword.asString()) }
     }
 }

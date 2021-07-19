@@ -18,25 +18,8 @@ object AstNodeUtil {
         return node.childNodes.filterIsInstance<T>()
     }
 
-    /**
-     * @return Index of the first child node which is of type [T].
-     * Null if no children are of type [T].
-     */
-    inline fun <reified T : Node> getChildIndex(node: Node): Int? {
-        node.childNodes.indexOfFirst { childNode ->
-            childNode is T
-        }.also { index ->
-            if (index == -1) return null
-            return index
-        }
-    }
-
     /** Returns all direct child nodes from the given node argument in a list */
     fun getDirectChildNodes(node: Node): List<Node> {
-        return mutableListOf<Node>().apply {
-            node.childNodes.forEach {child ->
-                this.add(child)
-            }
-        }
+        return node.childNodes
     }
 }

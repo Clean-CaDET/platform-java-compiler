@@ -10,6 +10,7 @@ class VisitorContext {
     lateinit var memberContext: MemberContext
     private var isInMember = false
 
+    // TODO Diagnostics printing, remove for prod
     fun createClassContext(cadetClass: CadetClass) {
         println("[CC] ${cadetClass.fullName}")
         classContext = ClassContext(cadetClass)
@@ -38,6 +39,7 @@ class VisitorContext {
         return null
     }
 
+    // TODO Gde ovo uturiti?
     fun <T : Any> notifyUsage(resolvedReference: T) {
         when (resolvedReference) {
             is CadetMember -> addMemberInvocation(resolvedReference)

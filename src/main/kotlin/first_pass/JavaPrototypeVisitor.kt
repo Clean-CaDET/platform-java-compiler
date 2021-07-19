@@ -2,10 +2,7 @@ package first_pass
 
 import cadet_model.CadetClass
 import com.github.javaparser.ast.CompilationUnit
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
-import com.github.javaparser.ast.body.ConstructorDeclaration
-import com.github.javaparser.ast.body.FieldDeclaration
-import com.github.javaparser.ast.body.MethodDeclaration
+import com.github.javaparser.ast.body.*
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import first_pass.node_parser.ClassDeclarationParser
 import first_pass.node_parser.FieldDeclarationParser
@@ -19,31 +16,32 @@ class JavaPrototypeVisitor : VoidVisitorAdapter<CadetClass>() {
     private val output: MutableList<Pair<ClassOrInterfaceDeclaration, JavaPrototype>> = mutableListOf()
 
     fun parseCompilationUnit(compilationUnit: CompilationUnit): List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>> {
+        if (output.isNotEmpty())
+            output.clear()
         visit(compilationUnit, null)
         return output
     }
 
     override fun visit(node: ClassOrInterfaceDeclaration, arg: CadetClass?) {
         when {
-            node.isEnumDeclaration -> return;
-            node.isInterface -> output.add(Pair(node, InterfacePrototype(node.nameAsString)));
+            node.isInterface -> output.add(Pair(node, InterfacePrototype(node.nameAsString)))
             else -> {
                 val cadetClass = ClassDeclarationParser.instantiateClass(node, arg)
                 val classPrototype = ClassPrototype(cadetClass)
                 output.add(Pair(node, classPrototype))
 
-                val symbols = ClassDeclarationParser.getExtendingClassesAndInterfaces(node)
-                for (symbol in symbols)
-                    classPrototype.hierarchySymbols.add(symbol.nameAsString)
+                classPrototype.hierarchySymbols.addAll(ClassDeclarationParser.getExtendingClassesAndInterfaces(node));
 
                 super.visit(node, cadetClass)
             }
         }
     }
 
+    // Enumerations are unsupported ATM
+    override fun visit(node: EnumDeclaration, arg: CadetClass?) { return }
+
     override fun visit(node: MethodDeclaration, arg: CadetClass?) {
-        arg ?: return
-        MemberDeclarationParser.instantiateMethod(node, arg)
+        MemberDeclarationParser.instantiateMethod(node, arg!!)
             .let { arg.members.add(it) }
     }
 
