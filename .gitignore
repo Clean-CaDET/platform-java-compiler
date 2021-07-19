@@ -69,3 +69,9 @@ results.csv
 main.py
 evaluate.py
 __pycache__/*
+.idea/codeStyles/Project.xml
+.idea/vcs.xml
+test/gson/
+test/json_iter/
+test/tests/StaticTest.java
+test/tests/Test.java
