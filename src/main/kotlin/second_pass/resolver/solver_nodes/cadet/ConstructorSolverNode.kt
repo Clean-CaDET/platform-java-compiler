@@ -14,11 +14,11 @@ class ConstructorSolverNode(node: ObjectCreationExpr, resolver: SymbolResolver) 
         return resolver.getConstructor(
             (node as ObjectCreationExpr).typeAsString,
             // TODO This kind of injection is fucking ugly, remove this
-            MemberSignature(this, resolver.getHierarchyGraph())
+            MemberSignature(this).withHierarchyGraph(resolver.getHierarchyGraph())
         )
     }
 
     override fun initChildCondition(child: Node): Boolean = true
 
-    override fun getName(): String = (node as ObjectCreationExpr).typeAsString
+    override fun name(): String = (node as ObjectCreationExpr).typeAsString
 }

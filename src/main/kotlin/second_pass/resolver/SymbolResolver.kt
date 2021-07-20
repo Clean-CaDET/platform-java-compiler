@@ -1,13 +1,13 @@
 package second_pass.resolver
 
 import cadet_model.CadetField
+import cadet_model.CadetLocalVariable
 import cadet_model.CadetMember
 import cadet_model.abs.CadetVariable
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.*
-import prototype_dto.JavaPrototype
-import second_pass.context.VisitorContext
-import second_pass.hierarchy.HierarchyGraph
+import second_pass.infrastructure.hierarchy.HierarchyGraph
+import second_pass.infrastructure.dto.ResolverContextData
 import second_pass.resolver.solver_nodes.abs.BaseSolverNode
 import second_pass.resolver.solver_nodes.cadet.ConstructorSolverNode
 import second_pass.resolver.solver_nodes.cadet.FieldAccessSolverNode
@@ -16,23 +16,26 @@ import second_pass.resolver.solver_nodes.cadet.NameSolverNode
 import second_pass.resolver.solver_nodes.common.*
 import second_pass.signature.MemberSignature
 
-class SymbolResolver(
-    private val visitorContext: VisitorContext, // TODO This should not be passed as parameter!
-    prototypes: List<JavaPrototype>
-) {
-    private val hierarchyGraph = HierarchyGraph.Factory.initializeHierarchyGraph(prototypes)
+class SymbolResolver(private val hierarchyGraph: HierarchyGraph) {
 
     companion object {
         const val WildcardType: String = "#"
     }
 
-    fun resolve(node: Node) {
-        val sNode = createSolverNode(node)
-        sNode ?: throw IllegalArgumentException("Unresolvable node type: ${node.metaModel.typeName}.")
+    // TODO These fields do not allow us to do multi-threaded resolving due to state-persistence
+    private lateinit var currentCadetMember: CadetMember
+    private lateinit var localVariables: List<CadetLocalVariable>
+
+    fun resolve(context: ResolverContextData) {
+        val sNode = createSolverNode(context.node)
+        sNode ?: throw IllegalArgumentException("Unresolvable node type: ${context.node.metaModel.typeName}.")
+
+        this.currentCadetMember = context.cadetMember
+        this.localVariables = context.localVariables
+
         sNode.resolve()
     }
 
-    fun getVisitorContext() = visitorContext
     fun getHierarchyGraph() = hierarchyGraph
 
     fun createSolverNode(node: Node): BaseSolverNode? {
@@ -55,6 +58,8 @@ class SymbolResolver(
         }
     }
 
+    // TODO Everything below this point should NOT be inside of the resolver
+
     fun getConstructor(className: String, signature: MemberSignature): CadetMember? {
         hierarchyGraph.getClass(className)?.let { return it.getMemberViaSignature(signature) }
         return null
@@ -69,12 +74,15 @@ class SymbolResolver(
     }
 
     fun getVariableInScope(name: String): CadetVariable? {
-        visitorContext.getMemberScopedVariable(name)?.let { return it }
-        return getField(visitorContext.getCurrentClassName(), name)
+        this.currentCadetMember.params.find { param -> param.name == name }?.let { return it }
+        this.localVariables.find { variable -> variable.name == name }?.let { return it }
+        this.currentCadetMember.parent.fields.find { field -> field.name == name}?.let { return it }
+
+        return null
     }
 
     fun getMethod(callerType: String?, signature: MemberSignature): CadetMember? {
-        callerType ?: return getMemberFromHierarchy(signature, visitorContext.getCurrentClassName())
+        callerType ?: return getMemberFromHierarchy(signature, this.currentCadetMember.parent.name)
 
         hierarchyGraph.getClass(callerType).let { cadetClass ->
             cadetClass ?: return null
@@ -83,8 +91,11 @@ class SymbolResolver(
     }
 
     fun getCurrentClassSuperType(): String? {
-        hierarchyGraph.getClassParent(visitorContext.getCurrentClassName())?.let { return it.name }
-        return null
+        return this.currentCadetMember.parent.parent?.name
+    }
+
+    fun getCurrentClassName(): String {
+        return this.currentCadetMember.parent.name
     }
 
     private fun getMemberFromHierarchy(signature: MemberSignature, className: String): CadetMember? {

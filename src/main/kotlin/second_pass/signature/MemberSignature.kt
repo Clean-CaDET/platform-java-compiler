@@ -1,30 +1,28 @@
 package second_pass.signature
 
-import second_pass.hierarchy.HierarchyGraph
+import second_pass.infrastructure.hierarchy.HierarchyGraph
 import second_pass.resolver.SymbolResolver
 
 /**
  * Object representing a unique second_pass.signature for a [SignableMember].
  * Uniqueness is guaranteed within the defining class scope.
  */
-class MemberSignature(
-    signable: SignableMember,
-    private val hierarchyGraph: HierarchyGraph? = null
-) {
-    private var name = ""
-    private var nameHash = 0
-    private var numberOfParameters = 0
+class MemberSignature(signable: SignableMember) {
+
+    private val name: String = signable.name()
+    private val nameHash: Int = signable.name().hashCode()
+    private val numberOfParameters: Int = signable.getNumberOfParameters()
     private val paramTypes = mutableListOf<String>()
 
+    private lateinit var hierarchyGraph: HierarchyGraph
+
     init {
-        generateSignature(signable)
+        signable.getParameterTypes().forEach { paramTypes.add(it) }
     }
 
-    private fun generateSignature(signable: SignableMember) {
-        nameHash = signable.getName().hashCode()
-        name = signable.getName()
-        numberOfParameters = signable.getNumberOfParameters()
-        signable.getParameterTypes().forEach { paramTypes.add(it) }
+    fun withHierarchyGraph(hierarchyGraph: HierarchyGraph): MemberSignature {
+        this.hierarchyGraph = hierarchyGraph
+        return this
     }
 
     /**
@@ -46,23 +44,20 @@ class MemberSignature(
                     continue
                 if (pOther == SymbolResolver.WildcardType)
                     throw IllegalArgumentException("Parameter type cannot be Wildcard.")
-                if (pThis != pOther) {
-                    if (isSuperType(pOther, pThis)) continue
-                    if (isDependencyInjection(pThis, pOther)) continue
-                    return false
-                }
+                if (isSuperType(pOther, pThis)) continue
+                if (isDependencyInjection(pThis, pOther)) continue
+
+                return false
             }
             return true
         }
     }
 
     private fun isSuperType(parentType: String, childType: String): Boolean {
-        hierarchyGraph ?: throw NullPointerException("Hierarchy graph not injected into Member signature.")
         return hierarchyGraph.isSuperType(childType, parentType)
     }
 
     private fun isDependencyInjection(className: String, interfaceName: String): Boolean {
-        hierarchyGraph ?: throw NullPointerException("Hierarchy graph not injected into Member signature.")
         return hierarchyGraph.isImplementation(className, interfaceName)
     }
 

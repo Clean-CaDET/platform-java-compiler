@@ -7,6 +7,6 @@ import second_pass.resolver.solver_nodes.abs.BaseSolverNode
 class ThisSolverNode(node: Node, private val resolver: SymbolResolver) : BaseSolverNode(node) {
 
     override fun resolve() {
-        this.returnType = resolver.getVisitorContext().getCurrentClassName()
+        this.returnType = resolver.getCurrentClassName()
     }
 }

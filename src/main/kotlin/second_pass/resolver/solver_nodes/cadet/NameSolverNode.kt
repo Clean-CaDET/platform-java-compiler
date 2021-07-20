@@ -16,8 +16,7 @@ class NameSolverNode(
                 if (it != null) {
                     this.resolvedReference = it
                     this.returnType = it.type
-                }
-                else
+                } else
                     returnType = node.nameAsString
             }
     }

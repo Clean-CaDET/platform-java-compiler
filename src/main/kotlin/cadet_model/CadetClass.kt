@@ -1,6 +1,5 @@
 package cadet_model
 
-import second_pass.signature.CadetMemberSignature
 import second_pass.signature.MemberSignature
 
 class CadetClass {
@@ -11,7 +10,7 @@ class CadetClass {
     val fields = mutableListOf<CadetField>()
 
     fun getMemberViaSignature(signature: MemberSignature): CadetMember? =
-        members.find { member -> signature.compareTo(CadetMemberSignature(member)) }
+        members.find { member -> signature.compareTo(member) }
 
     fun getField(fieldName: String): CadetField? = fields.find { field -> field.name == fieldName }
 }

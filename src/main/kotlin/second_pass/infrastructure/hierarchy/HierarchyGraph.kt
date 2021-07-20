@@ -1,9 +1,6 @@
-package second_pass.hierarchy
+package second_pass.infrastructure.hierarchy
 
 import cadet_model.CadetClass
-import cadet_model.CadetMember
-import cadet_model.CadetMemberType
-import cadet_model.CadetParameter
 import prototype_dto.ClassPrototype
 import prototype_dto.InterfacePrototype
 import prototype_dto.JavaPrototype
@@ -68,7 +65,7 @@ class HierarchyGraph {
 
     private fun addInterfaceImplementation(className: String, interfaceName: String) {
         val node = classGraph[className]
-        node ?: throw IllegalArgumentException("Class $className not found in second_pass.hierarchy")
+        node ?: throw IllegalArgumentException("Class $className not found in second_pass.infrastructure.hierarchy")
         node.interfaces.add(interfaceName)
     }
 
@@ -76,8 +73,8 @@ class HierarchyGraph {
         val node = classGraph[className]
         val parent = classGraph[parentName]
 
-        node ?: throw IllegalArgumentException("Class $className not found in second_pass.hierarchy")
-        parent ?: throw IllegalArgumentException("Parent class $parentName not found in second_pass.hierarchy")
+        node ?: throw IllegalArgumentException("Class $className not found in second_pass.infrastructure.hierarchy")
+        parent ?: throw IllegalArgumentException("Parent class $parentName not found in second_pass.infrastructure.hierarchy")
 
         node.parent = parent
         node.cadetClass.parent = parent.cadetClass
@@ -105,7 +102,7 @@ class HierarchyGraph {
         val hierarchy = mutableListOf<CadetClass>()
         var node = classGraph[className]
         node ?: return mutableListOf()
-        // TODO throw IllegalArgumentException("Class $className not found in second_pass.hierarchy.")
+        // TODO throw IllegalArgumentException("Class $className not found in second_pass.infrastructure.hierarchy.")
 
         while (node != null) {
             hierarchy.add(node.cadetClass)

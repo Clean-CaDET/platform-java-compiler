@@ -1,6 +1,8 @@
 package cadet_model
 
-class CadetMember{
+import second_pass.signature.SignableMember
+
+class CadetMember: SignableMember {
     lateinit var name: String
     lateinit var cadetMemberType: CadetMemberType
     lateinit var source: String
@@ -15,4 +17,8 @@ class CadetMember{
     val localVariables = mutableListOf<CadetLocalVariable>()
 
     // TODO Implement modifiers for Java
+
+    override fun name(): String = name
+    override fun getParameterTypes(): List<String> = params.map { param -> param.type }
+    override fun getNumberOfParameters(): Int = params.size
 }

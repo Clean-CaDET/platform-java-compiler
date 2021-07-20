@@ -1,34 +1,44 @@
 package second_pass
 
+import cadet_model.CadetClass
+import cadet_model.CadetLocalVariable
+import cadet_model.CadetMember
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.*
 import com.github.javaparser.ast.expr.FieldAccessExpr
 import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import prototype_dto.ClassPrototype
-import prototype_dto.InterfacePrototype
 import prototype_dto.JavaPrototype
-import second_pass.context.ClassContext
-import second_pass.context.MemberContext
-import second_pass.context.VisitorContext
+import second_pass.infrastructure.hierarchy.HierarchyGraph
+import second_pass.infrastructure.dto.ResolverContextData
 import second_pass.resolver.SymbolResolver
 import second_pass.resolver.node_parser.LocalVariableParser
-import second_pass.signature.MemberDeclarationSignature
+import second_pass.signature.SignableMemberNode
 import second_pass.signature.MemberSignature
 import util.AstNodeUtil
 
-class SymbolResolverVisitor : VoidVisitorAdapter<ClassContext>() {
+// TODO Add support for multi-threaded resolving, aka remove state-persistence
+// TODO Add support for global reference access, like
+//      private Type field = SomeReference.callMethod()
+class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
 
-    private val visitorContext = VisitorContext()
     private lateinit var resolver: SymbolResolver
 
-    // TODO Add internal context tracker which gets passed to Resolver during each iteration
+    private var currentCadetClass: CadetClass? = null
+    private var currentCadetMember: CadetMember? = null
+    private val localVariables = mutableListOf<CadetLocalVariable>()
+
+    private lateinit var hierarchyGraph: HierarchyGraph
 
     fun resolveSourceCode(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>)
             : List<JavaPrototype> {
         val prototypes = isolatePrototypes(resolverPairs)
-        resolver = SymbolResolver(visitorContext, prototypes)
+        this.hierarchyGraph = HierarchyGraph.Factory.initializeHierarchyGraph(prototypes)
+
+        this.resolver = SymbolResolver(this.hierarchyGraph)
         resolvePrototypes(resolverPairs)
+
         return prototypes
     }
 
@@ -38,11 +48,10 @@ class SymbolResolverVisitor : VoidVisitorAdapter<ClassContext>() {
     }
 
     private fun resolvePrototypes(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>) {
-        for (pair in resolverPairs) {
-            if (pair.second is InterfacePrototype) continue
-            // TODO Make this internal!
-            visitorContext.createClassContext((pair.second as ClassPrototype).cadetClass)
-            visitTopLevelChildren(pair.first)
+        val classPairs = resolverPairs.filter { pair -> pair.second is ClassPrototype }
+        classPairs.forEach { classPair ->
+            this.currentCadetClass = (classPair.second as ClassPrototype).cadetClass
+            visitTopLevelChildren(classPair.first)
         }
     }
 
@@ -54,63 +63,71 @@ class SymbolResolverVisitor : VoidVisitorAdapter<ClassContext>() {
                     is MethodDeclaration -> visit(child, null)
                     is ConstructorDeclaration -> visit(child, null)
                     is FieldDeclaration -> visit(child, null)
-                    else -> {}
                 }
             }
     }
 
-    override fun visit(node: ClassOrInterfaceDeclaration, arg: ClassContext?) { return }
+    // Top level nodes are visited manually
+    override fun visit(node: ClassOrInterfaceDeclaration, arg: CadetMember?) { return }
 
-    // TODO Fix this jumble with VisitorContext calls, it's ugly
-    override fun visit(node: MethodDeclaration, arg: ClassContext?) {
-        // TODO This should also be internal!
-        if (visitorContext.hasMemberContext()) return   // This will stop the parser from entering anon classes and such because ATM it is not supported
-        createMemberContext(node)
-        super.visit(node, visitorContext.memberContext)
-        visitorContext.removeMemberContext()
+    override fun visit(node: MethodDeclaration, arg: CadetMember?) {
+        if (inMember())
+            return
+        enterMember(node)
+        super.visit(node, this.currentCadetMember)
+        exitMember()
     }
 
-    override fun visit(node: ConstructorDeclaration, arg: ClassContext?) {
-        if (visitorContext.hasMemberContext()) return
-        createMemberContext(node)
-        super.visit(node, visitorContext.memberContext)
-        visitorContext.removeMemberContext()
+    override fun visit(node: ConstructorDeclaration, arg: CadetMember?) {
+        if (inMember())
+            return
+        enterMember(node)
+        super.visit(node, this.currentCadetMember)
+        exitMember()
     }
 
-    override fun visit(node: MethodCallExpr, arg: ClassContext?) {
-        if (arg is MemberContext)
-            resolver.resolve(node)
+    override fun visit(node: MethodCallExpr, arg: CadetMember?) {
+        if (inMember())
+            this.resolver.resolve(createContext(node))
     }
 
-    override fun visit(node: FieldAccessExpr, arg: ClassContext?) {
-        if (arg is MemberContext)
-            resolver.resolve(node)
+    override fun visit(node: FieldAccessExpr, arg: CadetMember?) {
+        if (inMember())
+            this.resolver.resolve(createContext(node))
     }
 
-    override fun visit(node: VariableDeclarator, arg: ClassContext?) {
-        if (arg is MemberContext) {
-            arg.addLocalVariable(LocalVariableParser.instantiateLocalVariable(node))
+    override fun visit(node: VariableDeclarator, arg: CadetMember?) {
+        if (inMember()) {
+            this.localVariables.add(LocalVariableParser.instantiateLocalVariable(node))
             super.visit(node, arg)
         }
     }
 
-    // Shorthand methods
-    private fun createMemberContext(node: Node) {
-        if (visitorContext.hasMemberContext()) return
+    // Context handling methods
+
+    private fun enterMember(node: Node) {
         when (node) {
-            is MethodDeclaration -> visitorContext.createMemberContext(
-                MemberSignature(
-                    MemberDeclarationSignature(node),
-                    resolver.getHierarchyGraph()
+            is MethodDeclaration -> {
+                this.currentCadetMember = this.currentCadetClass!!.getMemberViaSignature(
+                    MemberSignature(SignableMemberNode(node)).withHierarchyGraph(hierarchyGraph)
                 )
-            )
-            is ConstructorDeclaration -> visitorContext.createMemberContext(
-                MemberSignature(
-                    MemberDeclarationSignature(node),
-                    resolver.getHierarchyGraph()
+            }
+            is ConstructorDeclaration -> {
+                this.currentCadetMember = this.currentCadetClass!!.getMemberViaSignature(
+                    MemberSignature(SignableMemberNode(node)).withHierarchyGraph(hierarchyGraph)
                 )
-            )
-            else -> {}
+            }
         }
+    }
+
+    private fun exitMember() {
+        this.currentCadetMember = null
+        this.localVariables.clear()
+    }
+
+    private fun inMember() = this.currentCadetMember != null
+
+    private fun createContext(node: Node): ResolverContextData {
+        return ResolverContextData(node, currentCadetMember!!, localVariables)
     }
 }

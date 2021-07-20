@@ -6,8 +6,7 @@ import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.Parameter
 import util.AstNodeUtil
 
-// TODO Refactor [AbstractNodeParser] to be a static utility, do not extend in cases like this!
-class MemberDeclarationSignature : SignableMember {
+class SignableMemberNode : SignableMember {
     private val name: String
     private val parameterTypes = mutableListOf<String>()
 
@@ -21,7 +20,7 @@ class MemberDeclarationSignature : SignableMember {
         getParameterTypes(node)
     }
 
-    override fun getName(): String = name
+    override fun name(): String = name
     override fun getParameterTypes(): List<String> = parameterTypes
     override fun getNumberOfParameters(): Int = parameterTypes.size
 

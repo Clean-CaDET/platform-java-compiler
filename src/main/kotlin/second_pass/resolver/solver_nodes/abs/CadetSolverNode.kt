@@ -28,8 +28,8 @@ abstract class CadetSolverNode<T : Any>(
                 returnType = SymbolResolver.WildcardType
             }
         }
-        else    // TODO Resolver.notifyUsage()? To zvuci lose
-            resolver.getVisitorContext().notifyUsage(resolvedReference!!)
+        //else    // TODO Remove comment and replace logic
+            //resolver.getVisitorContext().notifyUsage(resolvedReference!!)
     }
 
     override fun resolve() {
@@ -44,7 +44,7 @@ abstract class CadetSolverNode<T : Any>(
     // TODO Diagnostics for failed resolving, delete for prod
     private fun showNodeDetails(node: Node) {
         println("${node.metaModel.typeName} : '${nodeName(node)}' from ${
-                resolver.getVisitorContext().getCurrentClassName()
+                resolver.getCurrentClassName()
             }"
         )
     }
