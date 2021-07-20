@@ -44,7 +44,7 @@ abstract class CadetSolverNode<T : Any>(
     // TODO Diagnostics for failed resolving, delete for prod
     private fun showNodeDetails(node: Node) {
         println("${node.metaModel.typeName} : '${nodeName(node)}' from ${
-                resolver.getCurrentClassName()
+                resolver.getWizard().getCurrentClassName()
             }"
         )
     }

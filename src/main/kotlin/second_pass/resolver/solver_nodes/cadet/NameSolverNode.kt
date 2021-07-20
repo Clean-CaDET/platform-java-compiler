@@ -11,7 +11,7 @@ class NameSolverNode(
 ) : CadetSolverNode<CadetVariable>(node, resolver) {
 
     override fun doResolve() {
-        resolver.getVariableInScope((node as NameExpr).nameAsString)
+        resolver.getWizard().getVariableInScope((node as NameExpr).nameAsString)
             .also {
                 if (it != null) {
                     this.resolvedReference = it

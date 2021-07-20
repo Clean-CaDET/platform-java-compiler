@@ -11,10 +11,10 @@ class ConstructorSolverNode(node: ObjectCreationExpr, resolver: SymbolResolver) 
     override var caller: Node? = null
 
     override fun resolveViaSignature(): CadetMember? {
-        return resolver.getConstructor(
+        return resolver.getWizard().getConstructor(
             (node as ObjectCreationExpr).typeAsString,
             // TODO This kind of injection is fucking ugly, remove this
-            MemberSignature(this).withHierarchyGraph(resolver.getHierarchyGraph())
+            MemberSignature(this).withHierarchyGraph(resolver.getWizard().getHierarchyGraph())
         )
     }
 

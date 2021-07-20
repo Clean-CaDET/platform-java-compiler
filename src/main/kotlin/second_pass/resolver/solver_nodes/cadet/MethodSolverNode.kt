@@ -16,9 +16,9 @@ class MethodSolverNode(
     override var caller: Node? = MethodCallExpressionParser.getCaller(node)
 
     override fun resolveViaSignature(): CadetMember? {
-        return resolver.getMethod(
-            callerResolverNode?.returnType,
-            MemberSignature(this).withHierarchyGraph(resolver.getHierarchyGraph())
+        return resolver.getWizard().getMethod(
+            MemberSignature(this).withHierarchyGraph(resolver.getWizard().getHierarchyGraph()),
+            callerResolverNode?.returnType
         )
     }
 

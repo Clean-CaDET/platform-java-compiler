@@ -12,7 +12,7 @@ class FieldAccessSolverNode(node: FieldAccessExpr, resolver: SymbolResolver) :
     override var caller: Node? = FieldAccessExpressionParser.getCallerNode(node)
 
     override fun doResolve() {
-        resolver.getField(
+        resolver.getWizard().getField(
             callerResolverNode!!.returnType,
             FieldAccessExpressionParser.getVariableName(node as FieldAccessExpr)
         )?.let {

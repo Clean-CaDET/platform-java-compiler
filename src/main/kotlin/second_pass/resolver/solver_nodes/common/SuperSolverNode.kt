@@ -6,7 +6,7 @@ import second_pass.resolver.solver_nodes.abs.BaseSolverNode
 
 class SuperSolverNode(node: SuperExpr, private val resolver: SymbolResolver) : BaseSolverNode(node) {
     override fun resolve() {
-        resolver.getCurrentClassSuperType()
+        resolver.getWizard().getCurrentClassSuperType()
             .let {
                 returnType = it ?: SymbolResolver.WildcardType
             }

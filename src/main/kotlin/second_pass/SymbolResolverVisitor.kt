@@ -10,8 +10,8 @@ import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import prototype_dto.ClassPrototype
 import prototype_dto.JavaPrototype
-import second_pass.infrastructure.hierarchy.HierarchyGraph
-import second_pass.infrastructure.dto.ResolverContextData
+import second_pass.resolver.ResolverWizard
+import second_pass.hierarchy.HierarchyGraph
 import second_pass.resolver.SymbolResolver
 import second_pass.resolver.node_parser.LocalVariableParser
 import second_pass.signature.SignableMemberNode
@@ -88,12 +88,12 @@ class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
 
     override fun visit(node: MethodCallExpr, arg: CadetMember?) {
         if (inMember())
-            this.resolver.resolve(createContext(node))
+            this.resolver.resolve(node, instantiateResolverWizard())
     }
 
     override fun visit(node: FieldAccessExpr, arg: CadetMember?) {
         if (inMember())
-            this.resolver.resolve(createContext(node))
+            this.resolver.resolve(node, instantiateResolverWizard())
     }
 
     override fun visit(node: VariableDeclarator, arg: CadetMember?) {
@@ -127,7 +127,7 @@ class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
 
     private fun inMember() = this.currentCadetMember != null
 
-    private fun createContext(node: Node): ResolverContextData {
-        return ResolverContextData(node, currentCadetMember!!, localVariables)
+    private fun instantiateResolverWizard(): ResolverWizard {
+        return ResolverWizard(hierarchyGraph, currentCadetMember!!, localVariables)
     }
 }
