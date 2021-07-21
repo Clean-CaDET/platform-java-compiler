@@ -17,31 +17,43 @@ abstract class CadetSolverNode<T : Any>(
 
     private fun notifyContextOfUsage() {
         if (resolvedReference == null) {
-            // In certain Solver scenarios such as when working with a LiteralNode, BaseSolver's return type will be
-            // known without actually resolving the reference
-            // However, returnType is lateinit so if it is not initialized, this will throw an exception
             try {
+                // In certain scenarios, return type will be known without reference resolving (e.g. LiteralSolverNode)
+                // In these cases, we check whether the returnType is initialized. If not, we give it a Wildcard type
                 returnType
-                return
             }
-            catch (e: UninitializedPropertyAccessException) {
+            catch (ignore: UninitializedPropertyAccessException) {
                 returnType = SymbolResolver.WildcardType
             }
         }
-        //else    // TODO Remove comment and replace logic
-            //resolver.getVisitorContext().notifyUsage(resolvedReference!!)
+        // TODO Remove comment and replace logic
+//        else
+//            resolver.getVisitorContext().notifyUsage(resolvedReference!!)
+//                fun <T : Any> notifyUsage(resolvedReference: T) {
+//                    when (resolvedReference) {
+//                        is CadetMember -> addMemberInvocation(resolvedReference)
+//                        is CadetField -> addFieldAccess(resolvedReference)
+//                        is CadetParameter -> {}
+//                        is CadetLocalVariable -> {}
+//                        else -> throw IllegalArgumentException("Unsupported reference usage: $resolvedReference")
+//                    }
+//                }
     }
 
     override fun resolve() {
         doResolve()
         notifyContextOfUsage()
+        diagnostics()
+    }
 
+    // TODO Diagnostics for failed resolving, delete for prod
+    private fun diagnostics() {
         if (resolvedReference == null) print("FAILED:  ")
         else print("SUCCESS:  ")
         showNodeDetails(node)
     }
 
-    // TODO Diagnostics for failed resolving, delete for prod
+
     private fun showNodeDetails(node: Node) {
         println("${node.metaModel.typeName} : '${nodeName(node)}' from ${
                 resolver.getWizard().getCurrentClassName()

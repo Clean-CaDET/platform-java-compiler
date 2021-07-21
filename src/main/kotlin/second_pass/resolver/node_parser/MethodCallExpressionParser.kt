@@ -26,10 +26,6 @@ object MethodCallExpressionParser {
     //   In this case, function4 will be a direct child node to function1, but function4 will have its own
     //   children, and those children will have their own children, and so on.
 
-    /**
-     * @return Object or class name, on which the given method is called.
-     * Null if the method has no explicit caller (called from its class, or a system method)
-     */
     fun getCaller(node: MethodCallExpr): Node? {
         // Child nodes for MethodCallExpr are these, and in this specific order:
         // 1. Caller (can be MethodCallExpr, NameExpr, ObjectCreationExpr, FieldAccessExpr, ThisExpr, or nothing if function is local)
@@ -47,11 +43,7 @@ object MethodCallExpressionParser {
             is SuperExpr -> callerNode
             is StringLiteralExpr -> callerNode
             is EnclosedExpr -> callerNode
-            else -> {
-                println("Caller node of type ${callerNode.metaModel.typeName} not recognized as valid.")
-                return null
-                //throw IllegalArgumentException("Caller node of type ${callerNode.metaModel.typeName} not recognized as valid.")
-            }
+            else -> return null
         }
 
         // Caller could be determined by the following algorithm, revolving around 'SimpleName' position in the child node list

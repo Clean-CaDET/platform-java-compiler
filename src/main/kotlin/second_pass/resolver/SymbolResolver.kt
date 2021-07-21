@@ -10,7 +10,7 @@ import second_pass.resolver.solver_nodes.cadet.MethodSolverNode
 import second_pass.resolver.solver_nodes.cadet.NameSolverNode
 import second_pass.resolver.solver_nodes.common.*
 
-class SymbolResolver(private val hierarchyGraph: HierarchyGraph) {
+class SymbolResolver {
 
     companion object {
         const val WildcardType: String = "#"

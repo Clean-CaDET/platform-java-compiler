@@ -14,7 +14,7 @@ import second_pass.resolver.ResolverWizard
 import second_pass.hierarchy.HierarchyGraph
 import second_pass.resolver.SymbolResolver
 import second_pass.resolver.node_parser.LocalVariableParser
-import second_pass.signature.SignableMemberNode
+import second_pass.signature.MemberNodeSigWrapper
 import second_pass.signature.MemberSignature
 import util.AstNodeUtil
 
@@ -23,7 +23,7 @@ import util.AstNodeUtil
 //      private Type field = SomeReference.callMethod()
 class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
 
-    private lateinit var resolver: SymbolResolver
+    private val resolver: SymbolResolver = SymbolResolver()
 
     private var currentCadetClass: CadetClass? = null
     private var currentCadetMember: CadetMember? = null
@@ -36,7 +36,6 @@ class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
         val prototypes = isolatePrototypes(resolverPairs)
         this.hierarchyGraph = HierarchyGraph.Factory.initializeHierarchyGraph(prototypes)
 
-        this.resolver = SymbolResolver(this.hierarchyGraph)
         resolvePrototypes(resolverPairs)
 
         return prototypes
@@ -109,12 +108,12 @@ class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
         when (node) {
             is MethodDeclaration -> {
                 this.currentCadetMember = this.currentCadetClass!!.getMemberViaSignature(
-                    MemberSignature(SignableMemberNode(node)).withHierarchyGraph(hierarchyGraph)
+                    MemberSignature(MemberNodeSigWrapper(node)).withHierarchyGraph(hierarchyGraph)
                 )
             }
             is ConstructorDeclaration -> {
                 this.currentCadetMember = this.currentCadetClass!!.getMemberViaSignature(
-                    MemberSignature(SignableMemberNode(node)).withHierarchyGraph(hierarchyGraph)
+                    MemberSignature(MemberNodeSigWrapper(node)).withHierarchyGraph(hierarchyGraph)
                 )
             }
         }

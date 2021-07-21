@@ -6,7 +6,7 @@ import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.Parameter
 import util.AstNodeUtil
 
-class SignableMemberNode : SignableMember {
+class MemberNodeSigWrapper : SignableMember {
     private val name: String
     private val parameterTypes = mutableListOf<String>()
 
