@@ -7,6 +7,7 @@ import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.*
 import com.github.javaparser.ast.expr.FieldAccessExpr
 import com.github.javaparser.ast.expr.MethodCallExpr
+import com.github.javaparser.ast.expr.ObjectCreationExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import prototype_dto.ClassPrototype
 import prototype_dto.JavaPrototype
@@ -49,6 +50,7 @@ class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
     private fun resolvePrototypes(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>) {
         val classPairs = resolverPairs.filter { pair -> pair.second is ClassPrototype }
         classPairs.forEach { classPair ->
+            println("-- VISITOR --\n--VISITING FILE ${classPair.second.getName()}--")   // TODO Remove diagnostics
             this.currentCadetClass = (classPair.second as ClassPrototype).cadetClass
             visitTopLevelChildren(classPair.first)
         }
@@ -85,7 +87,15 @@ class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
         exitMember()
     }
 
+    // TODO No need to manually setup visiting, transform this to a manual iteration, because ResolverTree handles
+    // the conversion and parsing IF the given AST node is used to build a tree
+
     override fun visit(node: MethodCallExpr, arg: CadetMember?) {
+        if (inMember())
+            this.resolver.resolve(node, instantiateResolverWizard())
+    }
+
+    override fun visit(node: ObjectCreationExpr, arg: CadetMember?) {
         if (inMember())
             this.resolver.resolve(node, instantiateResolverWizard())
     }

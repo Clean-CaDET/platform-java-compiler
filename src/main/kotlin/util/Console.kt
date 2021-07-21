@@ -2,6 +2,7 @@ package util
 
 import cadet_model.*
 import com.github.javaparser.ast.Node
+import second_pass.resolver.resolver_tree.ResolverTree
 
 // Test class only
 object Console {
@@ -91,5 +92,35 @@ object Console {
         if (flag)
             builder.delete(builder.length - 2, builder.length)
         builder.append(")\n")
+    }
+
+
+    fun printResolverTree(node: ResolverTree.SimpleNode) {
+        if (node is ResolverTree.ReferenceNode) {
+            print(referenceNodeToString(node))
+        }
+        else {
+            print(simpleNodeToString(node))
+        }
+    }
+
+    private var tabs = ""
+
+    private fun referenceNodeToString(node: ResolverTree.ReferenceNode): String {
+        val stringBuilder = java.lang.StringBuilder()
+        stringBuilder.append("$tabs [Reference] AST type: ${node.astNode.metaModel.typeName}\n")
+        tabs += "\t"
+        node.children.forEach {
+            if (it is ResolverTree.ReferenceNode)
+                stringBuilder.append(referenceNodeToString(it))
+            else
+                stringBuilder.append(simpleNodeToString(it))
+        }
+        tabs = tabs.dropLast(1)
+        return stringBuilder.toString()
+    }
+
+    private fun simpleNodeToString(node: ResolverTree.SimpleNode): String {
+        return "$tabs [Simple] AST type: ${node.astNode.metaModel.typeName}\n"
     }
 }
