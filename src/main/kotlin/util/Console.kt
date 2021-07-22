@@ -102,6 +102,7 @@ object Console {
         else {
             print(simpleNodeToString(node))
         }
+        println("____________________________________________")
     }
 
     private var tabs = ""

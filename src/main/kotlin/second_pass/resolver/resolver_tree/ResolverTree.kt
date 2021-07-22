@@ -2,12 +2,15 @@ package second_pass.resolver.resolver_tree
 
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.*
+import second_pass.resolver.SymbolResolver
+import second_pass.resolver.resolver_tree.type_resolvers.simple.CastResolver
+import second_pass.resolver.resolver_tree.type_resolvers.simple.EnclosedResolver
+import second_pass.resolver.resolver_tree.type_resolvers.simple.LiteralResolver
 import util.AstNodeUtil
 
 object ResolverTree {
 
     enum class NodeType {
-        None,
         Method, Constructor,
         Name, Field,
         Literal, Cast, Null, Enclosed,
@@ -28,6 +31,14 @@ object ResolverTree {
             val root = buildRootNode(node)
             recursiveChildNodeAddition(root)
             return root
+        }
+
+        private fun buildRootNode(node: Node): ReferenceNode {
+            mapReferenceNodeType(node)?.let { type ->
+                println("Building root node of type $type")
+                return ReferenceNode(node, type)
+            }
+            error("Invalid AST node [${node.metaModel.typeName}] conversion to ResolverTree.ReferenceNode.")
         }
 
         private fun recursiveChildNodeAddition(node: SimpleNode) {
@@ -56,14 +67,6 @@ object ResolverTree {
             return null
         }
 
-        private fun buildRootNode(node: Node): ReferenceNode {
-            mapReferenceNodeType(node)?.let { type ->
-                println("Building root node of type $type")
-                return ReferenceNode(node, type)
-            }
-            error("Invalid AST node [${node.metaModel.typeName}] conversion to ResolverTree.ReferenceNode.")
-        }
-
         private fun mapSimpleNodeType(node: Node): NodeType? {
             return when(node) {
                 is LiteralExpr -> NodeType.Literal
@@ -84,6 +87,38 @@ object ResolverTree {
                 is FieldAccessExpr -> NodeType.Field
                 else -> null
             }
+        }
+    }
+
+    class Resolver {
+
+        fun resolve(resolverTreeRoot: SimpleNode) {
+            postOrderTraversalWithFunction(resolverTreeRoot, this::resolveInternal)
+        }
+
+        private fun resolveInternal(node: SimpleNode) {
+            node.returnType =
+                when(node.type) {
+                    NodeType.Literal -> LiteralResolver.resolve(node.astNode as LiteralExpr)
+                    NodeType.Cast -> CastResolver.resolve(node.astNode as CastExpr)
+                    NodeType.Null -> SymbolResolver.WildcardType
+                    NodeType.This -> "Inject context pls" // TODO
+                    NodeType.Super -> "Inject context pls" // TODO
+                    NodeType.Enclosed -> EnclosedResolver.resolve(node.astNode as EnclosedExpr)
+                    else -> ""
+                }
+        }
+
+        private fun postOrderTraversalWithFunction(
+            node: SimpleNode,
+            function: (node: SimpleNode) -> Unit
+        ) {
+            if (node is ReferenceNode) {
+                node.children.forEach {
+                    child -> postOrderTraversalWithFunction(child, function)
+                }
+            }
+            function(node)
         }
     }
 }

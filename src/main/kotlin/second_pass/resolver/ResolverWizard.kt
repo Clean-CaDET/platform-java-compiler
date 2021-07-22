@@ -12,9 +12,6 @@ class ResolverWizard(
     private val cadetMember: CadetMember,
     private val localVariables: List<CadetLocalVariable>
 ){
-    // TODO Remove this, atm it's needed in some SolverNodes
-    fun getHierarchyGraph() = hierarchyGraph
-
     fun getConstructor(className: String, signature: MemberSignature): CadetMember? {
         hierarchyGraph.getClass(className)?.let { return it.getMemberViaSignature(signature) }
         return null

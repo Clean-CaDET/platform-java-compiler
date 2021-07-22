@@ -10,37 +10,15 @@ class SymbolResolver {
         const val WildcardType: String = "#"
     }
 
-    private lateinit var wizard: ResolverWizard
-    fun getWizard() = wizard;
+    private val resolverTreeBuilder = ResolverTree.Builder()
+    private val resolverTreeResolver = ResolverTree.Resolver()
 
     fun resolve(node: Node, wizard: ResolverWizard) {
-        val sNode = createSolverNode(node)
-//        sNode ?: error("Unresolvable node type: ${node.metaModel.typeName}.")
-//        this.wizard = wizard;
-//        sNode.resolve()
+        val resolverTreeRoot = buildResolverTree(node); Console.printResolverTree(resolverTreeRoot)
+        resolverTreeResolver.resolve(resolverTreeRoot)
     }
 
-    fun createSolverNode(node: Node)/*: BaseSolverNode?*/ {
-        val builder = ResolverTree.Builder()
-        val root = builder.build(node)
-        Console.printResolverTree(root)
-        println("____________________________________________")
-//        return when (node) {
-//            is MethodCallExpr -> MethodSolverNode(node, this)
-//            is ObjectCreationExpr -> ConstructorSolverNode(node, this)
-//
-//            is LiteralExpr -> LiteralSolverNode(node)
-//            is CastExpr -> CastSolverNode(node, this)
-//            is NullLiteralExpr -> NullSolverNode(node)
-//
-//            is ThisExpr -> ThisSolverNode(node, this)
-//            is SuperExpr -> SuperSolverNode(node, this)
-//
-//            is NameExpr -> NameSolverNode(node, this)
-//            is FieldAccessExpr -> FieldAccessSolverNode(node, this)
-//
-//            is EnclosedExpr -> EnclosedExprSolverNode(node, this)
-//            else -> return null
-//        }
+    private fun buildResolverTree(node: Node): ResolverTree.ReferenceNode {
+        return ResolverTree.Builder().build(node)
     }
 }

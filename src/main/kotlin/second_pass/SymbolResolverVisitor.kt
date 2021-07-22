@@ -50,7 +50,7 @@ class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
     private fun resolvePrototypes(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>) {
         val classPairs = resolverPairs.filter { pair -> pair.second is ClassPrototype }
         classPairs.forEach { classPair ->
-            println("-- VISITOR --\n--VISITING FILE ${classPair.second.getName()}--")   // TODO Remove diagnostics
+            println("--VISITING FILE ${classPair.second.getName()}--")   // TODO Remove diagnostics
             this.currentCadetClass = (classPair.second as ClassPrototype).cadetClass
             visitTopLevelChildren(classPair.first)
         }
