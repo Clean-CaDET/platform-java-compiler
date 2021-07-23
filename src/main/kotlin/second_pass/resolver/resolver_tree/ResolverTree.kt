@@ -2,7 +2,9 @@ package second_pass.resolver.resolver_tree
 
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.*
+import second_pass.resolver.ScopeContext
 import second_pass.resolver.SymbolResolver
+import second_pass.resolver.resolver_tree.type_resolvers.context.KeywordResolver
 import second_pass.resolver.resolver_tree.type_resolvers.simple.CastResolver
 import second_pass.resolver.resolver_tree.type_resolvers.simple.EnclosedResolver
 import second_pass.resolver.resolver_tree.type_resolvers.simple.LiteralResolver
@@ -35,10 +37,10 @@ object ResolverTree {
 
         private fun buildRootNode(node: Node): ReferenceNode {
             mapReferenceNodeType(node)?.let { type ->
-                println("Building root node of type $type")
+//                println("Building root node of type $type")
                 return ReferenceNode(node, type)
             }
-            error("Invalid AST node [${node.metaModel.typeName}] conversion to ResolverTree.ReferenceNode.")
+            error("AST node of type [${node.metaModel.typeName}] cannot be a root node in a ResolverTree.")
         }
 
         private fun recursiveChildNodeAddition(node: SimpleNode) {
@@ -57,11 +59,11 @@ object ResolverTree {
 
         private fun buildAnyNode(node: Node): SimpleNode? {
             mapSimpleNodeType(node)?.let { type ->
-                println("Building simple node of type $type")
+//                println("Building simple node of type $type")
                 return SimpleNode(node, type)
             }
             mapReferenceNodeType(node)?.let { type ->
-                println("Building reference node of type $type")
+//                println("Building reference node of type $type")
                 return ReferenceNode(node, type)
             }
             return null
@@ -92,33 +94,45 @@ object ResolverTree {
 
     class Resolver {
 
-        fun resolve(resolverTreeRoot: SimpleNode) {
-            postOrderTraversalWithFunction(resolverTreeRoot, this::resolveInternal)
-        }
-
-        private fun resolveInternal(node: SimpleNode) {
-            node.returnType =
-                when(node.type) {
-                    NodeType.Literal -> LiteralResolver.resolve(node.astNode as LiteralExpr)
-                    NodeType.Cast -> CastResolver.resolve(node.astNode as CastExpr)
-                    NodeType.Null -> SymbolResolver.WildcardType
-                    NodeType.This -> "Inject context pls" // TODO
-                    NodeType.Super -> "Inject context pls" // TODO
-                    NodeType.Enclosed -> EnclosedResolver.resolve(node.astNode as EnclosedExpr)
-                    else -> ""
-                }
+        // Note that we could place ScopeContext to be a field, but multi-threading won't be doable then
+        fun resolve(resolverTreeRoot: SimpleNode, scopeContext: ScopeContext) {
+            postOrderTraversalWithFunction(resolverTreeRoot, scopeContext, this::resolveInternal)
         }
 
         private fun postOrderTraversalWithFunction(
             node: SimpleNode,
-            function: (node: SimpleNode) -> Unit
+            scopeContext: ScopeContext,
+            function: (node: SimpleNode, scopeContext: ScopeContext) -> Unit
         ) {
             if (node is ReferenceNode) {
                 node.children.forEach {
-                    child -> postOrderTraversalWithFunction(child, function)
+                        child -> postOrderTraversalWithFunction(child, scopeContext, function)
                 }
             }
-            function(node)
+            function(node, scopeContext)
         }
+
+        private fun resolveInternal(node: SimpleNode, scopeContext: ScopeContext) {
+            node.returnType =
+                when(node.type) {
+                    // Simple
+                    NodeType.Literal -> LiteralResolver.resolve(node.astNode as LiteralExpr)
+                    NodeType.Cast -> CastResolver.resolve(node.astNode as CastExpr)
+                    NodeType.Null -> SymbolResolver.WildcardType
+                    NodeType.Enclosed -> EnclosedResolver.resolve(node.astNode as EnclosedExpr)
+
+                    // Context dependent
+                    NodeType.This -> KeywordResolver.resolve(KeywordResolver.Keyword.This, scopeContext)
+                    NodeType.Super -> KeywordResolver.resolve(KeywordResolver.Keyword.Super, scopeContext)
+
+                    // Reference query TODO
+                    NodeType.Method -> ""
+                    NodeType.Constructor -> ""
+                    NodeType.Name -> ""
+                    NodeType.Field -> ""
+                }
+        }
+
+
     }
 }

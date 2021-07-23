@@ -13,9 +13,9 @@ class SymbolResolver {
     private val resolverTreeBuilder = ResolverTree.Builder()
     private val resolverTreeResolver = ResolverTree.Resolver()
 
-    fun resolve(node: Node, wizard: ResolverWizard) {
-        val resolverTreeRoot = buildResolverTree(node); Console.printResolverTree(resolverTreeRoot)
-        resolverTreeResolver.resolve(resolverTreeRoot)
+    fun resolve(node: Node, scopeContext: ScopeContext) {
+        val resolverTreeRoot = buildResolverTree(node); // Console.printResolverTree(resolverTreeRoot)
+        resolverTreeResolver.resolve(resolverTreeRoot, scopeContext)
     }
 
     private fun buildResolverTree(node: Node): ResolverTree.ReferenceNode {

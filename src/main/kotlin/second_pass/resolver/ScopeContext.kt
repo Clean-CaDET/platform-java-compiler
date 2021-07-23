@@ -7,7 +7,7 @@ import cadet_model.abs.CadetVariable
 import second_pass.hierarchy.HierarchyGraph
 import second_pass.signature.MemberSignature
 
-class ResolverWizard(
+class ScopeContext(
     private val hierarchyGraph: HierarchyGraph,
     private val cadetMember: CadetMember,
     private val localVariables: List<CadetLocalVariable>

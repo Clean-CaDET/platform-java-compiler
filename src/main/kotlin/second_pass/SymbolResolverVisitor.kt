@@ -11,7 +11,7 @@ import com.github.javaparser.ast.expr.ObjectCreationExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import prototype_dto.ClassPrototype
 import prototype_dto.JavaPrototype
-import second_pass.resolver.ResolverWizard
+import second_pass.resolver.ScopeContext
 import second_pass.hierarchy.HierarchyGraph
 import second_pass.resolver.SymbolResolver
 import second_pass.resolver.node_parser.LocalVariableParser
@@ -50,7 +50,7 @@ class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
     private fun resolvePrototypes(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>) {
         val classPairs = resolverPairs.filter { pair -> pair.second is ClassPrototype }
         classPairs.forEach { classPair ->
-            println("--VISITING FILE ${classPair.second.getName()}--")   // TODO Remove diagnostics
+            // println("--VISITING FILE ${classPair.second.getName()}--")   TODO Remove diagnostics
             this.currentCadetClass = (classPair.second as ClassPrototype).cadetClass
             visitTopLevelChildren(classPair.first)
         }
@@ -136,7 +136,7 @@ class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
 
     private fun inMember() = this.currentCadetMember != null
 
-    private fun instantiateResolverWizard(): ResolverWizard {
-        return ResolverWizard(hierarchyGraph, currentCadetMember!!, localVariables)
+    private fun instantiateResolverWizard(): ScopeContext {
+        return ScopeContext(hierarchyGraph, currentCadetMember!!, localVariables)
     }
 }
