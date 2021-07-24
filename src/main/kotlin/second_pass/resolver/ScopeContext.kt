@@ -12,8 +12,8 @@ class ScopeContext(
     private val cadetMember: CadetMember,
     private val localVariables: List<CadetLocalVariable>
 ){
-    fun getConstructor(className: String, signature: MemberSignature): CadetMember? {
-        hierarchyGraph.getClass(className)?.let {
+    fun getConstructor(signature: MemberSignature): CadetMember? {
+        hierarchyGraph.getClass(signature.getMemberName())?.let {
             return it.getMemberViaSignature(signature.withHierarchyGraph(hierarchyGraph))
         }
         return null

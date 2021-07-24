@@ -25,6 +25,8 @@ class MemberSignature(signable: SignableMember) {
         return this
     }
 
+    fun getMemberName() = name
+
     /**
      * Compares the second_pass.signature of the given [signable] to this second_pass.signature.
      * @return True if the second_pass.signature of the given [signable] is the same as this second_pass.signature.

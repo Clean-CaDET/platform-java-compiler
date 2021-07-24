@@ -5,6 +5,7 @@ import com.github.javaparser.ast.expr.*
 import second_pass.resolver.ScopeContext
 import second_pass.resolver.SymbolResolver
 import second_pass.resolver.resolver_tree.type_resolvers.context.KeywordResolver
+import second_pass.resolver.resolver_tree.type_resolvers.reference.ConstructorCallResolver
 import second_pass.resolver.resolver_tree.type_resolvers.reference.MethodCallResolver
 import second_pass.resolver.resolver_tree.type_resolvers.simple.CastResolver
 import second_pass.resolver.resolver_tree.type_resolvers.simple.EnclosedResolver
@@ -136,7 +137,14 @@ object ResolverTree {
                             }
                         SymbolResolver.WildcardType
                     }
-                    NodeType.Constructor -> ""
+                    NodeType.Constructor -> {
+                        ConstructorCallResolver.resolve(node as ReferenceNode, scopeContext)
+                            ?.let {
+                                node.resolvedReference = it
+                                it.returnType
+                            }
+                        SymbolResolver.WildcardType
+                    }
                     NodeType.Name -> ""
                     NodeType.Field -> ""
                 }
