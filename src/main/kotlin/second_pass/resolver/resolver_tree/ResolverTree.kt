@@ -134,38 +134,73 @@ object ResolverTree {
 
                     // Reference query TODO
                     NodeType.Method -> {
-                        val ref = MethodCallResolver.resolve(node as ReferenceNode, scopeContext)
-                        if (ref != null) {
-                            node.resolvedReference = ref
-                            ref.returnType
-                        }
-                        else SymbolResolver.WildcardType
+                        internalResolve(
+                            resolveFunction = MethodCallResolver::resolve,
+                            node = node as ReferenceNode,
+                            scopeContext = scopeContext,
+                            success = {
+                                node.resolvedReference = it
+                                it.returnType
+                            },
+                            error = {
+                                SymbolResolver.WildcardType
+                            }
+                        )
                     }
                     NodeType.Constructor -> {   // TODO Calling empty constructors while assuming their default presence won't work because SigQuery cannot find it (not explicitly defined)
-                        val ref = ConstructorCallResolver.resolve(node as ReferenceNode, scopeContext)
-                        if (ref != null) {
-                            node.resolvedReference = ref
-                            ref.returnType
-                        }
-                        else SymbolResolver.WildcardType
+                        internalResolve(
+                            resolveFunction = ConstructorCallResolver::resolve,
+                            node = node as ReferenceNode,
+                            scopeContext = scopeContext,
+                            success = {
+                                node.resolvedReference = it
+                                it.returnType
+                            },
+                            error = {
+                                SymbolResolver.WildcardType
+                            }
+                        )
                     }
                     NodeType.Name -> {
-                        val ref = NameAccessResolver.resolve(node as ReferenceNode, scopeContext)
-                        if (ref != null) {
-                            node.resolvedReference = ref
-                            ref.type
-                        }
-                        else SymbolResolver.WildcardType
+                        internalResolve(
+                            resolveFunction = NameAccessResolver::resolve,
+                            node = node as ReferenceNode,
+                            scopeContext = scopeContext,
+                            success = {
+                                node.resolvedReference = it
+                                it.type
+                            },
+                            error = {
+                                SymbolResolver.WildcardType
+                            }
+                        )
                     }
                     NodeType.Field -> {
-                        val ref = FieldAccessResolver.resolve(node as ReferenceNode, scopeContext)
-                        if (ref != null) {
-                            node.resolvedReference = ref
-                            ref.type
-                        }
-                        else SymbolResolver.WildcardType
+                        internalResolve(
+                            resolveFunction = FieldAccessResolver::resolve,
+                            node = node as ReferenceNode,
+                            scopeContext = scopeContext,
+                            success = {
+                                node.resolvedReference = it
+                                it.type
+                            },
+                            error = {
+                                SymbolResolver.WildcardType
+                            }
+                        )
                     }
                 }
+        }
+
+        private fun <T> internalResolve(
+            resolveFunction: (node: ReferenceNode, scopeContext: ScopeContext) -> T?,
+            node: ReferenceNode, scopeContext: ScopeContext,
+            success: (ref: T) -> String,
+            error: () -> String
+        ): String {
+            val ref = resolveFunction(node, scopeContext)
+            return if (ref != null) success(ref)
+            else error()
         }
     }
 
