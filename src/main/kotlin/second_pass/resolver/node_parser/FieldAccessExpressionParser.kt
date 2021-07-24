@@ -14,6 +14,7 @@ object FieldAccessExpressionParser {
         error("Field access has no caller.")
     }
 
+    // TODO This might be replaceable with a simple "node.nameAsString" call?
     fun getVariableName(node: FieldAccessExpr): String {
         node.childNodes.filterIsInstance<SimpleName>()
             .apply {

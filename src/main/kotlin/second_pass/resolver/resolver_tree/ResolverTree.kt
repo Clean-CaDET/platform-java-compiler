@@ -6,7 +6,9 @@ import second_pass.resolver.ScopeContext
 import second_pass.resolver.SymbolResolver
 import second_pass.resolver.resolver_tree.type_resolvers.context.KeywordResolver
 import second_pass.resolver.resolver_tree.type_resolvers.reference.ConstructorCallResolver
+import second_pass.resolver.resolver_tree.type_resolvers.reference.FieldAccessResolver
 import second_pass.resolver.resolver_tree.type_resolvers.reference.MethodCallResolver
+import second_pass.resolver.resolver_tree.type_resolvers.reference.NameAccessResolver
 import second_pass.resolver.resolver_tree.type_resolvers.simple.CastResolver
 import second_pass.resolver.resolver_tree.type_resolvers.simple.EnclosedResolver
 import second_pass.resolver.resolver_tree.type_resolvers.simple.LiteralResolver
@@ -145,8 +147,22 @@ object ResolverTree {
                             }
                         SymbolResolver.WildcardType
                     }
-                    NodeType.Name -> ""
-                    NodeType.Field -> ""
+                    NodeType.Name -> {
+                        NameAccessResolver.resolve(node as ReferenceNode, scopeContext)
+                            ?.let {
+                                node.resolvedReference = it
+                                it.type
+                            }
+                        SymbolResolver.WildcardType
+                    }
+                    NodeType.Field -> {
+                        FieldAccessResolver.resolve(node as ReferenceNode, scopeContext)
+                            ?.let {
+                                node.resolvedReference = it
+                                it.type
+                            }
+                        SymbolResolver.WildcardType
+                    }
                 }
         }
 
