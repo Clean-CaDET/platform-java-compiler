@@ -64,12 +64,6 @@ object Console {
                 builder.append("\t\t\t${field.type} ${field.name}\n")
             }
         }
-        if (it.localVariables.isNotEmpty()) {
-            builder.append("\t\tLocal variables:\n")
-            it.localVariables.forEach { localVariable ->
-                builder.append("\t\t\t${localVariable.type} ${localVariable.name}\n")
-            }
-        }
     }
 
     private fun printField(field: CadetField, builder: java.lang.StringBuilder) {

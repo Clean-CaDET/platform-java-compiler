@@ -107,6 +107,7 @@ class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
 
     override fun visit(node: VariableDeclarator, arg: CadetMember?) {
         if (inMember()) {
+            // TODO Should we keep track of local variables inside of the CadetMember?
             this.localVariables.add(LocalVariableParser.instantiateLocalVariable(node))
             super.visit(node, arg)
         }

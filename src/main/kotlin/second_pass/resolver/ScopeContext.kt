@@ -49,11 +49,8 @@ class ScopeContext(
         return null
     }
 
-    fun getCurrentClassSuperType(): String? {
-        return cadetMember.parent.parent?.name
-    }
+    fun getCurrentClassSuperType() = cadetMember.parent.parent?.name
+    fun getCurrentClassName() = cadetMember.parent.name
+    fun getCurrentCadetMember() = cadetMember
 
-    fun getCurrentClassName(): String {
-        return cadetMember.parent.name
-    }
 }

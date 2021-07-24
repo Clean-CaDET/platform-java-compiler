@@ -6,6 +6,7 @@ import second_pass.resolver.ScopeContext
 import second_pass.resolver.resolver_tree.ResolverTree
 
 object NameAccessResolver {
+
     fun resolve(node: ResolverTree.ReferenceNode, scopeContext: ScopeContext): CadetVariable? {
         return scopeContext.getVariableInScope((node.astNode as NameExpr).nameAsString)
     }

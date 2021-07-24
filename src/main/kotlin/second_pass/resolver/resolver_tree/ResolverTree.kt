@@ -30,6 +30,8 @@ object ResolverTree {
     class ReferenceNode(node: Node, type: NodeType): SimpleNode(node, type) {
         val children = mutableListOf<SimpleNode>()
         lateinit var resolvedReference: Any
+
+        fun isResolved(): Boolean = this::resolvedReference.isInitialized
     }
 
     class Builder {
@@ -132,40 +134,56 @@ object ResolverTree {
 
                     // Reference query TODO
                     NodeType.Method -> {
-                        MethodCallResolver.resolve(node as ReferenceNode, scopeContext)
-                            ?.let {
-                                node.resolvedReference = it
-                                it.returnType
-                            }
-                        SymbolResolver.WildcardType
+                        val ref = MethodCallResolver.resolve(node as ReferenceNode, scopeContext)
+                        if (ref != null) {
+                            node.resolvedReference = ref
+                            ref.returnType
+                        }
+                        else SymbolResolver.WildcardType
                     }
-                    NodeType.Constructor -> {
-                        ConstructorCallResolver.resolve(node as ReferenceNode, scopeContext)
-                            ?.let {
-                                node.resolvedReference = it
-                                it.returnType
-                            }
-                        SymbolResolver.WildcardType
+                    NodeType.Constructor -> {   // TODO Calling empty constructors while assuming their default presence won't work because SigQuery cannot find it (not explicitly defined)
+                        val ref = ConstructorCallResolver.resolve(node as ReferenceNode, scopeContext)
+                        if (ref != null) {
+                            node.resolvedReference = ref
+                            ref.returnType
+                        }
+                        else SymbolResolver.WildcardType
                     }
                     NodeType.Name -> {
-                        NameAccessResolver.resolve(node as ReferenceNode, scopeContext)
-                            ?.let {
-                                node.resolvedReference = it
-                                it.type
-                            }
-                        SymbolResolver.WildcardType
+                        val ref = NameAccessResolver.resolve(node as ReferenceNode, scopeContext)
+                        if (ref != null) {
+                            node.resolvedReference = ref
+                            ref.type
+                        }
+                        else SymbolResolver.WildcardType
                     }
                     NodeType.Field -> {
-                        FieldAccessResolver.resolve(node as ReferenceNode, scopeContext)
-                            ?.let {
-                                node.resolvedReference = it
-                                it.type
-                            }
-                        SymbolResolver.WildcardType
+                        val ref = FieldAccessResolver.resolve(node as ReferenceNode, scopeContext)
+                        if (ref != null) {
+                            node.resolvedReference = ref
+                            ref.type
+                        }
+                        else SymbolResolver.WildcardType
                     }
                 }
         }
+    }
 
+    class UsageRecorder {
 
+        fun recordReferenceUsages(root: ReferenceNode, cadetReferenceUsageProxy: CadetReferenceUsageProxy) {
+            recursiveRecordReferenceUsages(root, cadetReferenceUsageProxy)
+        }
+
+        private fun recursiveRecordReferenceUsages(node: SimpleNode, cadetReferenceUsageProxy: CadetReferenceUsageProxy) {
+            if (node is ReferenceNode) {
+                node.children.forEach { recursiveRecordReferenceUsages(it, cadetReferenceUsageProxy) }
+
+                if (node.isResolved())
+                    cadetReferenceUsageProxy.recordReferenceUsage(node.resolvedReference)
+                else
+                    println("[Error] Failed to resolve node of type ${node.astNode.metaModel.typeName}")
+            }
+        }
     }
 }

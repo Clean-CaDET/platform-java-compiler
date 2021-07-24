@@ -8,13 +8,13 @@ class CadetMember: SignableMember {
     lateinit var source: String
     lateinit var parent: CadetClass
     lateinit var returnType: String
+    val params = mutableListOf<CadetParameter>()
 
     // TODO This will be a List for testing purposes, return to Set for production
     val invokedMethods = mutableListOf<CadetMember>()
     val accessedAccessors = mutableListOf<CadetMember>()
     val accessedFields = mutableListOf<CadetField>()
-    val params = mutableListOf<CadetParameter>()
-    val localVariables = mutableListOf<CadetLocalVariable>()
+
 
     // TODO Implement modifiers for Java
 
