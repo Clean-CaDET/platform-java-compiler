@@ -26,6 +26,10 @@ object MethodCallExpressionParser {
     //   In this case, function4 will be a direct child node to function1, but function4 will have its own
     //   children, and those children will have their own children, and so on.
 
+    fun hasCaller(node: MethodCallExpr): Boolean {
+        return getCaller(node) != null
+    }
+
     fun getCaller(node: MethodCallExpr): Node? {
         // Child nodes for MethodCallExpr are these, and in this specific order:
         // 1. Caller (can be MethodCallExpr, NameExpr, ObjectCreationExpr, FieldAccessExpr, ThisExpr, or nothing if function is local)

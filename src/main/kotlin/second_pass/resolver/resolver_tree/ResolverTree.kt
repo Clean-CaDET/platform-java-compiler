@@ -5,6 +5,7 @@ import com.github.javaparser.ast.expr.*
 import second_pass.resolver.ScopeContext
 import second_pass.resolver.SymbolResolver
 import second_pass.resolver.resolver_tree.type_resolvers.context.KeywordResolver
+import second_pass.resolver.resolver_tree.type_resolvers.reference.MethodCallResolver
 import second_pass.resolver.resolver_tree.type_resolvers.simple.CastResolver
 import second_pass.resolver.resolver_tree.type_resolvers.simple.EnclosedResolver
 import second_pass.resolver.resolver_tree.type_resolvers.simple.LiteralResolver
@@ -25,6 +26,7 @@ object ResolverTree {
 
     class ReferenceNode(node: Node, type: NodeType): SimpleNode(node, type) {
         val children = mutableListOf<SimpleNode>()
+        lateinit var resolvedReference: Any
     }
 
     class Builder {
@@ -126,7 +128,14 @@ object ResolverTree {
                     NodeType.Super -> KeywordResolver.resolve(KeywordResolver.Keyword.Super, scopeContext)
 
                     // Reference query TODO
-                    NodeType.Method -> ""
+                    NodeType.Method -> {
+                        MethodCallResolver.resolve(node as ReferenceNode, scopeContext)
+                            ?.let {
+                                node.resolvedReference = it
+                                it.returnType
+                            }
+                        SymbolResolver.WildcardType
+                    }
                     NodeType.Constructor -> ""
                     NodeType.Name -> ""
                     NodeType.Field -> ""
