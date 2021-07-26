@@ -1,4 +1,4 @@
-package second_pass.resolver.resolver_tree.type_resolvers.simple
+package second_pass.resolver.resolver_tree.static_resolvers.simple
 
 import com.github.javaparser.ast.expr.EnclosedExpr
 

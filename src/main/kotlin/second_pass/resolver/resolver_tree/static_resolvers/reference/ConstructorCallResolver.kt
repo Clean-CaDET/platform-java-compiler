@@ -1,15 +1,15 @@
-package second_pass.resolver.resolver_tree.type_resolvers.reference
+package second_pass.resolver.resolver_tree.static_resolvers.reference
 
 import cadet_model.CadetMember
 import com.github.javaparser.ast.expr.ObjectCreationExpr
-import second_pass.resolver.ScopeContext
-import second_pass.resolver.resolver_tree.ResolverTree
+import second_pass.resolver.InjectedContext
+import second_pass.resolver.resolver_tree.model.ReferenceNode
 import second_pass.signature.MemberSignature
 import second_pass.signature.SignableMember
 
 object ConstructorCallResolver {
 
-    fun resolve(node: ResolverTree.ReferenceNode, scopeContext: ScopeContext): CadetMember? {
+    fun resolve(node: ReferenceNode, injectedContext: InjectedContext): CadetMember? {
         val sigWrapper = object: SignableMember {
 
             override fun name(): String
@@ -22,7 +22,7 @@ object ConstructorCallResolver {
                 = node.children.size
         }
 
-        return scopeContext.getConstructor(MemberSignature(sigWrapper))
+        return injectedContext.getConstructor(MemberSignature(sigWrapper))
     }
 
 

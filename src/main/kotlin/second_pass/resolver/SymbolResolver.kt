@@ -1,9 +1,9 @@
 package second_pass.resolver
 
 import com.github.javaparser.ast.Node
-import second_pass.resolver.resolver_tree.CadetReferenceUsageProxy
-import second_pass.resolver.resolver_tree.ResolverTree
-import util.Console
+import second_pass.resolver.resolver_tree.service.Builder
+import second_pass.resolver.resolver_tree.service.Resolver
+import second_pass.resolver.resolver_tree.service.UsageRecorder
 
 class SymbolResolver {
 
@@ -11,21 +11,21 @@ class SymbolResolver {
         const val WildcardType: String = "#"
     }
 
-    private val resolverTreeBuilder = ResolverTree.Builder()
-    private val resolverTreeResolver = ResolverTree.Resolver()
-    private val resolverTreeUsageRecorder = ResolverTree.UsageRecorder()
+    private val builder = Builder()
+    private val resolver = Resolver()
+    private val usageRecorder = UsageRecorder()
 
-    fun resolve(node: Node, scopeContext: ScopeContext) {
+    fun resolve(node: Node, injectedContext: InjectedContext) {
         // Build resolver tree
-        val resolverTreeRoot = resolverTreeBuilder.build(node)
+        val resolverTreeRoot = builder.build(node)
 
         // Resolve references
-        resolverTreeResolver.resolve(resolverTreeRoot, scopeContext)
+        resolver.resolve(resolverTreeRoot, injectedContext)
 
         // Record reference usages
-        resolverTreeUsageRecorder.recordReferenceUsages(
+        usageRecorder.recordReferenceUsages(
             resolverTreeRoot,
-            CadetReferenceUsageProxy(scopeContext.getCurrentCadetMember())
+            injectedContext.getCurrentCadetMember()
         )
     }
 }

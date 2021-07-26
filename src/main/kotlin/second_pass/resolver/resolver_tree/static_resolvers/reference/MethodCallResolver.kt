@@ -1,16 +1,16 @@
-package second_pass.resolver.resolver_tree.type_resolvers.reference
+package second_pass.resolver.resolver_tree.static_resolvers.reference
 
 import cadet_model.CadetMember
 import com.github.javaparser.ast.expr.MethodCallExpr
-import second_pass.resolver.ScopeContext
+import second_pass.resolver.InjectedContext
 import second_pass.resolver.node_parser.MethodCallExpressionParser
-import second_pass.resolver.resolver_tree.ResolverTree
+import second_pass.resolver.resolver_tree.model.ReferenceNode
 import second_pass.signature.MemberSignature
 import second_pass.signature.SignableMember
 
 object MethodCallResolver {
 
-    fun resolve(node: ResolverTree.ReferenceNode, scopeContext: ScopeContext): CadetMember? {
+    fun resolve(node: ReferenceNode, injectedContext: InjectedContext): CadetMember? {
         val hasCaller: Boolean = MethodCallExpressionParser.hasCaller(node.astNode as MethodCallExpr)
         val numOfArgumentChildren = calculateNumberOfArgumentChildren(node, hasCaller)
 
@@ -29,10 +29,10 @@ object MethodCallResolver {
 
         val caller: String? = if (hasCaller) node.children[0].returnType else null
 
-        return scopeContext.getMethod(MemberSignature(sigWrapper), caller)
+        return injectedContext.getMethod(MemberSignature(sigWrapper), caller)
     }
 
-    private fun calculateNumberOfArgumentChildren(node: ResolverTree.ReferenceNode, hasCaller: Boolean): Int {
+    private fun calculateNumberOfArgumentChildren(node: ReferenceNode, hasCaller: Boolean): Int {
         var numOfArgumentChildren = node.children.size
         if (hasCaller) numOfArgumentChildren--
         return numOfArgumentChildren

@@ -7,7 +7,7 @@ import cadet_model.abs.CadetVariable
 import second_pass.hierarchy.HierarchyGraph
 import second_pass.signature.MemberSignature
 
-class ScopeContext(
+class InjectedContext(
     private val hierarchyGraph: HierarchyGraph,
     private val cadetMember: CadetMember,
     private val localVariables: List<CadetLocalVariable>
@@ -52,5 +52,4 @@ class ScopeContext(
     fun getCurrentClassSuperType() = cadetMember.parent.parent?.name
     fun getCurrentClassName() = cadetMember.parent.name
     fun getCurrentCadetMember() = cadetMember
-
 }

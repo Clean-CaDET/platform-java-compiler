@@ -11,7 +11,7 @@ import com.github.javaparser.ast.expr.ObjectCreationExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
 import prototype_dto.ClassPrototype
 import prototype_dto.JavaPrototype
-import second_pass.resolver.ScopeContext
+import second_pass.resolver.InjectedContext
 import second_pass.hierarchy.HierarchyGraph
 import second_pass.resolver.SymbolResolver
 import second_pass.resolver.node_parser.LocalVariableParser
@@ -137,7 +137,7 @@ class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
 
     private fun inMember() = this.currentCadetMember != null
 
-    private fun instantiateResolverWizard(): ScopeContext {
-        return ScopeContext(hierarchyGraph, currentCadetMember!!, localVariables)
+    private fun instantiateResolverWizard(): InjectedContext {
+        return InjectedContext(hierarchyGraph, currentCadetMember!!, localVariables)
     }
 }
