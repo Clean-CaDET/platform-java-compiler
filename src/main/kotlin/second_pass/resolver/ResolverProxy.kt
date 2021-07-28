@@ -5,11 +5,7 @@ import second_pass.resolver.resolver_tree.service.Builder
 import second_pass.resolver.resolver_tree.service.Resolver
 import second_pass.resolver.resolver_tree.service.UsageRecorder
 
-class SymbolResolver {
-
-    companion object {
-        const val WildcardType: String = "#"
-    }
+class ResolverProxy {
 
     private val builder = Builder()
     private val resolver = Resolver()
@@ -17,7 +13,7 @@ class SymbolResolver {
 
     fun resolve(node: Node, injectedContext: InjectedContext) {
         // Build resolver tree
-        val resolverTreeRoot = builder.build(node)
+        val resolverTreeRoot = builder.build(node) ?: return
 
         // Resolve references
         resolver.resolve(resolverTreeRoot, injectedContext)

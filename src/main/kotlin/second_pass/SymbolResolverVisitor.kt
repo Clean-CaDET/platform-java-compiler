@@ -13,7 +13,7 @@ import prototype_dto.ClassPrototype
 import prototype_dto.JavaPrototype
 import second_pass.resolver.InjectedContext
 import second_pass.hierarchy.HierarchyGraph
-import second_pass.resolver.SymbolResolver
+import second_pass.resolver.ResolverProxy
 import second_pass.resolver.node_parser.LocalVariableParser
 import second_pass.signature.MemberNodeSigWrapper
 import second_pass.signature.MemberSignature
@@ -24,7 +24,7 @@ import util.AstNodeUtil
 //      private Type field = SomeReference.callMethod()
 class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
 
-    private val resolver: SymbolResolver = SymbolResolver()
+    private val resolver: ResolverProxy = ResolverProxy()
 
     private var currentCadetClass: CadetClass? = null
     private var currentCadetMember: CadetMember? = null
@@ -57,8 +57,7 @@ class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
     }
 
     private fun visitTopLevelChildren(node: ClassOrInterfaceDeclaration) {
-        AstNodeUtil
-            .getDirectChildNodes(node)
+        node.childNodes
             .forEach { child ->
                 when (child) {
                     is MethodDeclaration -> visit(child, null)

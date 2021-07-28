@@ -1,7 +1,8 @@
 package second_pass.resolver.resolver_tree.static_resolvers.simple
 
 import com.github.javaparser.ast.expr.*
-import second_pass.resolver.SymbolResolver
+import second_pass.resolver.ResolverProxy
+import second_pass.resolver.resolver_tree.service.Resolver
 
 object LiteralResolver {
 
@@ -13,7 +14,7 @@ object LiteralResolver {
             is StringLiteralExpr -> "String"
             is BooleanLiteralExpr -> "boolean"
             is LongLiteralExpr -> "long"
-            is NullLiteralExpr -> SymbolResolver.WildcardType
+            is NullLiteralExpr -> Resolver.WildcardType
             else -> throw IllegalArgumentException("Unrecognized node type in resolver: ${astNode.metaModel.typeName}.")
         }
     }

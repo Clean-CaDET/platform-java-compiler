@@ -1,7 +1,8 @@
 package second_pass.signature
 
 import second_pass.hierarchy.HierarchyGraph
-import second_pass.resolver.SymbolResolver
+import second_pass.resolver.ResolverProxy
+import second_pass.resolver.resolver_tree.service.Resolver
 
 /**
  * Object representing a unique second_pass.signature for a [SignableMember].
@@ -42,9 +43,9 @@ class MemberSignature(signable: SignableMember) {
                 val pOther = it.paramTypes[i]
 
                 if (pThis == pOther) continue
-                if (pThis == SymbolResolver.WildcardType)
+                if (pThis == Resolver.WildcardType)
                     continue
-                if (pOther == SymbolResolver.WildcardType)
+                if (pOther == Resolver.WildcardType)
                     throw IllegalArgumentException("Parameter type cannot be Wildcard.")
                 if (isSuperType(pOther, pThis)) continue
                 if (isDependencyInjection(pThis, pOther)) continue

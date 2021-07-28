@@ -9,17 +9,15 @@ import util.AstNodeUtil
 
 class Builder {
 
-    fun build(node: Node): ReferenceNode {
-        val root = buildRootNode(node)
+    fun build(node: Node): ReferenceNode? {
+        val root = buildRootNode(node) ?: return null
         recursiveChildNodeAddition(root)
         return root
     }
 
-    private fun buildRootNode(node: Node): ReferenceNode {
-        mapReferenceNodeType(node)?.let { type ->
-            return ReferenceNode(node, type)
-        }
-        error("AST node of type [${node.metaModel.typeName}] cannot be a root node in a ResolverTree.")
+    private fun buildRootNode(node: Node): ReferenceNode? {
+        val type = mapReferenceNodeType(node) ?: return null
+        return ReferenceNode(node, type)
     }
 
     private fun recursiveChildNodeAddition(node: SimpleNode) {

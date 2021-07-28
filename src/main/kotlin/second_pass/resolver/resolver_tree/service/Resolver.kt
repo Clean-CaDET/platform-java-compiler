@@ -4,7 +4,7 @@ import com.github.javaparser.ast.expr.CastExpr
 import com.github.javaparser.ast.expr.EnclosedExpr
 import com.github.javaparser.ast.expr.LiteralExpr
 import second_pass.resolver.InjectedContext
-import second_pass.resolver.SymbolResolver
+import second_pass.resolver.ResolverProxy
 import second_pass.resolver.resolver_tree.model.NodeType
 import second_pass.resolver.resolver_tree.model.ReferenceNode
 import second_pass.resolver.resolver_tree.model.SimpleNode
@@ -18,6 +18,10 @@ import second_pass.resolver.resolver_tree.static_resolvers.simple.EnclosedResolv
 import second_pass.resolver.resolver_tree.static_resolvers.simple.LiteralResolver
 
 class Resolver {
+
+    companion object {
+        const val WildcardType: String = "#"
+    }
 
     // Note that we could place ScopeContext to be a field, but multi-threading won't be doable then
     fun resolve(resolverTreeRoot: SimpleNode, injectedContext: InjectedContext) {
@@ -43,7 +47,7 @@ class Resolver {
                 // Simple
                 NodeType.Literal -> LiteralResolver.resolve(node.astNode as LiteralExpr)
                 NodeType.Cast -> CastResolver.resolve(node.astNode as CastExpr)
-                NodeType.Null -> SymbolResolver.WildcardType
+                NodeType.Null -> WildcardType
                 NodeType.Enclosed -> EnclosedResolver.resolve(node.astNode as EnclosedExpr)
 
                 // Context dependent
@@ -61,7 +65,7 @@ class Resolver {
                             it.returnType
                         },
                         error = {
-                            SymbolResolver.WildcardType
+                            WildcardType
                         }
                     )
                 }
@@ -75,7 +79,7 @@ class Resolver {
                             it.returnType
                         },
                         error = {
-                            SymbolResolver.WildcardType
+                            WildcardType
                         }
                     )
                 }
@@ -89,7 +93,7 @@ class Resolver {
                             it.type
                         },
                         error = {
-                            SymbolResolver.WildcardType
+                            WildcardType
                         }
                     )
                 }
@@ -103,7 +107,7 @@ class Resolver {
                             it.type
                         },
                         error = {
-                            SymbolResolver.WildcardType
+                            WildcardType
                         }
                     )
                 }
