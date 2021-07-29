@@ -20,6 +20,7 @@ class ResolverProxy {
         resolver.resolve(resolverTreeRoot, injectedContext)
 
         // Record reference usages
+        // TODO Add threading support here through an MQ or something
         usageRecorder.recordReferenceUsages(
             resolverTreeRoot,
             injectedContext.getCurrentCadetMember()

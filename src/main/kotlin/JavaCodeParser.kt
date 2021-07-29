@@ -4,9 +4,12 @@ import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.CompilationUnit
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import first_pass.JavaPrototypeVisitor
+import kotlinx.coroutines.runBlocking
 import prototype_dto.ClassPrototype
 import prototype_dto.JavaPrototype
 import second_pass.SymbolResolverVisitor
+import util.Threading
+import java.util.*
 import kotlin.system.measureNanoTime
 import kotlin.system.measureTimeMillis
 
@@ -37,18 +40,33 @@ class JavaCodeParser {
         return extractCadetClassesFromPrototypes(resolvedJavaPrototypes)
     }
 
-    private fun parseAllFiles(sourceCodeList: List<String>): List<CompilationUnit> {
-        val compilationUnits = mutableListOf<CompilationUnit>()
-        for (sourceCode in sourceCodeList) {
-            try {
-                compilationUnits.add(StaticJavaParser.parse(sourceCode))
+    private fun parseAllFiles(sourceCodeList: List<String>): List<CompilationUnit> = runBlocking {
+//        val compilationUnits = mutableListOf<CompilationUnit>()
+//
+//        for (sourceCode in sourceCodeList) {
+//            try {
+//                compilationUnits.add(StaticJavaParser.parse(sourceCode))
+//            }
+//            catch (e: ParseProblemException) {
+//                // println("ERROR: [${e.problems}]\n${sourceCode}")
+//                continue
+//            }
+//        }
+//        return@runBlocking compilationUnits
+//
+        val compilationUnits = Collections.synchronizedList(mutableListOf<CompilationUnit>())
+
+        Threading.iterateListSlicesViaCoroutines(
+            sourceCodeList,
+            function = {
+                try {
+                    compilationUnits.add(StaticJavaParser.parse(it))
+                }
+                catch (ignore: ParseProblemException) {}
             }
-            catch (e: ParseProblemException) {
-                // println("ERROR: [${e.problems}]\n${sourceCode}")
-                continue
-            }
-        }
-        return compilationUnits
+        )
+
+        return@runBlocking compilationUnits
     }
 
     private fun createJavaPrototypes(compilationUnits: List<CompilationUnit>)
