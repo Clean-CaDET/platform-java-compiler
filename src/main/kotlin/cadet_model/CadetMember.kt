@@ -10,6 +10,7 @@ class CadetMember: SignableMember, CadetReferenceUsageProxy {
     lateinit var parent: CadetClass
     lateinit var returnType: String
     val params = mutableListOf<CadetParameter>()
+    val localVariables = mutableListOf<CadetLocalVariable>()
 
     // TODO This will be a List for testing purposes, return to Set for production
     val invokedMethods = mutableListOf<CadetMember>()
@@ -27,17 +28,17 @@ class CadetMember: SignableMember, CadetReferenceUsageProxy {
         when(reference) {
             is CadetMember -> {
                 invokedMethods.add(reference)
-                println("[Record] Member ${reference.name} invoked in member ${parent.name}.${name}")
+//                println("[Record] Member ${reference.name} invoked in member ${parent.name}.${name}")
             }
             is CadetField -> {
                 accessedFields.add(reference)
-                println("[Record] Field ${reference.name} accessed in member ${parent.name}.${name}")
+//                println("[Record] Field ${reference.name} accessed in member ${parent.name}.${name}")
             }
             is CadetParameter -> {
-                println("[Record] Parameter ${reference.name} accessed in member ${parent.name}.${name}")
+//                println("[Record] Parameter ${reference.name} accessed in member ${parent.name}.${name}")
             }
             is CadetLocalVariable -> {
-                println("[Record] Local variable ${reference.name} accessed in member ${parent.name}.${name}")
+//                println("[Record] Local variable ${reference.name} accessed in member ${parent.name}.${name}")
             }
             else -> error("Unsupported reference type being recorded: [${reference.javaClass}]")
         }

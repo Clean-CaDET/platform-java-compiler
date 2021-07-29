@@ -1,6 +1,7 @@
 package second_pass.resolver
 
 import com.github.javaparser.ast.Node
+import kotlinx.coroutines.runBlocking
 import second_pass.resolver.resolver_tree.service.Builder
 import second_pass.resolver.resolver_tree.service.Resolver
 import second_pass.resolver.resolver_tree.service.UsageRecorder

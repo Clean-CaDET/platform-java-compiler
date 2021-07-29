@@ -7,18 +7,31 @@ import first_pass.JavaPrototypeVisitor
 import prototype_dto.ClassPrototype
 import prototype_dto.JavaPrototype
 import second_pass.SymbolResolverVisitor
+import kotlin.system.measureNanoTime
+import kotlin.system.measureTimeMillis
 
 
 class JavaCodeParser {
     fun parseSourceCode(sourceCodeList: List<String>): List<CadetClass> {
         // Parse source code
-        val compilationUnits = parseAllFiles(sourceCodeList)
+        lateinit var compilationUnits: List<CompilationUnit>
+        val parseTime = measureTimeMillis {
+            compilationUnits = parseAllFiles(sourceCodeList)
+        }
 
         // First pass (extracting skeletons)
-        val unresolvedPairs = createJavaPrototypes(compilationUnits)
+        lateinit var unresolvedPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>
+        val firstPassTime = measureTimeMillis {
+            unresolvedPairs = createJavaPrototypes(compilationUnits)
+        }
 
         // Second pass (resolving references)
-        val resolvedJavaPrototypes = SymbolResolverVisitor().resolveSourceCode(unresolvedPairs)
+        lateinit var resolvedJavaPrototypes: List<JavaPrototype>
+        val secondPassTime = measureTimeMillis {
+            resolvedJavaPrototypes = SymbolResolverVisitor().resolveSourceCode(unresolvedPairs)
+        }
+
+        println("\nParse: $parseTime\n1st pass: $firstPassTime\n2nd pass: $secondPassTime")
 
         // Final result extraction
         return extractCadetClassesFromPrototypes(resolvedJavaPrototypes)
@@ -31,7 +44,7 @@ class JavaCodeParser {
                 compilationUnits.add(StaticJavaParser.parse(sourceCode))
             }
             catch (e: ParseProblemException) {
-                println("ERROR: [${e.problems}]\n${sourceCode}")
+                // println("ERROR: [${e.problems}]\n${sourceCode}")
                 continue
             }
         }

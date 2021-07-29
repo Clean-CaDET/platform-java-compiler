@@ -15,8 +15,8 @@ class UsageRecorder {
 
             if (node.isResolved())
                 cadetReferenceUsageProxy.recordReferenceUsage(node.resolvedReference)
-            else
-                println("[Error] Failed to resolve node of type ${node.astNode.metaModel.typeName}")
+//            else
+//                println("[Error] Failed to resolve node of type ${node.astNode.metaModel.typeName}")
         }
     }
 }

@@ -1,7 +1,6 @@
 package second_pass
 
 import cadet_model.CadetClass
-import cadet_model.CadetLocalVariable
 import cadet_model.CadetMember
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.*
@@ -9,6 +8,7 @@ import com.github.javaparser.ast.expr.FieldAccessExpr
 import com.github.javaparser.ast.expr.MethodCallExpr
 import com.github.javaparser.ast.expr.ObjectCreationExpr
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter
+import kotlinx.coroutines.runBlocking
 import prototype_dto.ClassPrototype
 import prototype_dto.JavaPrototype
 import second_pass.resolver.InjectedContext
@@ -17,19 +17,25 @@ import second_pass.resolver.ResolverProxy
 import second_pass.resolver.node_parser.LocalVariableParser
 import second_pass.signature.MemberNodeSigWrapper
 import second_pass.signature.MemberSignature
-import util.AstNodeUtil
+import util.Threading
+import kotlin.math.ceil
 
 // TODO Add support for multi-threaded resolving, aka remove state-persistence
 // TODO Add support for global reference access, like
 //      private Type field = SomeReference.callMethod()
-class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
+class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorContext?>() {
+
+    class VisitorContext(val cadetClass: CadetClass, val cadetMember: CadetMember) {
+        private var used = false
+
+        fun markUsed() {
+            used = true
+        }
+
+        fun isUsed() = used
+    }
 
     private val resolver: ResolverProxy = ResolverProxy()
-
-    private var currentCadetClass: CadetClass? = null
-    private var currentCadetMember: CadetMember? = null
-    private val localVariables = mutableListOf<CadetLocalVariable>()
-
     private lateinit var hierarchyGraph: HierarchyGraph
 
     fun resolveSourceCode(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>)
@@ -47,96 +53,98 @@ class SymbolResolverVisitor : VoidVisitorAdapter<CadetMember?>() {
         return resolverPairs.map { pair -> pair.second }
     }
 
-    private fun resolvePrototypes(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>) {
+    private fun resolvePrototypes(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>) = runBlocking {
         val classPairs = resolverPairs.filter { pair -> pair.second is ClassPrototype }
-        classPairs.forEach { classPair ->
-            // println("--VISITING FILE ${classPair.second.getName()}--")   TODO Remove diagnostics
-            this.currentCadetClass = (classPair.second as ClassPrototype).cadetClass
-            visitTopLevelChildren(classPair.first)
+        if (classPairs.isNotEmpty())
+            Threading.iterateListSlicesViaCoroutines(
+                classPairs,
+                function = {
+                    visitTopLevelChildren(
+                        node = it.first,
+                        cadetClass = (it.second as ClassPrototype).cadetClass
+                    )
+                }
+            )
+
+//        classPairs.forEach {
+//            visitTopLevelChildren(
+//                node = it.first,
+//                cadetClass = (it.second as ClassPrototype).cadetClass
+//            )
+//        }
+    }
+
+    private fun visitTopLevelChildren(
+        node: ClassOrInterfaceDeclaration,
+        cadetClass: CadetClass
+    ) {
+        node.childNodes
+            .forEach { child ->
+                    when (child) {
+                        is MethodDeclaration ->
+                            visit(child, VisitorContext(cadetClass, initCadetMemberContext(child, cadetClass)!!))
+                        is ConstructorDeclaration ->
+                            visit(child, VisitorContext(cadetClass, initCadetMemberContext(child, cadetClass)!!))
+                        // is FieldDeclaration -> visit(child, null)
+                    }
+                }
+    }
+
+    override fun visit(node: ClassOrInterfaceDeclaration, arg: VisitorContext?) {
+        return
+    }
+
+    override fun visit(node: MethodDeclaration, arg: VisitorContext?) {
+        arg ?: error("Visitor context not injected.")
+        if (!arg.isUsed()) {
+            arg.markUsed()
+            super.visit(node, arg)
         }
     }
 
-    private fun visitTopLevelChildren(node: ClassOrInterfaceDeclaration) {
-        node.childNodes
-            .forEach { child ->
-                when (child) {
-                    is MethodDeclaration -> visit(child, null)
-                    is ConstructorDeclaration -> visit(child, null)
-                    is FieldDeclaration -> visit(child, null)
-                }
-            }
-    }
-
-    // Top level nodes are visited manually
-    override fun visit(node: ClassOrInterfaceDeclaration, arg: CadetMember?) { return }
-
-    override fun visit(node: MethodDeclaration, arg: CadetMember?) {
-        if (inMember())
-            return
-        enterMember(node)
-        super.visit(node, this.currentCadetMember)
-        exitMember()
-    }
-
-    override fun visit(node: ConstructorDeclaration, arg: CadetMember?) {
-        if (inMember())
-            return
-        enterMember(node)
-        super.visit(node, this.currentCadetMember)
-        exitMember()
+    override fun visit(node: ConstructorDeclaration, arg: VisitorContext?) {
+        arg ?: error("Visitor context not injected.")
+        if (!arg.isUsed()) {
+            arg.markUsed()
+            super.visit(node, arg)
+        }
     }
 
     // TODO No need to manually setup visiting, transform this to a manual iteration, because ResolverTree handles
     // the conversion and parsing IF the given AST node is used to build a tree
 
-    override fun visit(node: MethodCallExpr, arg: CadetMember?) {
-        if (inMember())
-            this.resolver.resolve(node, instantiateResolverWizard())
+    override fun visit(node: MethodCallExpr, arg: VisitorContext?) {
+        this.resolver.resolve(node, initInjectedContext(arg!!.cadetMember))
     }
 
-    override fun visit(node: ObjectCreationExpr, arg: CadetMember?) {
-        if (inMember())
-            this.resolver.resolve(node, instantiateResolverWizard())
+    override fun visit(node: ObjectCreationExpr, arg: VisitorContext?) {
+        this.resolver.resolve(node, initInjectedContext(arg!!.cadetMember))
     }
 
-    override fun visit(node: FieldAccessExpr, arg: CadetMember?) {
-        if (inMember())
-            this.resolver.resolve(node, instantiateResolverWizard())
+    override fun visit(node: FieldAccessExpr, arg: VisitorContext?) {
+        this.resolver.resolve(node, initInjectedContext(arg!!.cadetMember))
     }
 
-    override fun visit(node: VariableDeclarator, arg: CadetMember?) {
-        if (inMember()) {
-            // TODO Should we keep track of local variables inside of the CadetMember?
-            this.localVariables.add(LocalVariableParser.instantiateLocalVariable(node))
-            super.visit(node, arg)
-        }
+    override fun visit(node: VariableDeclarator, arg: VisitorContext?) {
+        arg!!.cadetMember.localVariables.add(LocalVariableParser.instantiateLocalVariable(node))
+        super.visit(node, arg)
     }
 
     // Context handling methods
-
-    private fun enterMember(node: Node) {
-        when (node) {
-            is MethodDeclaration -> {
-                this.currentCadetMember = this.currentCadetClass!!.getMemberViaSignature(
+    private fun initCadetMemberContext(node: Node, parent: CadetClass): CadetMember? {
+        return when (node) {
+            is MethodDeclaration ->
+                parent.getMemberViaSignature(
                     MemberSignature(MemberNodeSigWrapper(node)).withHierarchyGraph(hierarchyGraph)
                 )
-            }
-            is ConstructorDeclaration -> {
-                this.currentCadetMember = this.currentCadetClass!!.getMemberViaSignature(
+            is ConstructorDeclaration ->
+                parent.getMemberViaSignature(
                     MemberSignature(MemberNodeSigWrapper(node)).withHierarchyGraph(hierarchyGraph)
                 )
-            }
+            else -> error("Cannot instantiate CadetMember from [${node.metaModel.typeName}]")
         }
     }
 
-    private fun exitMember() {
-        this.currentCadetMember = null
-        this.localVariables.clear()
-    }
-
-    private fun inMember() = this.currentCadetMember != null
-
-    private fun instantiateResolverWizard(): InjectedContext {
-        return InjectedContext(hierarchyGraph, currentCadetMember!!, localVariables)
-    }
+    private fun initInjectedContext(cadetMember: CadetMember): InjectedContext
+        = InjectedContext(this.hierarchyGraph, cadetMember, cadetMember.localVariables)
 }
