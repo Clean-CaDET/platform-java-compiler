@@ -4,7 +4,7 @@ import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.Parameter
-import util.AstNodeUtil
+import util.AstTreeUtil
 
 class MemberNodeSigWrapper : SignableMember {
     private val name: String
@@ -25,7 +25,7 @@ class MemberNodeSigWrapper : SignableMember {
     override fun getNumberOfParameters(): Int = parameterTypes.size
 
     private fun getParameterTypes(node: Node) {
-        AstNodeUtil.getChildrenByType<Parameter>(node).forEach { paramNode ->
+        AstTreeUtil.getChildrenByType<Parameter>(node).forEach { paramNode ->
             parameterTypes.add(paramNode.typeAsString)
         }
     }

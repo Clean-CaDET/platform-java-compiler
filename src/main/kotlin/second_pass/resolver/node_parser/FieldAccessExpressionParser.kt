@@ -3,7 +3,6 @@ package second_pass.resolver.node_parser
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.FieldAccessExpr
 import com.github.javaparser.ast.expr.SimpleName
-import util.AstNodeUtil
 
 object FieldAccessExpressionParser {
 

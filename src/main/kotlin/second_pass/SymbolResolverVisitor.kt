@@ -27,7 +27,7 @@ class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorCo
     class VisitorContext(val cadetClass: CadetClass, val cadetMember: CadetMember)
 
     private val resolver: ResolverProxy = ResolverProxy()
-    private lateinit var hierarchyGraph: HierarchyGraph
+    private lateinit var hierarchyGraph: HierarchyGraph // TODO Remove field, pass as param so as to not remember state
 
     fun resolveSourceCode(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>): List<JavaPrototype> {
         val prototypes = isolatePrototypes(resolverPairs)
@@ -59,11 +59,14 @@ class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorCo
             }
 
 //        [Single-threaded]
-//        classPairs.forEach {
-//            visitTopLevelChildren(
-//                node = it.first,
-//                cadetClass = (it.second as ClassPrototype).cadetClass
-//            )
+//        resolverPairs
+//            .filter { pair -> pair.second is ClassPrototype }
+//            .forEach {
+//                 visitTopLevelChildren(
+//                     node = it.first,
+//                     cadetClass = (it.second as ClassPrototype).cadetClass
+//                 )
+//            }
 //        }
     }
 

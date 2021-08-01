@@ -1,10 +1,29 @@
 package util
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.util.*
 import kotlin.concurrent.thread
+import kotlin.math.roundToInt
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
 object Threading {
+
+    class UniqueLock {
+        var inUse = false
+        private fun lock() { inUse = true }
+        private fun unlock() { inUse = false }
+
+        fun runThreadSafe(function: () -> Unit) {
+            while (inUse)
+                Thread.sleep(0, (Math.random() * 10).toInt())
+            lock()
+            function()
+            unlock()
+        }
+    }
 
     fun <T> iterateListSlicesViaThreads(
         list: List<T>,

@@ -2,7 +2,6 @@ package second_pass.resolver.node_parser
 
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.expr.*
-import util.AstNodeUtil
 
 object MethodCallExpressionParser {
 

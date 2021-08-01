@@ -1,4 +1,5 @@
 import cadet_model.CadetClass
+import com.github.javaparser.JavaParser
 import com.github.javaparser.ParseProblemException
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.CompilationUnit
@@ -18,21 +19,21 @@ class JavaCodeParser {
     fun parseSourceCode(sourceCodeList: List<String>): List<CadetClass> {
         // Parse source code
         val compilationUnits: List<CompilationUnit> =
-            util.Console.logTime("Parse")
+            util.Console.logTime(tag = "Parse")
                 { parseAllFiles(sourceCodeList) }
 
         // First pass (extracting skeletons)
         val unresolvedPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>
-            = util.Console.logTime("1st pass")
+            = util.Console.logTime(tag = "1st pass")
                 { createJavaPrototypes(compilationUnits) }
 
         // Second pass (resolving references)
         val resolvedJavaPrototypes: List<JavaPrototype>
-            = util.Console.logTime("2nd pass", sep = "\n")
+            = util.Console.logTime(tag = "2nd pass", sep = "\n")
                 { SymbolResolverVisitor().resolveSourceCode(unresolvedPairs) }
 
         // Final result extraction
-        return extractCadetClassesFromPrototypes(resolvedJavaPrototypes)
+        return resolvedJavaPrototypes.filterIsInstance<ClassPrototype>().map { it.cadetClass }
     }
 
     private fun parseAllFiles(sourceCodeList: List<String>): List<CompilationUnit> = runBlocking {
@@ -48,15 +49,19 @@ class JavaCodeParser {
 //                continue
 //            }
 //        }
-//        return@runBlocking compilationUnits
+//        return compilationUnits
 
-        val compilationUnits = Collections.synchronizedList(mutableListOf<CompilationUnit>())
+        val compilationUnits = (mutableListOf<CompilationUnit>())
+        val lock = Threading.UniqueLock()
 
         Threading.iterateListSlicesViaThreads(
             sourceCodeList,
             function = {
                 try {
-                    compilationUnits.add(StaticJavaParser.parse(it))
+                    val cu = StaticJavaParser.parse(it)
+                    lock.runThreadSafe {
+                        compilationUnits.add(cu)
+                    }
                 }
                 catch (ignore: ParseProblemException) {}
             },
@@ -72,19 +77,10 @@ class JavaCodeParser {
         val pairs = mutableListOf<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>()
 
         for (cUnit in compilationUnits) {
-            val pair = prototypeVisitor.parseCompilationUnit(cUnit)
+            val pair = prototypeVisitor.parseCompilationUnit(cUnit) // TODO Make stateless for multithreading
             pairs.addAll(pair)
         }
 
         return pairs
-    }
-
-    private fun extractCadetClassesFromPrototypes(prototypes: List<JavaPrototype>): List<CadetClass>
-    {
-        val resolvedCadetClasses = mutableListOf<CadetClass>()
-        prototypes.filterIsInstance<ClassPrototype>().forEach { classPrototype ->
-            resolvedCadetClasses.add(classPrototype.cadetClass)
-        }
-        return resolvedCadetClasses
     }
 }

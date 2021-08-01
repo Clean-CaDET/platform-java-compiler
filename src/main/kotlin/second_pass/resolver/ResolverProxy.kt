@@ -1,6 +1,7 @@
 package second_pass.resolver
 
 import com.github.javaparser.ast.Node
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import second_pass.resolver.resolver_tree.service.Builder
 import second_pass.resolver.resolver_tree.service.Resolver
@@ -20,7 +21,6 @@ class ResolverProxy {
         resolver.resolve(resolverTreeRoot, injectedContext)
 
         // Record reference usages
-        // TODO Add threading support here through an MQ or something
         usageRecorder.recordReferenceUsages(
             resolverTreeRoot,
             injectedContext.getCurrentCadetMember()
