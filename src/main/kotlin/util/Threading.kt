@@ -2,8 +2,27 @@ package util
 
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlin.concurrent.thread
 
 object Threading {
+
+    fun <T> iterateListSlicesViaThreads(
+        list: List<T>,
+        function: (obj: T) -> Unit,
+        n: Int = optimalNumOfSlices(list)
+    ) {
+        val threads = mutableListOf<Thread>()
+
+        calculateIndexPairs(list, n).forEach {
+            threads.add(
+                thread(start = true) {
+                for (i in it.first..it.second)
+                    function(list[i])
+            })
+        }
+
+        threads.forEach { it.join() }
+    }
 
     fun <T> iterateListSlicesViaCoroutines(
         list: List<T>,
@@ -11,6 +30,15 @@ object Threading {
         n: Int = optimalNumOfSlices(list)
     ) = runBlocking {
 
+        calculateIndexPairs(list, n).forEach {
+            launch {
+                for (i in it.first..it.second)
+                    function(list[i])
+            }
+        }
+    }
+
+    private fun <T> calculateIndexPairs(list: List<T>, n: Int): List<Pair<Int, Int>> {
         if (list.size < n) error("Cannot split list into sections, list does not have enough elements.")
         val indexPairs = mutableListOf<Pair<Int, Int>>()
 
@@ -25,12 +53,7 @@ object Threading {
             iterator += split
         }
 
-        indexPairs.forEach {
-            launch {
-                for (i in it.first..it.second)
-                    function(list[i])
-            }
-        }
+        return indexPairs
     }
 
     private fun <T> optimalNumOfSlices(list: List<T>): Int {

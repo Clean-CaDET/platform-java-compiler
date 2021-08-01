@@ -56,14 +56,14 @@ class JavaCodeParser {
 //
         val compilationUnits = Collections.synchronizedList(mutableListOf<CompilationUnit>())
 
-        Threading.iterateListSlicesViaCoroutines(
+        Threading.iterateListSlicesViaThreads(
             sourceCodeList,
             function = {
                 try {
                     compilationUnits.add(StaticJavaParser.parse(it))
                 }
                 catch (ignore: ParseProblemException) {}
-            }
+            },
         )
 
         return@runBlocking compilationUnits

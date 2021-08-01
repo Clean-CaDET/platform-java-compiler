@@ -56,7 +56,7 @@ class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorCo
     private fun resolvePrototypes(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>) = runBlocking {
         val classPairs = resolverPairs.filter { pair -> pair.second is ClassPrototype }
         if (classPairs.isNotEmpty())
-            Threading.iterateListSlicesViaCoroutines(
+            Threading.iterateListSlicesViaThreads(
                 classPairs,
                 function = {
                     visitTopLevelChildren(
