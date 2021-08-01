@@ -90,9 +90,7 @@ class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorCo
                 }
     }
 
-    override fun visit(node: ClassOrInterfaceDeclaration, arg: VisitorContext?) {
-        return
-    }
+    override fun visit(node: ClassOrInterfaceDeclaration, arg: VisitorContext?) {}
 
     override fun visit(node: MethodDeclaration, arg: VisitorContext?) {
         arg ?: error("Visitor context not injected.")

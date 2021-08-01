@@ -17,24 +17,19 @@ import kotlin.system.measureTimeMillis
 class JavaCodeParser {
     fun parseSourceCode(sourceCodeList: List<String>): List<CadetClass> {
         // Parse source code
-        lateinit var compilationUnits: List<CompilationUnit>
-        val parseTime = measureTimeMillis {
-            compilationUnits = parseAllFiles(sourceCodeList)
-        }
+        val compilationUnits: List<CompilationUnit> =
+            util.Console.logTime("Parse")
+                { parseAllFiles(sourceCodeList) }
 
         // First pass (extracting skeletons)
-        lateinit var unresolvedPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>
-        val firstPassTime = measureTimeMillis {
-            unresolvedPairs = createJavaPrototypes(compilationUnits)
-        }
+        val unresolvedPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>
+            = util.Console.logTime("1st pass")
+                { createJavaPrototypes(compilationUnits) }
 
         // Second pass (resolving references)
-        lateinit var resolvedJavaPrototypes: List<JavaPrototype>
-        val secondPassTime = measureTimeMillis {
-            resolvedJavaPrototypes = SymbolResolverVisitor().resolveSourceCode(unresolvedPairs)
-        }
-
-        println("\nParse: $parseTime\n1st pass: $firstPassTime\n2nd pass: $secondPassTime")
+        val resolvedJavaPrototypes: List<JavaPrototype>
+            = util.Console.logTime("2nd pass", sep = "\n")
+                { SymbolResolverVisitor().resolveSourceCode(unresolvedPairs) }
 
         // Final result extraction
         return extractCadetClassesFromPrototypes(resolvedJavaPrototypes)

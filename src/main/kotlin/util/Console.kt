@@ -4,9 +4,19 @@ import cadet_model.*
 import com.github.javaparser.ast.Node
 import second_pass.resolver.resolver_tree.model.ReferenceNode
 import second_pass.resolver.resolver_tree.model.SimpleNode
+import kotlin.system.measureTimeMillis
 
 // Test class only
 object Console {
+
+    fun <T> logTime(tag: String, sep: String = "", function: () -> T): T {
+        var obj : T
+        val time = measureTimeMillis {
+            obj = function()
+        }
+        println("$tag: $time ms $sep")
+        return obj
+    }
 
     /** Recursively prints the given [Node] and its children in a stair-like sequence
      *  until all descendants are displayed. */
