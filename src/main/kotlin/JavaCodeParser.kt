@@ -36,6 +36,7 @@ class JavaCodeParser {
     }
 
     private fun parseAllFiles(sourceCodeList: List<String>): List<CompilationUnit> = runBlocking {
+//        [Single-threaded]
 //        val compilationUnits = mutableListOf<CompilationUnit>()
 //
 //        for (sourceCode in sourceCodeList) {
@@ -48,7 +49,7 @@ class JavaCodeParser {
 //            }
 //        }
 //        return@runBlocking compilationUnits
-//
+
         val compilationUnits = Collections.synchronizedList(mutableListOf<CompilationUnit>())
 
         Threading.iterateListSlicesViaThreads(

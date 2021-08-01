@@ -20,26 +20,16 @@ import second_pass.signature.MemberSignature
 import util.Threading
 import kotlin.math.ceil
 
-// TODO Add support for multi-threaded resolving, aka remove state-persistence
 // TODO Add support for global reference access, like
 //      private Type field = SomeReference.callMethod()
 class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorContext?>() {
 
-    class VisitorContext(val cadetClass: CadetClass, val cadetMember: CadetMember) {
-        private var used = false
-
-        fun markUsed() {
-            used = true
-        }
-
-        fun isUsed() = used
-    }
+    class VisitorContext(val cadetClass: CadetClass, val cadetMember: CadetMember)
 
     private val resolver: ResolverProxy = ResolverProxy()
     private lateinit var hierarchyGraph: HierarchyGraph
 
-    fun resolveSourceCode(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>)
-            : List<JavaPrototype> {
+    fun resolveSourceCode(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>): List<JavaPrototype> {
         val prototypes = isolatePrototypes(resolverPairs)
         this.hierarchyGraph = HierarchyGraph.Factory.initializeHierarchyGraph(prototypes)
 
@@ -49,23 +39,26 @@ class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorCo
     }
 
     private fun isolatePrototypes(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>)
-            : List<JavaPrototype> {
-        return resolverPairs.map { pair -> pair.second }
-    }
+        : List<JavaPrototype>
+        = resolverPairs.map { pair -> pair.second }
+
 
     private fun resolvePrototypes(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>) = runBlocking {
-        val classPairs = resolverPairs.filter { pair -> pair.second is ClassPrototype }
-        if (classPairs.isNotEmpty())
-            Threading.iterateListSlicesViaThreads(
-                classPairs,
-                function = {
-                    visitTopLevelChildren(
-                        node = it.first,
-                        cadetClass = (it.second as ClassPrototype).cadetClass
-                    )
-                }
-            )
+        resolverPairs
+            .filter { pair -> pair.second is ClassPrototype }
+            .let { classPairs ->
+                Threading.iterateListSlicesViaThreads(
+                    classPairs,
+                    function = {
+                        visitTopLevelChildren(
+                            node = it.first,
+                            cadetClass = (it.second as ClassPrototype).cadetClass
+                        )
+                    }
+                )
+            }
 
+//        [Single-threaded]
 //        classPairs.forEach {
 //            visitTopLevelChildren(
 //                node = it.first,
@@ -94,22 +87,13 @@ class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorCo
 
     override fun visit(node: MethodDeclaration, arg: VisitorContext?) {
         arg ?: error("Visitor context not injected.")
-        if (!arg.isUsed()) {
-            arg.markUsed()
-            super.visit(node, arg)
-        }
+        super.visit(node, arg)
     }
 
     override fun visit(node: ConstructorDeclaration, arg: VisitorContext?) {
         arg ?: error("Visitor context not injected.")
-        if (!arg.isUsed()) {
-            arg.markUsed()
-            super.visit(node, arg)
-        }
+        super.visit(node, arg)
     }
-
-    // TODO No need to manually setup visiting, transform this to a manual iteration, because ResolverTree handles
-    // the conversion and parsing IF the given AST node is used to build a tree
 
     override fun visit(node: MethodCallExpr, arg: VisitorContext?) {
         this.resolver.resolve(node, initInjectedContext(arg!!.cadetMember))

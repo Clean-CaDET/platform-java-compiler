@@ -11,6 +11,7 @@ object Threading {
         function: (obj: T) -> Unit,
         n: Int = optimalNumOfSlices(list)
     ) {
+        if (list.isEmpty()) return
         val threads = mutableListOf<Thread>()
 
         calculateIndexPairs(list, n).forEach {
