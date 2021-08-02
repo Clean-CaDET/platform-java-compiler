@@ -6,7 +6,7 @@ import cadet_model.CadetModifier
 import com.github.javaparser.ast.Modifier
 import com.github.javaparser.ast.body.FieldDeclaration
 import com.github.javaparser.ast.body.VariableDeclarator
-import util.AstTreeUtil
+import util.AST
 
 object FieldDeclarationParser {
 
@@ -22,12 +22,12 @@ object FieldDeclarationParser {
     }
 
     private fun getFieldName(node: FieldDeclaration): String {
-        val varDeclaratorNode = AstTreeUtil.getChildByType<VariableDeclarator>(node)
+        val varDeclaratorNode = AST.getChildByType<VariableDeclarator>(node)
         return varDeclaratorNode!!.nameAsString
     }
 
     private fun getModifiers(node: FieldDeclaration): List<CadetModifier> {
-        return AstTreeUtil.getChildrenByType<Modifier>(node)
+        return AST.getChildrenByType<Modifier>(node)
             .map { child -> CadetModifier(child.keyword.asString()) }
     }
 }

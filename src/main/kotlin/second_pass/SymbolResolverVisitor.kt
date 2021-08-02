@@ -18,32 +18,29 @@ import second_pass.resolver.node_parser.LocalVariableParser
 import second_pass.signature.MemberNodeSigWrapper
 import second_pass.signature.MemberSignature
 import util.Threading
-import kotlin.math.ceil
 
 // TODO Add support for global reference access, like
 //      private Type field = SomeReference.callMethod()
 class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorContext?>() {
 
-    class VisitorContext(val cadetClass: CadetClass, val cadetMember: CadetMember)
+    class VisitorContext(
+        val cadetClass: CadetClass,
+        val cadetMember: CadetMember,
+        val hierarchyGraph: HierarchyGraph
+    )
 
-    private val resolver: ResolverProxy = ResolverProxy()
-    private lateinit var hierarchyGraph: HierarchyGraph // TODO Remove field, pass as param so as to not remember state
+    private val threadSafeResolver: ResolverProxy = ResolverProxy()
 
     fun resolveSourceCode(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>): List<JavaPrototype> {
-        val prototypes = isolatePrototypes(resolverPairs)
-        this.hierarchyGraph = HierarchyGraph.Factory.initializeHierarchyGraph(prototypes)
-
-        resolvePrototypes(resolverPairs)
-
+        val prototypes = resolverPairs.map { pair -> pair.second }
+        resolvePrototypes(resolverPairs, prototypes)
         return prototypes
     }
 
-    private fun isolatePrototypes(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>)
-        : List<JavaPrototype>
-        = resolverPairs.map { pair -> pair.second }
-
-
-    private fun resolvePrototypes(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>) = runBlocking {
+    private fun resolvePrototypes(
+        resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>,
+        prototypes: List<JavaPrototype>
+    ) = runBlocking {
         resolverPairs
             .filter { pair -> pair.second is ClassPrototype }
             .let { classPairs ->
@@ -52,7 +49,8 @@ class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorCo
                     function = {
                         visitTopLevelChildren(
                             node = it.first,
-                            cadetClass = (it.second as ClassPrototype).cadetClass
+                            cadetClass = (it.second as ClassPrototype).cadetClass,
+                            hierarchyGraph = HierarchyGraph.Factory.initializeHierarchyGraph(prototypes)
                         )
                     }
                 )
@@ -72,18 +70,33 @@ class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorCo
 
     private fun visitTopLevelChildren(
         node: ClassOrInterfaceDeclaration,
-        cadetClass: CadetClass
+        cadetClass: CadetClass,
+        hierarchyGraph: HierarchyGraph
     ) {
         node.childNodes
             .forEach { child ->
-                    when (child) {
-                        is MethodDeclaration ->
-                            visit(child, VisitorContext(cadetClass, initCadetMemberContext(child, cadetClass)!!))
-                        is ConstructorDeclaration ->
-                            visit(child, VisitorContext(cadetClass, initCadetMemberContext(child, cadetClass)!!))
-                        // is FieldDeclaration -> visit(child, null)
-                    }
+                when (child) {
+                    is MethodDeclaration ->
+                        visit(
+                            child,
+                            VisitorContext(
+                                cadetClass,
+                                initCadetMemberContext(child, cadetClass, hierarchyGraph)!!,
+                                hierarchyGraph
+                            )
+                        )
+                    is ConstructorDeclaration ->
+                        visit(
+                            child,
+                            VisitorContext(
+                                cadetClass,
+                                initCadetMemberContext(child, cadetClass, hierarchyGraph)!!,
+                                hierarchyGraph
+                            )
+                        )
+                    // is FieldDeclaration -> visit(child, null)
                 }
+            }
     }
 
     override fun visit(node: ClassOrInterfaceDeclaration, arg: VisitorContext?) {}
@@ -99,15 +112,15 @@ class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorCo
     }
 
     override fun visit(node: MethodCallExpr, arg: VisitorContext?) {
-        this.resolver.resolve(node, initInjectedContext(arg!!.cadetMember))
+        this.threadSafeResolver.resolve(node, initInjectedContext(arg!!.cadetMember, arg.hierarchyGraph))
     }
 
     override fun visit(node: ObjectCreationExpr, arg: VisitorContext?) {
-        this.resolver.resolve(node, initInjectedContext(arg!!.cadetMember))
+        this.threadSafeResolver.resolve(node, initInjectedContext(arg!!.cadetMember, arg.hierarchyGraph))
     }
 
     override fun visit(node: FieldAccessExpr, arg: VisitorContext?) {
-        this.resolver.resolve(node, initInjectedContext(arg!!.cadetMember))
+        this.threadSafeResolver.resolve(node, initInjectedContext(arg!!.cadetMember, arg.hierarchyGraph))
     }
 
     override fun visit(node: VariableDeclarator, arg: VisitorContext?) {
@@ -116,7 +129,11 @@ class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorCo
     }
 
     // Context handling methods
-    private fun initCadetMemberContext(node: Node, parent: CadetClass): CadetMember? {
+    private fun initCadetMemberContext(
+        node: Node,
+        parent: CadetClass,
+        hierarchyGraph: HierarchyGraph
+    ): CadetMember? {
         return when (node) {
             is MethodDeclaration ->
                 parent.getMemberViaSignature(
@@ -130,6 +147,6 @@ class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorCo
         }
     }
 
-    private fun initInjectedContext(cadetMember: CadetMember): InjectedContext
-        = InjectedContext(this.hierarchyGraph, cadetMember, cadetMember.localVariables)
+    private fun initInjectedContext(cadetMember: CadetMember, hierarchyGraph: HierarchyGraph): InjectedContext
+        = InjectedContext(hierarchyGraph, cadetMember, cadetMember.localVariables)
 }

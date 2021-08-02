@@ -46,7 +46,7 @@ class MemberSignature(signable: SignableMember) {
                 if (pThis == Resolver.WildcardType)
                     continue
                 if (pOther == Resolver.WildcardType)
-                    throw IllegalArgumentException("Parameter type cannot be Wildcard.")
+                    error("Parameter type cannot be Wildcard.")
                 if (isSuperType(pOther, pThis)) continue
                 if (isDependencyInjection(pThis, pOther)) continue
 

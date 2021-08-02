@@ -8,7 +8,7 @@ import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
 import com.github.javaparser.ast.body.Parameter
-import util.AstTreeUtil
+import util.AST
 
 object MemberDeclarationParser {
 
@@ -37,7 +37,7 @@ object MemberDeclarationParser {
     }
 
     private fun getParameters(node: Node): List<CadetParameter> {
-        return AstTreeUtil.getChildrenByType<Parameter>(node)
+        return AST.getChildrenByType<Parameter>(node)
             .map { param -> CadetParameter(param.nameAsString, param.typeAsString) }
     }
 }

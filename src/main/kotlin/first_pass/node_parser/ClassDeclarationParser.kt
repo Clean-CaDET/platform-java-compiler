@@ -3,7 +3,7 @@ package first_pass.node_parser
 import cadet_model.CadetClass
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration
 import com.github.javaparser.ast.type.ClassOrInterfaceType
-import util.AstTreeUtil
+import util.AST
 
 object ClassDeclarationParser {
 
@@ -16,6 +16,6 @@ object ClassDeclarationParser {
     }
 
     fun getExtendingClassesAndInterfaces(node: ClassOrInterfaceDeclaration): List<String> {
-        return AstTreeUtil.getChildrenByType<ClassOrInterfaceType>(node).map { child -> child.nameAsString }
+        return AST.getChildrenByType<ClassOrInterfaceType>(node).map { child -> child.nameAsString }
     }
 }

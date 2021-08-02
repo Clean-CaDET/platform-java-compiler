@@ -49,7 +49,7 @@ class JavaCodeParser {
 //                continue
 //            }
 //        }
-//        return compilationUnits
+//        return@runBlocking compilationUnits
 
         val compilationUnits = (mutableListOf<CompilationUnit>())
         val lock = Threading.UniqueLock()

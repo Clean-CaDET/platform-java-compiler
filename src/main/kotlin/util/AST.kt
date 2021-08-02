@@ -2,7 +2,7 @@ package util
 
 import com.github.javaparser.ast.Node
 
-object AstTreeUtil {
+object AST {
 
     /**
      * @return First [T] type child within [Node.childNodes], or null if none are found.

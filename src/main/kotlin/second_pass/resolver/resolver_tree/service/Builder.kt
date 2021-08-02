@@ -5,7 +5,7 @@ import com.github.javaparser.ast.expr.*
 import second_pass.resolver.resolver_tree.model.NodeType
 import second_pass.resolver.resolver_tree.model.ReferenceNode
 import second_pass.resolver.resolver_tree.model.SimpleNode
-import util.AstTreeUtil
+import util.AST
 
 class Builder {
 
@@ -23,7 +23,7 @@ class Builder {
     private fun recursiveChildNodeAddition(node: SimpleNode) {
         if (node !is ReferenceNode)
             return
-        AstTreeUtil.iterateChildrenWithFunction(
+        AST.iterateChildrenWithFunction(
             node.astNode,
             function = { astChildNode ->
                 buildAnyNode(astChildNode)?.let { childResolverNode ->
