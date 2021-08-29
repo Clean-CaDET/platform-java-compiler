@@ -36,7 +36,9 @@ class Builder {
 
     private fun buildAnyNode(node: Node): SimpleNode? {
         mapSimpleNodeType(node)?.let { type ->
-            return SimpleNode(node, type)
+            return if (type != NodeType.Enclosed)
+                SimpleNode(node, type)
+            else buildAnyNode(node.childNodes[0])
         }
         mapReferenceNodeType(node)?.let { type ->
             return ReferenceNode(node, type)

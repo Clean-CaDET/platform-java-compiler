@@ -101,8 +101,7 @@ class HierarchyGraph {
     fun getClassHierarchy(className: String): List<CadetClass> {
         val hierarchy = mutableListOf<CadetClass>()
         var node = classGraph[className]
-        node ?: return mutableListOf()
-        // TODO throw IllegalArgumentException("Class $className not found in second_pass.infrastructure.hierarchy.")
+        node ?: return mutableListOf()  // This has to stay here because throwing exceptions will make all hell break loose
 
         while (node != null) {
             hierarchy.add(node.cadetClass)

@@ -19,8 +19,6 @@ import second_pass.signature.MemberNodeSigWrapper
 import second_pass.signature.MemberSignature
 import util.Threading
 
-// TODO Add support for global reference access, like
-//      private Type field = SomeReference.callMethod()
 class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorContext?>() {
 
     class VisitorContext(

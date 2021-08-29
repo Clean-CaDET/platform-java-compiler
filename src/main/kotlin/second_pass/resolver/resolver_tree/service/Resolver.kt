@@ -1,10 +1,9 @@
 package second_pass.resolver.resolver_tree.service
 
+import cadet_model.CadetStaticClassName
 import com.github.javaparser.ast.expr.CastExpr
-import com.github.javaparser.ast.expr.EnclosedExpr
 import com.github.javaparser.ast.expr.LiteralExpr
 import second_pass.resolver.InjectedContext
-import second_pass.resolver.ResolverProxy
 import second_pass.resolver.resolver_tree.model.NodeType
 import second_pass.resolver.resolver_tree.model.ReferenceNode
 import second_pass.resolver.resolver_tree.model.SimpleNode
@@ -14,7 +13,6 @@ import second_pass.resolver.resolver_tree.static_resolvers.reference.FieldAccess
 import second_pass.resolver.resolver_tree.static_resolvers.reference.MethodCallResolver
 import second_pass.resolver.resolver_tree.static_resolvers.reference.NameAccessResolver
 import second_pass.resolver.resolver_tree.static_resolvers.simple.CastResolver
-import second_pass.resolver.resolver_tree.static_resolvers.simple.EnclosedResolver
 import second_pass.resolver.resolver_tree.static_resolvers.simple.LiteralResolver
 
 class Resolver {
@@ -23,8 +21,8 @@ class Resolver {
         const val WildcardType: String = "#"
     }
 
-    // Note that we could place ScopeContext to be a field, but multi-threading won't be doable then
-    fun resolve(resolverTreeRoot: SimpleNode, injectedContext: InjectedContext) {
+    // Note that we could place InjectedContext to be a field, but multi-threading won't be doable then
+    fun resolve(resolverTreeRoot: ReferenceNode, injectedContext: InjectedContext) {
         postOrderTraversalWithFunction(resolverTreeRoot, injectedContext, this::resolveInternal)
     }
 
@@ -35,7 +33,7 @@ class Resolver {
     ) {
         if (node is ReferenceNode) {
             node.children.forEach {
-                    child -> postOrderTraversalWithFunction(child, injectedContext, function)
+                child -> postOrderTraversalWithFunction(child, injectedContext, function)
             }
         }
         function(node, injectedContext)
@@ -48,13 +46,13 @@ class Resolver {
                 NodeType.Literal -> LiteralResolver.resolve(node.astNode as LiteralExpr)
                 NodeType.Cast -> CastResolver.resolve(node.astNode as CastExpr)
                 NodeType.Null -> WildcardType
-                NodeType.Enclosed -> EnclosedResolver.resolve(node.astNode as EnclosedExpr)
+                NodeType.Enclosed -> error("Enclosed node found")
 
                 // Context dependent
                 NodeType.This -> KeywordResolver.resolve(KeywordResolver.Keyword.This, injectedContext)
                 NodeType.Super -> KeywordResolver.resolve(KeywordResolver.Keyword.Super, injectedContext)
 
-                // Reference query TODO
+                // Reference query
                 NodeType.Method -> {
                     internalResolve(
                         resolveFunction = MethodCallResolver::resolve,
@@ -103,7 +101,8 @@ class Resolver {
                         node = node as ReferenceNode,
                         injectedContext = injectedContext,
                         success = {
-                            node.resolvedReference = it
+                            if (it !is CadetStaticClassName)
+                                node.resolvedReference = it
                             it.type
                         },
                         error = {

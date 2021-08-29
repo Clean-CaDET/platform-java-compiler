@@ -14,23 +14,16 @@ import java.util.*
 import kotlin.system.measureNanoTime
 import kotlin.system.measureTimeMillis
 
-
 class JavaCodeParser {
     fun parseSourceCode(sourceCodeList: List<String>): List<CadetClass> {
         // Parse source code
-        val compilationUnits: List<CompilationUnit> =
-            util.Console.logTime(tag = "Parse")
-                { parseAllFiles(sourceCodeList) }
+        val compilationUnits: List<CompilationUnit> = parseAllFiles(sourceCodeList)
 
         // First pass (extracting skeletons)
-        val unresolvedPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>
-            = util.Console.logTime(tag = "1st pass")
-                { createJavaPrototypes(compilationUnits) }
+        val unresolvedPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>> = createJavaPrototypes(compilationUnits)
 
         // Second pass (resolving references)
-        val resolvedJavaPrototypes: List<JavaPrototype>
-            = util.Console.logTime(tag = "2nd pass", sep = "\n")
-                { SymbolResolverVisitor().resolveSourceCode(unresolvedPairs) }
+        val resolvedJavaPrototypes: List<JavaPrototype> = SymbolResolverVisitor().resolveSourceCode(unresolvedPairs)
 
         // Final result extraction
         return resolvedJavaPrototypes.filterIsInstance<ClassPrototype>().map { it.cadetClass }
@@ -77,7 +70,7 @@ class JavaCodeParser {
         val pairs = mutableListOf<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>()
 
         for (cUnit in compilationUnits) {
-            val pair = prototypeVisitor.parseCompilationUnit(cUnit) // TODO Make stateless for multithreading
+            val pair = prototypeVisitor.parseCompilationUnit(cUnit)
             pairs.addAll(pair)
         }
 

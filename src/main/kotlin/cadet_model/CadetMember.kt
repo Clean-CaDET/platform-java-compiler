@@ -16,9 +16,7 @@ class CadetMember: SignableMember, CadetReferenceUsageProxy {
     val invokedMethods = mutableListOf<CadetMember>()
     val accessedAccessors = mutableListOf<CadetMember>()
     val accessedFields = mutableListOf<CadetField>()
-
-
-    // TODO Implement modifiers for Java
+    val modifiers = mutableListOf<CadetModifier>()
 
     override fun name(): String = name
     override fun getParameterTypes(): List<String> = params.map { param -> param.type }
@@ -40,6 +38,7 @@ class CadetMember: SignableMember, CadetReferenceUsageProxy {
             is CadetLocalVariable -> {
 //                println("[Record] Local variable ${reference.name} accessed in member ${parent.name}.${name}")
             }
+            is CadetStaticClassName -> {}
             else -> error("Unsupported reference type being recorded: [${reference.javaClass}]")
         }
     }

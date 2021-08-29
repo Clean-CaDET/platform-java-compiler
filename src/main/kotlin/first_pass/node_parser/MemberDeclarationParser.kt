@@ -1,9 +1,7 @@
 package first_pass.node_parser
 
-import cadet_model.CadetClass
-import cadet_model.CadetMember
-import cadet_model.CadetMemberType
-import cadet_model.CadetParameter
+import cadet_model.*
+import com.github.javaparser.ast.Modifier
 import com.github.javaparser.ast.Node
 import com.github.javaparser.ast.body.ConstructorDeclaration
 import com.github.javaparser.ast.body.MethodDeclaration
@@ -33,11 +31,18 @@ object MemberDeclarationParser {
             getParameters(node).forEach {
                 this.params.add(it)
             }
+            getModifiers(node).forEach {
+                this.modifiers.add(CadetModifier(it))
+            }
         }
     }
 
     private fun getParameters(node: Node): List<CadetParameter> {
         return AST.getChildrenByType<Parameter>(node)
             .map { param -> CadetParameter(param.nameAsString, param.typeAsString) }
+    }
+
+    private fun getModifiers(node: Node): List<String> {
+        return AST.getChildrenByType<Modifier>(node).map { it.toString() }
     }
 }

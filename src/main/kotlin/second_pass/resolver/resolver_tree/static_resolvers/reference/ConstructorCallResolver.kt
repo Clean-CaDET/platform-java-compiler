@@ -10,6 +10,8 @@ import second_pass.signature.SignableMember
 object ConstructorCallResolver {
 
     fun resolve(node: ReferenceNode, injectedContext: InjectedContext): CadetMember? {
+        // One could hypothetically check here whether node.children.isEmpty(), and if yes, it's an empty constr. call
+
         val sigWrapper = object: SignableMember {
 
             override fun name(): String

@@ -52,4 +52,5 @@ class InjectedContext(
     fun getCurrentClassSuperType() = cadetMember.parent.parent?.name
     fun getCurrentClassName() = cadetMember.parent.name
     fun getCurrentCadetMember() = cadetMember
+    fun classExists(name: String) = hierarchyGraph.getClass(name) != null
 }

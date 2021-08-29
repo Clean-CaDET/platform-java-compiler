@@ -11,47 +11,63 @@ import prototype_dto.ClassPrototype
 import prototype_dto.InterfacePrototype
 import prototype_dto.JavaPrototype
 
-class JavaPrototypeVisitor : VoidVisitorAdapter<CadetClass>() {
+class JavaPrototypeVisitor : VoidVisitorAdapter<JavaPrototypeVisitor.VisitorContext>() {
 
-    private val output: MutableList<Pair<ClassOrInterfaceDeclaration, JavaPrototype>> = mutableListOf()
+    class VisitorContext {
+        val output: MutableList<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>
+        var contextClass: CadetClass? = null
 
-    fun parseCompilationUnit(compilationUnit: CompilationUnit): List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>> {
-        if (output.isNotEmpty())
-            output.clear()
-        visit(compilationUnit, null)
-        return output
+        constructor() {
+            this.output = mutableListOf()
+        }
+
+        private constructor(existingContext: VisitorContext, cadetClass: CadetClass) {
+            this.output = existingContext.output
+            this.contextClass = cadetClass
+        }
+
+        fun replicate(cadetClass: CadetClass): VisitorContext {
+            return VisitorContext(this, cadetClass)
+        }
     }
 
-    override fun visit(node: ClassOrInterfaceDeclaration, arg: CadetClass?) {
-        when {
-            node.isInterface -> output.add(Pair(node, InterfacePrototype(node.nameAsString)))
-            else -> {
-                val cadetClass = ClassDeclarationParser.instantiateClass(node, arg)
-                val classPrototype = ClassPrototype(cadetClass)
-                output.add(Pair(node, classPrototype))
+    fun parseCompilationUnit(compilationUnit: CompilationUnit): List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>> {
+        val visitorContext = VisitorContext()
+        visit(compilationUnit, visitorContext)
+        return visitorContext.output
+    }
 
+    override fun visit(node: ClassOrInterfaceDeclaration, ctx: VisitorContext) {
+        when {
+            node.isInterface -> ctx.output.add(Pair(node, InterfacePrototype(node.nameAsString)))
+            else -> {
+                val cadetClass = ClassDeclarationParser.instantiateClass(node, ctx.contextClass)
+                val classPrototype = ClassPrototype(cadetClass)
                 classPrototype.hierarchySymbols.addAll(ClassDeclarationParser.getExtendingClassesAndInterfaces(node));
 
-                super.visit(node, cadetClass)
+                val newContext = ctx.replicate(cadetClass)
+                ctx.output.add(Pair(node, classPrototype))
+
+                super.visit(node, newContext)
             }
         }
     }
 
     // Enumerations are unsupported ATM
-    override fun visit(node: EnumDeclaration, arg: CadetClass?) { return }
+    override fun visit(node: EnumDeclaration, ctx: VisitorContext) { return }
 
-    override fun visit(node: MethodDeclaration, arg: CadetClass?) {
-        MemberDeclarationParser.instantiateMethod(node, arg!!)
-            .let { arg.members.add(it) }
+    override fun visit(node: MethodDeclaration, ctx: VisitorContext) {
+        MemberDeclarationParser.instantiateMethod(node, ctx.contextClass!!)
+            .let { ctx.contextClass!!.members.add(it) }
     }
 
-    override fun visit(node: ConstructorDeclaration, arg: CadetClass?) {
-        MemberDeclarationParser.instantiateConstructor(node, arg!!)
-            .let { arg.members.add(it) }
+    override fun visit(node: ConstructorDeclaration, ctx: VisitorContext) {
+        MemberDeclarationParser.instantiateConstructor(node, ctx.contextClass!!)
+            .let { ctx.contextClass!!.members.add(it) }
     }
 
-    override fun visit(node: FieldDeclaration, arg: CadetClass?) {
-        FieldDeclarationParser.instantiateField(node, arg!!)
-            .let { arg.fields.add(it) }
+    override fun visit(node: FieldDeclaration, ctx: VisitorContext) {
+        FieldDeclarationParser.instantiateField(node, ctx.contextClass!!)
+            .let { ctx.contextClass!!.fields.add(it) }
     }
 }
