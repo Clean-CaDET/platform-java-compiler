@@ -10,7 +10,7 @@ import second_pass.signature.MemberSignature
 class InjectedContext(
     private val hierarchyGraph: HierarchyGraph,
     private val cadetMember: CadetMember,
-    private val localVariables: List<CadetLocalVariable>
+    private val localVariables: Collection<CadetLocalVariable>
 ){
     fun getConstructor(signature: MemberSignature): CadetMember? {
         hierarchyGraph.getClass(signature.getMemberName())?.let {

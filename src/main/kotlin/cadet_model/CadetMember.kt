@@ -9,14 +9,13 @@ class CadetMember: SignableMember, CadetReferenceUsageProxy {
     lateinit var source: String
     lateinit var parent: CadetClass
     lateinit var returnType: String
-    val params = mutableListOf<CadetParameter>()
-    val localVariables = mutableListOf<CadetLocalVariable>()
+    val params = mutableSetOf<CadetParameter>()
+    val localVariables = mutableSetOf<CadetLocalVariable>()
 
-    // TODO This will be a List for testing purposes, return to Set for production
-    val invokedMethods = mutableListOf<CadetMember>()
-    val accessedAccessors = mutableListOf<CadetMember>()
-    val accessedFields = mutableListOf<CadetField>()
-    val modifiers = mutableListOf<CadetModifier>()
+    val invokedMethods = mutableSetOf<CadetMember>()
+    val accessedAccessors = mutableSetOf<CadetMember>()
+    val accessedFields = mutableSetOf<CadetField>()
+    val modifiers = mutableSetOf<CadetModifier>()
 
     override fun name(): String = name
     override fun getParameterTypes(): List<String> = params.map { param -> param.type }
@@ -24,20 +23,10 @@ class CadetMember: SignableMember, CadetReferenceUsageProxy {
 
     override fun recordReferenceUsage(reference: Any) {
         when(reference) {
-            is CadetMember -> {
-                invokedMethods.add(reference)
-//                println("[Record] Member ${reference.name} invoked in member ${parent.name}.${name}")
-            }
-            is CadetField -> {
-                accessedFields.add(reference)
-//                println("[Record] Field ${reference.name} accessed in member ${parent.name}.${name}")
-            }
-            is CadetParameter -> {
-//                println("[Record] Parameter ${reference.name} accessed in member ${parent.name}.${name}")
-            }
-            is CadetLocalVariable -> {
-//                println("[Record] Local variable ${reference.name} accessed in member ${parent.name}.${name}")
-            }
+            is CadetMember -> invokedMethods.add(reference)
+            is CadetField -> accessedFields.add(reference)
+            is CadetParameter -> {}
+            is CadetLocalVariable -> {}
             is CadetStaticClassName -> {}
             else -> error("Unsupported reference type being recorded: [${reference.javaClass}]")
         }
