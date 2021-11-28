@@ -57,8 +57,8 @@ class JavaPrototypeVisitor : VoidVisitorAdapter<JavaPrototypeVisitor.VisitorCont
     override fun visit(node: EnumDeclaration, ctx: VisitorContext) { return }
 
     override fun visit(node: MethodDeclaration, ctx: VisitorContext) {
-        MemberDeclarationParser.instantiateMethod(node, ctx.contextClass!!)
-            .let { ctx.contextClass!!.members.add(it) }
+        val cadetMember = MemberDeclarationParser.instantiateMethod(node, ctx.contextClass!!)
+        ctx.contextClass!!.members.add(cadetMember)
     }
 
     override fun visit(node: ConstructorDeclaration, ctx: VisitorContext) {

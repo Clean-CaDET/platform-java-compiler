@@ -42,10 +42,11 @@ const val javaFileExtension = "java"
 
 fun main(args: Array<String>) {
 
-    parse("gson")
-    parse("json_iter")
-    parse("tests")
-    parse("shapes")
+//    parse("gson")
+//    parse("json_iter")
+//    parse("tests")
+//    parse("shapes")
+    parse("prod")
 }
 
 private fun parse(directory: String) {

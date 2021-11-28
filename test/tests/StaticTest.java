@@ -17,7 +17,6 @@ public class StaticTest extends ExtendTest {
 
         test.self().selfArg(test).end();
 
-        // TODO If "et" is not defined in scope, lateinit var will crash.
         et.baseField.baseSelf().baseEnd();
 
         et.baseField.baseField.baseField.baseField.baseEnd();
@@ -56,7 +55,7 @@ public class StaticTest extends ExtendTest {
         return new StaticTest(test);
     }
 
-    public void SuperTypeTest(Object object) {
+    public void ObjectAsArgumentTest(Object object) {
     }
 
     public void DITest(SimpleInterface simpleInterface) {

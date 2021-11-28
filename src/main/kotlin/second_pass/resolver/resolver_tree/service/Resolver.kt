@@ -21,7 +21,6 @@ class Resolver {
         const val WildcardType: String = "#"
     }
 
-    // Note that we could place InjectedContext to be a field, but multi-threading won't be doable then
     fun resolve(resolverTreeRoot: ReferenceNode, injectedContext: InjectedContext) {
         postOrderTraversalWithFunction(resolverTreeRoot, injectedContext, this::resolveInternal)
     }

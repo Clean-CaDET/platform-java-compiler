@@ -1,5 +1,4 @@
 import cadet_model.CadetClass
-import com.github.javaparser.JavaParser
 import com.github.javaparser.ParseProblemException
 import com.github.javaparser.StaticJavaParser
 import com.github.javaparser.ast.CompilationUnit
@@ -9,15 +8,16 @@ import kotlinx.coroutines.runBlocking
 import prototype_dto.ClassPrototype
 import prototype_dto.JavaPrototype
 import second_pass.SymbolResolverVisitor
+import util.Console
 import util.Threading
 import java.util.*
-import kotlin.system.measureNanoTime
-import kotlin.system.measureTimeMillis
 
 class JavaCodeParser {
     fun parseSourceCode(sourceCodeList: List<String>): List<CadetClass> {
         // Parse source code
         val compilationUnits: List<CompilationUnit> = parseAllFiles(sourceCodeList)
+
+        compilationUnits.forEach(Console::printTree);
 
         // First pass (extracting skeletons)
         val unresolvedPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>> = createJavaPrototypes(compilationUnits)
@@ -47,7 +47,7 @@ class JavaCodeParser {
         val compilationUnits = (mutableListOf<CompilationUnit>())
         val lock = Threading.UniqueLock()
 
-        Threading.iterateListSlicesViaThreads(
+        Threading.applyFunctionToListElements(
             sourceCodeList,
             function = {
                 try {

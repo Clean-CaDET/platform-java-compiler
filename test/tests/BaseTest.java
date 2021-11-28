@@ -1,5 +1,7 @@
 package test.tests;
 
+import java.util.*;
+
 class BaseTest {
     public BaseTest baseField;
 

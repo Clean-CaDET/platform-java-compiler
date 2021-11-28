@@ -28,27 +28,30 @@ class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorCo
     )
 
     private val threadSafeResolver: ResolverProxy = ResolverProxy()
+    private lateinit var hierarchyGraph: HierarchyGraph
 
     fun resolveSourceCode(resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>): List<JavaPrototype> {
         val prototypes = resolverPairs.map { pair -> pair.second }
-        resolvePrototypes(resolverPairs, prototypes)
+
+        this.hierarchyGraph = HierarchyGraph.Factory.initializeHierarchyGraph(prototypes)
+        resolvePrototypes(resolverPairs)
+
         return prototypes
     }
 
     private fun resolvePrototypes(
         resolverPairs: List<Pair<ClassOrInterfaceDeclaration, JavaPrototype>>,
-        prototypes: List<JavaPrototype>
     ) = runBlocking {
         resolverPairs
             .filter { pair -> pair.second is ClassPrototype }
             .let { classPairs ->
-                Threading.iterateListSlicesViaThreads(
+                Threading.applyFunctionToListElements(
                     classPairs,
                     function = {
                         visitTopLevelChildren(
                             node = it.first,
                             cadetClass = (it.second as ClassPrototype).cadetClass,
-                            hierarchyGraph = HierarchyGraph.Factory.initializeHierarchyGraph(prototypes)
+                            hierarchyGraph = hierarchyGraph
                         )
                     }
                 )
@@ -146,5 +149,5 @@ class SymbolResolverVisitor : VoidVisitorAdapter<SymbolResolverVisitor.VisitorCo
     }
 
     private fun initInjectedContext(cadetMember: CadetMember, hierarchyGraph: HierarchyGraph): InjectedContext
-        = InjectedContext(hierarchyGraph, cadetMember, cadetMember.localVariables)
+        = InjectedContext(hierarchyGraph, cadetMember)
 }

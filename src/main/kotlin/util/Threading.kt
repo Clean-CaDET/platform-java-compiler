@@ -25,7 +25,7 @@ object Threading {
         }
     }
 
-    fun <T> iterateListSlicesViaThreads(
+    fun <T> applyFunctionToListElements(
         list: List<T>,
         function: (obj: T) -> Unit,
         n: Int = optimalNumOfSlices(list)
@@ -34,28 +34,15 @@ object Threading {
         val threads = mutableListOf<Thread>()
 
         calculateIndexPairs(list, n).forEach {
-            threads.add(
-                thread(start = true) {
-                for (i in it.first..it.second)
+            val thread = thread(start = true) {
+                for (i in it.first..it.second) {
                     function(list[i])
-            })
+                }
+            }
+            threads.add(thread);
         }
 
         threads.forEach { it.join() }
-    }
-
-    fun <T> iterateListSlicesViaCoroutines(
-        list: List<T>,
-        function: (obj: T) -> Unit,
-        n: Int = optimalNumOfSlices(list)
-    ) = runBlocking {
-
-        calculateIndexPairs(list, n).forEach {
-            launch {
-                for (i in it.first..it.second)
-                    function(list[i])
-            }
-        }
     }
 
     private fun <T> calculateIndexPairs(list: List<T>, n: Int): List<Pair<Int, Int>> {
@@ -83,8 +70,8 @@ object Threading {
             size > 10000 -> 20
             size > 1000 -> 10
             size > 500 -> 5
-            size > 100 -> 3
-            else -> 2
+            size > 50 -> 2
+            else -> 1
         }
     }
 }

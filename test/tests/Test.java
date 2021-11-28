@@ -6,7 +6,17 @@ public class Test {
     private int a;
     private String s;
 
+    private MyEnum myEnum;
+    public enum MyEnum {A, B, C}
+
+    public void enumFunction(MyEnum myEnum) {
+        enumFunction(MyEnum.A);
+    }
+
     Test() {
+        Object o = new Object();
+        ((ExtendTest)o).extSelf();
+        (this.self().self().selfArg(new Test())).end();
     }
 
     Test(Test t) {

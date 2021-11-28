@@ -4,7 +4,10 @@ public class Run {
 
     private Run runField;
 
+    public Run() { }
+
     public static void main(String[] args) {
+//        ((Rectangle)new Object).nothing();
         Rectangle rect = new Rectangle(1, 2);
         Square square = new Square(1);
         Cube cube = new Cube(2);
@@ -29,11 +32,11 @@ public class Run {
         run.NullTestMultipleArgs(null, null, 2d);   // This fails if '2' is passed to be auto-converted
 
         // These tests should fail
-        run.FailedNullTest(null, null);
-        run.FailedDITest(run);
-        run.FailedSuperTypeTest(rect);
-        run.FailedSuperTypeTest(square);
-        run.FailedDITest(not);
+//        run.FailedNullTest(null, null);
+//        run.FailedDITest(run);
+//        run.FailedSuperTypeTest(rect);
+//        run.FailedSuperTypeTest(square);
+//        run.FailedDITest(not);
     }
 
     public void DITest(Shape shape) {
@@ -56,6 +59,5 @@ public class Run {
 
     public void FailedNullTest(Object object) {
     }
-
-
+    public void nothing() {}
 }

@@ -14,16 +14,14 @@ class ResolverProxy {
     private val usageRecorder = UsageRecorder()
 
     fun resolve(node: Node, injectedContext: InjectedContext) {
-        // Build resolver tree
         val resolverTreeRoot = builder.build(node) ?: return
 
-        // Resolve references
         resolver.resolve(resolverTreeRoot, injectedContext)
 
-        // Record reference usages
         usageRecorder.recordReferenceUsages(
             resolverTreeRoot,
             injectedContext.getCurrentCadetMember()
         )
     }
+
 }
